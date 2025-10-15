@@ -327,97 +327,84 @@ async def upload_excel(file: UploadFile = File(...)):
                 await db.fields.insert_one(field_doc)
                 fields_created += 1
         
-        # Parse Store Plans
-        if "Store Plans" in wb.sheetnames:
-            ws = wb["Store Plans"]
+        # Parse Store Sheets (each sheet = one store)
+        # Skip FRONT PAGE and other non-store sheets
+        skip_sheets = ["FRONT PAGE", "Sheet1", "Sheet2", "Sheet3"]
+        
+        for sheet_name in wb.sheetnames:
+            if sheet_name in skip_sheets:
+                continue
             
-            # Find store headers (row 3)
-            store_headers = {}
-            for col_idx in range(1, ws.max_column + 1):
-                cell = ws.cell(3, col_idx)
-                if cell.value and str(cell.value).strip():
-                    store_name = str(cell.value).strip()
-                    if store_name != "Line":
-                        store_headers[col_idx] = store_name
+            store_name = sheet_name.strip()
             
-            # Process each store
-            for start_col, store_name in store_headers.items():
-                # Check if store already exists
-                existing_shed = await db.sheds.find_one({"name": store_name})
-                if existing_shed:
-                    print(f"Store {store_name} already exists, skipping...")
-                    continue
-                
-                # Determine store boundaries
-                end_col = start_col
-                for check_col in range(start_col + 1, ws.max_column + 1):
-                    if check_col in store_headers:
-                        break
-                    end_col = check_col
-                
-                # Calculate store dimensions
-                store_width = (end_col - start_col + 1) * 2
-                store_height = 0
-                
-                # Find zones with capacity
-                zone_positions = []
-                for row_idx in range(4, ws.max_row + 1):
-                    for col_idx in range(start_col, end_col + 1):
-                        cell = ws.cell(row_idx, col_idx)
-                        if cell.value and str(cell.value).strip() == "6":
-                            if store_height < (row_idx - 3):
-                                store_height = (row_idx - 3)
-                            
-                            zone_key = (row_idx, col_idx)
-                            if zone_key not in [z[0] for z in zone_positions]:
-                                zone_positions.append((zone_key, row_idx, col_idx))
-                
-                store_height = store_height * 2
-                
-                # Create shed
-                shed_id = str(uuid.uuid4())
-                shed_doc = {
-                    "id": shed_id,
-                    "name": store_name,
-                    "width": store_width,
-                    "height": store_height,
-                    "description": f"Imported from Excel"
-                }
-                await db.sheds.insert_one(shed_doc)
-                stores_created += 1
-                
-                # Get line number column
-                line_col = None
+            # Check if store already exists
+            existing_shed = await db.sheds.find_one({"name": store_name})
+            if existing_shed:
+                print(f"Store {store_name} already exists, skipping...")
+                continue
+            
+            ws = wb[sheet_name]
+            
+            # Find all zones with "6" in the sheet
+            zone_positions = []
+            max_col = 0
+            max_row = 0
+            min_col = float('inf')
+            min_row = float('inf')
+            
+            for row_idx in range(1, ws.max_row + 1):
                 for col_idx in range(1, ws.max_column + 1):
-                    if ws.cell(3, col_idx).value == "Line":
-                        line_col = col_idx
-                        break
+                    cell = ws.cell(row_idx, col_idx)
+                    if cell.value and str(cell.value).strip() == "6":
+                        zone_positions.append((row_idx, col_idx))
+                        max_col = max(max_col, col_idx)
+                        max_row = max(max_row, row_idx)
+                        min_col = min(min_col, col_idx)
+                        min_row = min(min_row, row_idx)
+            
+            if not zone_positions:
+                print(f"No zones found in {store_name}, skipping...")
+                continue
+            
+            # Calculate store dimensions (2m per cell)
+            store_width = (max_col - min_col + 1) * 2
+            store_height = (max_row - min_row + 1) * 2
+            
+            # Create shed
+            shed_id = str(uuid.uuid4())
+            shed_doc = {
+                "id": shed_id,
+                "name": store_name,
+                "width": store_width,
+                "height": store_height,
+                "description": f"Imported from Excel - {len(zone_positions)} zones"
+            }
+            await db.sheds.insert_one(shed_doc)
+            stores_created += 1
+            
+            # Create zones
+            for row_idx, col_idx in zone_positions:
+                # Calculate position relative to store origin
+                zone_x = (col_idx - min_col) * 2
+                zone_y = (row_idx - min_row) * 2
                 
-                # Create zones
-                for _, row_idx, col_idx in zone_positions:
-                    line_number = ""
-                    if line_col:
-                        line_val = ws.cell(row_idx, line_col).value
-                        if line_val:
-                            line_number = f" L{line_val}"
-                    
-                    zone_name = f"Zone {openpyxl.utils.get_column_letter(col_idx)}{row_idx}{line_number}"
-                    zone_x = (col_idx - start_col) * 2
-                    zone_y = (row_idx - 4) * 2
-                    
-                    zone_doc = {
-                        "id": str(uuid.uuid4()),
-                        "shed_id": shed_id,
-                        "name": zone_name,
-                        "x": zone_x,
-                        "y": zone_y,
-                        "width": 2,
-                        "height": 2,
-                        "total_quantity": 0,
-                        "max_capacity": 6
-                    }
-                    await db.zones.insert_one(zone_doc)
-                    zones_created += 1
+                # Generate zone name (column letter + row number)
+                col_letter = openpyxl.utils.get_column_letter(col_idx - min_col + 1)
+                zone_name = f"{col_letter}{row_idx - min_row + 1}"
+                
+                zone_doc = {
+                    "id": str(uuid.uuid4()),
+                    "shed_id": shed_id,
+                    "name": zone_name,
+                    "x": zone_x,
+                    "y": zone_y,
+                    "width": 2,
+                    "height": 2,
+                    "total_quantity": 0,
+                    "max_capacity": 6
+                }
+                await db.zones.insert_one(zone_doc)
+                zones_created += 1
         
         return {
             "message": "Excel uploaded successfully",
