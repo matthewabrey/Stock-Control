@@ -101,3 +101,93 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: |
+  The user reported two critical issues:
+  1. Grade dropdown not working - only showing limited grades (e.g., "MC2") instead of all relevant grades for the crop type (e.g., all MC1-MC7 for Maincrop Potato)
+  2. Multi-select functionality broken - Ctrl+Click not working to select multiple zones
+
+backend:
+  - task: "Parse grade tables from FRONT PAGE sheet"
+    implemented: true
+    working: "pending_test"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "pending_test"
+        agent: "main"
+        comment: |
+          Modified Excel parsing logic to:
+          1. Scan FRONT PAGE sheet for OnionGradeTable, MaincropGradeTable, and SaladPotatoGradeTable
+          2. Extract all grades from each table
+          3. Assign appropriate grades to fields based on crop type
+          Note: Existing fields need to be re-imported for grades to update
+
+  - task: "Field creation with correct grades"
+    implemented: true
+    working: "pending_test"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "pending_test"
+        agent: "main"
+        comment: "Fields now get grades from parsed grade tables instead of hardcoded values"
+
+frontend:
+  - task: "Grade dropdown display"
+    implemented: true
+    working: "pending_test"
+    file: "/app/frontend/src/components/FloorPlan.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "pending_test"
+        agent: "main"
+        comment: "Simplified grade dropdown to display all available_grades from backend without frontend filtering"
+
+  - task: "Multi-select functionality (Ctrl+Click)"
+    implemented: true
+    working: "pending_test"
+    file: "/app/frontend/src/components/FloorPlan.jsx"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "user"
+        comment: "User reported multi-select not working"
+      - working: "pending_test"
+        agent: "main"
+        comment: "Code review shows logic is in place - needs testing to verify if it's working or if there's an issue with event propagation due to draggable zones"
+
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 0
+  run_ui: false
+
+test_plan:
+  current_focus:
+    - "Parse grade tables from FRONT PAGE sheet"
+    - "Grade dropdown display"
+    - "Multi-select functionality (Ctrl+Click)"
+  stuck_tasks:
+    - "Multi-select functionality (Ctrl+Click)"
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+    message: |
+      Fixed grade parsing in backend to read from Excel grade tables.
+      Simplified frontend to display grades directly from backend.
+      Multi-select logic exists but needs verification.
+      Need to test:
+      1. Upload Excel file to verify grade tables are parsed correctly
+      2. Check grade dropdown shows all grades for selected field
+      3. Test Ctrl+Click multi-select on zones
