@@ -307,6 +307,21 @@ const FloorPlan = () => {
     );
   };
 
+  // Get actual columns and rows that have zones
+  const activeColumns = [...new Set(zones.map(z => Math.floor(z.x / 2)))].sort((a, b) => a - b);
+  const activeRows = [...new Set(zones.map(z => Math.floor(z.y / 2)))].sort((a, b) => a - b);
+  
+  // Map actual position to display position
+  const colIndexToDisplay = {};
+  activeColumns.forEach((col, idx) => {
+    colIndexToDisplay[col] = idx;
+  });
+  
+  const rowIndexToDisplay = {};
+  activeRows.forEach((row, idx) => {
+    rowIndexToDisplay[row] = idx;
+  });
+
   return (
     <div className="min-h-screen p-8">
       <div className="max-w-full mx-auto">
