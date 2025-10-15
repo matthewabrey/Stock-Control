@@ -17,7 +17,8 @@ const FieldsManager = () => {
   const [newField, setNewField] = useState({
     name: "",
     area: "",
-    crop_type: ""
+    crop_type: "",
+    grade: ""
   });
 
   useEffect(() => {
