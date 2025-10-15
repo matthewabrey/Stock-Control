@@ -10,9 +10,21 @@ import { toast } from "sonner";
 
 const ManualStoreCreator = ({ onStoreCreated }) => {
   const [storeName, setStoreName] = useState("");
-  const [gridCols, setGridCols] = useState(10);
-  const [gridRows, setGridRows] = useState(10);
+  const [boxWidth, setBoxWidth] = useState(2);
+  const [boxHeight, setBoxHeight] = useState(2);
+  const [numberOfBoxes, setNumberOfBoxes] = useState(180);
   const [creating, setCreating] = useState(false);
+
+  // Calculate optimal grid layout
+  const calculateLayout = () => {
+    const cols = Math.ceil(Math.sqrt(numberOfBoxes));
+    const rows = Math.ceil(numberOfBoxes / cols);
+    return { cols, rows, totalBoxes: cols * rows };
+  };
+
+  const layout = calculateLayout();
+  const shedWidth = layout.cols * boxWidth;
+  const shedHeight = layout.rows * boxHeight;
 
   const handleCreateStore = async () => {
     if (!storeName.trim()) {
@@ -20,8 +32,8 @@ const ManualStoreCreator = ({ onStoreCreated }) => {
       return;
     }
 
-    if (gridCols < 1 || gridRows < 1) {
-      toast.warning("Grid dimensions must be at least 1x1");
+    if (numberOfBoxes < 1) {
+      toast.warning("Number of boxes must be at least 1");
       return;
     }
 
@@ -31,26 +43,26 @@ const ManualStoreCreator = ({ onStoreCreated }) => {
       // Create the shed
       const shedRes = await axios.post(`${API}/sheds`, {
         name: storeName.trim(),
-        width: gridCols * 2,
-        height: gridRows * 2,
-        description: "Manually created"
+        width: shedWidth,
+        height: shedHeight,
+        description: `${numberOfBoxes} boxes (${boxWidth}m × ${boxHeight}m each)`
       });
 
       const shedId = shedRes.data.id;
 
       // Create zones for entire grid
       const zonePromises = [];
-      for (let row = 0; row < gridRows; row++) {
-        for (let col = 0; col < gridCols; col++) {
-          const colLetter = String.fromCharCode(65 + col);
+      for (let row = 0; row < layout.rows; row++) {
+        for (let col = 0; col < layout.cols; col++) {
+          const colLetter = String.fromCharCode(65 + (col % 26));
           zonePromises.push(
             axios.post(`${API}/zones`, {
               shed_id: shedId,
               name: `${colLetter}${row + 1}`,
-              x: col * 2,
-              y: row * 2,
-              width: 2,
-              height: 2,
+              x: col * boxWidth,
+              y: row * boxHeight,
+              width: boxWidth,
+              height: boxHeight,
               max_capacity: 6
             })
           );
@@ -60,12 +72,11 @@ const ManualStoreCreator = ({ onStoreCreated }) => {
       await Promise.all(zonePromises);
 
       toast.success(
-        `Store "${storeName}" created with ${gridCols}×${gridRows} grid (${gridCols * gridRows} zones)`
+        `Store "${storeName}" created with ${numberOfBoxes} boxes arranged in ${layout.cols}×${layout.rows} grid`
       );
       
       setStoreName("");
-      setGridCols(10);
-      setGridRows(10);
+      setNumberOfBoxes(180);
       
       if (onStoreCreated) {
         onStoreCreated();
