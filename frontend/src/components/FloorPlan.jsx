@@ -704,7 +704,11 @@ const FloorPlan = () => {
         <Dialog open={showIntakeDialog} onOpenChange={setShowIntakeDialog}>
           <DialogContent data-testid="dialog-stock-intake">
             <DialogHeader>
-              <DialogTitle>Add Stock to {selectedZone?.name}</DialogTitle>
+              <DialogTitle>
+                {selectedZones.length > 0 
+                  ? `Add Stock to ${selectedZones.length} Selected Zones` 
+                  : `Add Stock to ${selectedZone?.name}`}
+              </DialogTitle>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div>
