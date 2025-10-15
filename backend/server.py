@@ -93,14 +93,14 @@ class StockIntakeCreate(BaseModel):
 
 class StockMovement(BaseModel):
     model_config = ConfigDict(extra="ignore")
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    id: str = PydanticField(default_factory=lambda: str(uuid.uuid4()))
     from_zone_id: str
     to_zone_id: str
     from_shed_id: str
     to_shed_id: str
     quantity: float
     date: str
-    created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    created_at: str = PydanticField(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
 class StockMovementCreate(BaseModel):
     from_zone_id: str
