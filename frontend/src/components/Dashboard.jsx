@@ -205,6 +205,10 @@ const Dashboard = () => {
                     </Card>
                   );
                 })}
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );
