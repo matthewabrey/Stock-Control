@@ -45,7 +45,7 @@ const FieldsManager = () => {
       await axios.post(`${API}/fields`, newField);
       toast.success("Field created successfully");
       setIsDialogOpen(false);
-      setNewField({ name: "", area: "", crop_type: "" });
+      setNewField({ name: "", area: "", crop_type: "", grade: "" });
       fetchFields();
     } catch (error) {
       console.error("Error creating field:", error);
