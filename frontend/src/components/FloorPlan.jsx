@@ -467,6 +467,10 @@ const FloorPlan = () => {
                           const displayCol = actualCol - minCol;
                           const displayRow = actualRow - minRow;
                           
+                          // Calculate display dimensions based on actual zone size
+                          const zoneWidthCells = zone.width / 2;
+                          const zoneHeightCells = zone.height / 2;
+                          
                           return (
                             <div
                               key={zone.id}
@@ -481,8 +485,8 @@ const FloorPlan = () => {
                               style={{
                                 left: `${shedPadding + displayCol * gridCellSize + boxPadding}px`,
                                 top: `${shedPadding + displayRow * gridCellSize + boxPadding}px`,
-                                width: `${gridCellSize - boxPadding * 2}px`,
-                                height: `${gridCellSize - boxPadding * 2}px`,
+                                width: `${zoneWidthCells * gridCellSize - boxPadding * 2}px`,
+                                height: `${zoneHeightCells * gridCellSize - boxPadding * 2}px`,
                                 backgroundColor: zoneColor,
                                 opacity: isEmpty ? 0.5 : 1,
                                 boxShadow: isSelected ? '0 0 0 2px #fff, 0 0 0 6px #2563eb' : '0 2px 4px rgba(0,0,0,0.1)'
