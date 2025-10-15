@@ -498,7 +498,7 @@ const FloorPlan = () => {
                         </div>
                         
                         {/* Row numbers on RIGHT side */}
-                        <div className="flex items-center ml-2">
+                        <div className="flex items-start ml-2" style={{ paddingTop: `${shedPadding}px` }}>
                           <div className="flex flex-col">
                             {allRows.map((row, i) => (
                               <div 
@@ -514,8 +514,7 @@ const FloorPlan = () => {
                       </div>
                       
                       {/* Column headers on BOTTOM */}
-                      <div className="flex mt-2">
-                        <div style={{ width: `${gridCellSize}px` }} className="flex-shrink-0"></div>
+                      <div className="flex mt-2" style={{ paddingLeft: `${shedPadding}px` }}>
                         {allColumns.map((col, i) => (
                           <div 
                             key={col} 
