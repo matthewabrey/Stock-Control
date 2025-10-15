@@ -171,24 +171,7 @@ const Dashboard = () => {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {sheds.map((shed) => {
-                  // Get zones for this shed
-                  const shedZonesRes = axios.get(`${API}/zones?shed_id=${shed.id}`);
-                  const [shedZones, setShedZones] = useState([]);
-                  const [shedStock, setShedStock] = useState(0);
-                  
-                  useEffect(() => {
-                    const fetchShedData = async () => {
-                      try {
-                        const zonesRes = await axios.get(`${API}/zones?shed_id=${shed.id}`);
-                        setShedZones(zonesRes.data);
-                        const total = zonesRes.data.reduce((sum, z) => sum + (z.total_quantity || 0), 0);
-                        setShedStock(total);
-                      } catch (error) {
-                        console.error("Error fetching shed data:", error);
-                      }
-                    };
-                    fetchShedData();
-                  }, [shed.id]);
+                  const details = shedDetails[shed.id] || { zoneCount: 0, totalStock: 0, utilization: 0 };
                   
                   return (
                     <Card 
@@ -209,14 +192,13 @@ const Dashboard = () => {
                             <strong>Dimensions:</strong> {shed.width}m × {shed.height}m
                           </p>
                           <p className="text-sm text-gray-600">
-                            <strong>Storage Zones:</strong> {shedZones.length}
+                            <strong>Storage Zones:</strong> {details.zoneCount}
                           </p>
                           <p className="text-sm text-gray-600">
-                            <strong>Total Stock:</strong> {shedStock.toFixed(0)} units
+                            <strong>Total Stock:</strong> {details.totalStock.toFixed(0)} units
                           </p>
                           <p className="text-sm text-gray-600">
-                            <strong>Utilization:</strong> {shedZones.length > 0 ? 
-                              ((shedZones.filter(z => z.total_quantity > 0).length / shedZones.length) * 100).toFixed(0) : 0}%
+                            <strong>Utilization:</strong> {details.utilization}%
                           </p>
                         </div>
                       </CardContent>
