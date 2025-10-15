@@ -392,9 +392,22 @@ async def upload_excel(file: UploadFile = File(...)):
             print(f"Store {store_name}: Found {len(zone_positions)} zones")
             print(f"  Bounds: rows {min_row}-{max_row}, cols {min_col}-{max_col}")
             
-            # Calculate store dimensions (2m per cell)
-            store_width = (max_col - min_col + 1) * 2
-            store_height = (max_row - min_row + 1) * 2
+            # Calculate store dimensions accounting for zone widths
+            # For bulk storage (capacity > 6), zones are 8m wide instead of 2m
+            max_zone_right = 0
+            max_zone_bottom = 0
+            
+            for row_idx, col_idx, capacity in zone_positions:
+                zone_x = (col_idx - min_col) * 2
+                zone_y = (row_idx - min_row) * 2
+                zone_width = 8 if capacity > 6 else 2
+                zone_height = 2
+                
+                max_zone_right = max(max_zone_right, zone_x + zone_width)
+                max_zone_bottom = max(max_zone_bottom, zone_y + zone_height)
+            
+            store_width = max_zone_right
+            store_height = max_zone_bottom
             
             # Detect doors - look for cells containing "DOOR" text
             doors = []
