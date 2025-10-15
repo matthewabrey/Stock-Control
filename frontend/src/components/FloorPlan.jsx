@@ -307,20 +307,19 @@ const FloorPlan = () => {
     );
   };
 
-  // Get actual columns and rows that have zones
+  // Get the range of columns and rows (including gaps)
   const activeColumns = [...new Set(zones.map(z => Math.floor(z.x / 2)))].sort((a, b) => a - b);
   const activeRows = [...new Set(zones.map(z => Math.floor(z.y / 2)))].sort((a, b) => a - b);
   
-  // Map actual position to display position
-  const colIndexToDisplay = {};
-  activeColumns.forEach((col, idx) => {
-    colIndexToDisplay[col] = idx;
-  });
+  // Calculate full range (min to max, including empty spaces)
+  const minCol = activeColumns.length > 0 ? Math.min(...activeColumns) : 0;
+  const maxCol = activeColumns.length > 0 ? Math.max(...activeColumns) : 0;
+  const minRow = activeRows.length > 0 ? Math.min(...activeRows) : 0;
+  const maxRow = activeRows.length > 0 ? Math.max(...activeRows) : 0;
   
-  const rowIndexToDisplay = {};
-  activeRows.forEach((row, idx) => {
-    rowIndexToDisplay[row] = idx;
-  });
+  // Create array of all columns/rows in range (preserving gaps)
+  const allColumns = Array.from({ length: maxCol - minCol + 1 }, (_, i) => minCol + i);
+  const allRows = Array.from({ length: maxRow - minRow + 1 }, (_, i) => minRow + i);
 
   return (
     <div className="min-h-screen p-8">
