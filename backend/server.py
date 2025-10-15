@@ -309,15 +309,18 @@ async def upload_excel(file: UploadFile = File(...)):
                 if not farm or not field_name:
                     continue
                 
-                # Get grade codes from columns I, K, M (Onion, Maincrop Potato, Salad Potato)
+                # Assign all possible grades based on crop type
                 grades = []
-                for col in [9, 11, 13]:  # Columns I, K, M
-                    grade_val = ws.cell(row_idx, col).value
-                    if grade_val and str(grade_val).strip() and str(grade_val).strip() != "Whole Crop":
-                        grades.append(str(grade_val).strip())
+                crop_str = str(crop).lower() if crop else ""
                 
-                if not grades:
-                    grades = ["Whole Crop"]
+                if 'onion' in crop_str:
+                    grades = ['Whole Crop', 'O1', 'O2', 'O3', 'O4', 'O5', 'O6', 'O7']
+                elif 'maincrop' in crop_str or 'main crop' in crop_str:
+                    grades = ['Whole Crop', 'MC1', 'MC2', 'MC3', 'MC4', 'MC5', 'MC6', 'MC7']
+                elif 'salad' in crop_str:
+                    grades = ['Whole Crop', 'SP1', 'SP2', 'SP3', 'SP4', 'SP5', 'SP6', 'SP7']
+                else:
+                    grades = ['Whole Crop']
                 
                 full_field_name = f"{farm} - {field_name}"
                 area_str = f"{area} Acres" if area else "N/A"
