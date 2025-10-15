@@ -55,7 +55,7 @@ class ShedCreate(BaseModel):
 
 class Zone(BaseModel):
     model_config = ConfigDict(extra="ignore")
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    id: str = PydanticField(default_factory=lambda: str(uuid.uuid4()))
     shed_id: str
     name: str
     x: float
