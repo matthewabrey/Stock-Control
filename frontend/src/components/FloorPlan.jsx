@@ -8,8 +8,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Plus, Package } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { ArrowLeft, Plus, Package, Calendar, Sprout } from "lucide-react";
 import { toast } from "sonner";
+
+// Color palette for different fields
+const FIELD_COLORS = [
+  "#10b981", "#3b82f6", "#f59e0b", "#ef4444", "#8b5cf6", 
+  "#ec4899", "#14b8a6", "#f97316", "#06b6d4", "#84cc16",
+  "#6366f1", "#f43f5e", "#22c55e", "#eab308", "#a855f7",
+  "#0ea5e9", "#fb923c", "#34d399", "#fbbf24", "#c084fc"
+];
 
 const FloorPlan = () => {
   const navigate = useNavigate();
@@ -18,11 +27,15 @@ const FloorPlan = () => {
   const [zones, setZones] = useState([]);
   const [fields, setFields] = useState([]);
   const [sheds, setSheds] = useState([]);
+  const [stockIntakes, setStockIntakes] = useState([]);
+  const [fieldColorMap, setFieldColorMap] = useState({});
   const [draggedZone, setDraggedZone] = useState(null);
   const [showIntakeDialog, setShowIntakeDialog] = useState(false);
   const [showMoveDialog, setShowMoveDialog] = useState(false);
   const [showZoneDialog, setShowZoneDialog] = useState(false);
+  const [showZoneDetails, setShowZoneDetails] = useState(false);
   const [selectedZone, setSelectedZone] = useState(null);
+  const [selectedZoneIntakes, setSelectedZoneIntakes] = useState([]);
   const [selectedField, setSelectedField] = useState("");
   const [intakeQuantity, setIntakeQuantity] = useState("");
   const [intakeDate, setIntakeDate] = useState(new Date().toISOString().split('T')[0]);
@@ -42,7 +55,17 @@ const FloorPlan = () => {
     fetchZones();
     fetchFields();
     fetchSheds();
+    fetchStockIntakes();
   }, [shedId]);
+
+  useEffect(() => {
+    // Create field color mapping
+    const colorMap = {};
+    fields.forEach((field, index) => {
+      colorMap[field.id] = FIELD_COLORS[index % FIELD_COLORS.length];
+    });
+    setFieldColorMap(colorMap);
+  }, [fields]);
 
   const fetchShed = async () => {
     try {
@@ -82,6 +105,31 @@ const FloorPlan = () => {
     }
   };
 
+  const fetchStockIntakes = async () => {
+    try {
+      const response = await axios.get(`${API}/stock-intakes`);
+      setStockIntakes(response.data);
+    } catch (error) {
+      console.error("Error fetching stock intakes:", error);
+    }
+  };
+
+  const getZoneIntakes = (zoneId) => {
+    return stockIntakes.filter(intake => intake.zone_id === zoneId);
+  };
+
+  const getZoneColor = (zone) => {
+    const zoneIntakes = getZoneIntakes(zone.id);
+    if (zoneIntakes.length === 0) return "#e5e7eb"; // Gray for empty
+    
+    // If multiple fields, use gradient or most recent
+    const latestIntake = zoneIntakes.sort((a, b) => 
+      new Date(b.created_at) - new Date(a.created_at)
+    )[0];
+    
+    return fieldColorMap[latestIntake.field_id] || "#94a3b8";
+  };
+
   const handleCreateZone = async () => {
     if (!newZone.name) {
       toast.warning("Please provide a zone name");
@@ -103,8 +151,15 @@ const FloorPlan = () => {
     }
   };
 
-  const handleZoneClick = (zone) => {
+  const handleZoneClick = async (zone) => {
     setSelectedZone(zone);
+    const intakes = await axios.get(`${API}/stock-intakes/zone/${zone.id}`);
+    setSelectedZoneIntakes(intakes.data);
+    setShowZoneDetails(true);
+  };
+
+  const handleAddStock = () => {
+    setShowZoneDetails(false);
     setShowIntakeDialog(true);
   };
 
@@ -131,6 +186,7 @@ const FloorPlan = () => {
       setSelectedField("");
       setIntakeQuantity("");
       fetchZones();
+      fetchStockIntakes();
     } catch (error) {
       console.error("Error adding stock:", error);
       toast.error("Failed to add stock");
@@ -184,11 +240,18 @@ const FloorPlan = () => {
 
   if (!shed) return <div className="p-8">Loading...</div>;
 
-  const scale = 10; // 1 meter = 10 pixels
+  const scale = 12; // Increased from 10 to 12 for larger boxes
+
+  // Get unique fields with stock in this shed
+  const fieldsInShed = [...new Set(stockIntakes
+    .filter(intake => intake.shed_id === shedId)
+    .map(intake => intake.field_id))]
+    .map(fieldId => fields.find(f => f.id === fieldId))
+    .filter(f => f);
 
   return (
     <div className="min-h-screen p-8">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-full mx-auto">
         <div className="mb-8 flex items-center justify-between">
           <div>
             <Button 
@@ -217,72 +280,194 @@ const FloorPlan = () => {
 
         <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
           <p className="text-sm text-blue-800">
-            <strong>How to use:</strong> Click on a zone to add stock from a field. Drag and drop zones to move stock between locations.
+            <strong>How to use:</strong> Click on a zone to view details and add stock. Drag and drop zones to move stock between locations.
           </p>
         </div>
 
-        <Card>
-          <CardContent className="p-6">
-            <div 
-              className="relative bg-white border-4 border-gray-300 rounded-lg overflow-hidden"
-              style={{ 
-                width: `${shed.width * scale}px`, 
-                height: `${shed.height * scale}px`,
-                backgroundImage: 'linear-gradient(rgba(0,0,0,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,.05) 1px, transparent 1px)',
-                backgroundSize: `${scale}px ${scale}px`
-              }}
-              data-testid="floor-plan-canvas"
-            >
-              {zones.map((zone) => (
-                <div
-                  key={zone.id}
-                  draggable
-                  onDragStart={(e) => handleDragStart(e, zone)}
-                  onDragOver={handleDragOver}
-                  onDrop={(e) => handleDrop(e, zone)}
-                  onClick={() => handleZoneClick(zone)}
-                  className="absolute cursor-pointer hover:shadow-2xl transition-shadow border-2 border-gray-400 rounded-lg flex flex-col items-center justify-center text-center p-2 bg-gradient-to-br from-blue-100 to-blue-200 hover:from-blue-200 hover:to-blue-300"
-                  style={{
-                    left: `${zone.x * scale}px`,
-                    top: `${zone.y * scale}px`,
-                    width: `${zone.width * scale}px`,
-                    height: `${zone.height * scale}px`
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Floor Plan */}
+          <div className="lg:col-span-3">
+            <Card>
+              <CardContent className="p-6">
+                <div 
+                  className="relative bg-white border-4 border-gray-300 rounded-lg overflow-hidden"
+                  style={{ 
+                    width: `${shed.width * scale}px`, 
+                    height: `${shed.height * scale}px`,
+                    backgroundImage: 'linear-gradient(rgba(0,0,0,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,.05) 1px, transparent 1px)',
+                    backgroundSize: `${scale}px ${scale}px`
                   }}
-                  data-testid={`zone-${zone.id}`}
+                  data-testid="floor-plan-canvas"
                 >
-                  <div className="font-semibold text-sm text-gray-800">{zone.name}</div>
-                  <div className="flex items-center gap-1 mt-1 text-xs text-gray-700">
-                    <Package className="w-3 h-3" />
-                    <span>{zone.total_quantity?.toFixed(0) || 0}</span>
-                  </div>
+                  {zones.map((zone) => {
+                    const zoneColor = getZoneColor(zone);
+                    const isEmpty = zone.total_quantity === 0;
+                    
+                    return (
+                      <div
+                        key={zone.id}
+                        draggable
+                        onDragStart={(e) => handleDragStart(e, zone)}
+                        onDragOver={handleDragOver}
+                        onDrop={(e) => handleDrop(e, zone)}
+                        onClick={() => handleZoneClick(zone)}
+                        className="absolute cursor-pointer hover:shadow-2xl transition-all border-2 border-gray-700 rounded-md flex flex-col items-center justify-center text-center p-1"
+                        style={{
+                          left: `${zone.x * scale}px`,
+                          top: `${zone.y * scale}px`,
+                          width: `${zone.width * scale}px`,
+                          height: `${zone.height * scale}px`,
+                          backgroundColor: zoneColor,
+                          opacity: isEmpty ? 0.4 : 1
+                        }}
+                        data-testid={`zone-${zone.id}`}
+                      >
+                        <div className="font-bold text-xs text-white drop-shadow-md" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }}>
+                          {zone.name.length > 12 ? zone.name.substring(0, 12) + '...' : zone.name}
+                        </div>
+                        <div className="flex items-center gap-1 mt-0.5 text-white" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }}>
+                          <Package className="w-3 h-3" />
+                          <span className="text-xs font-semibold">{zone.total_quantity?.toFixed(0) || 0}/{zone.max_capacity || 6}</span>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
+          </div>
 
-        {/* Shed Selector */}
-        <div className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Switch Shed</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Select value={shedId} onValueChange={(value) => navigate(`/floor-plan/${value}`)}>
-                <SelectTrigger data-testid="select-shed">
-                  <SelectValue placeholder="Select a shed" />
-                </SelectTrigger>
-                <SelectContent>
-                  {sheds.map((s) => (
-                    <SelectItem key={s.id} value={s.id} data-testid={`shed-option-${s.id}`}>
-                      {s.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </CardContent>
-          </Card>
+          {/* Legend Sidebar */}
+          <div className="lg:col-span-1">
+            <Card className="sticky top-8">
+              <CardHeader>
+                <CardTitle className="text-lg">Color Legend</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ScrollArea className="h-[500px] pr-4">
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 pb-2 border-b">
+                      <div className="w-6 h-6 rounded border-2 border-gray-300" style={{ backgroundColor: "#e5e7eb" }}></div>
+                      <span className="text-sm font-medium">Empty Zone</span>
+                    </div>
+                    
+                    {fieldsInShed.length > 0 ? (
+                      fieldsInShed.map((field) => {
+                        const fieldIntakes = stockIntakes.filter(i => i.field_id === field.id && i.shed_id === shedId);
+                        const totalQty = fieldIntakes.reduce((sum, i) => sum + i.quantity, 0);
+                        const latestDate = fieldIntakes.length > 0 ? 
+                          new Date(Math.max(...fieldIntakes.map(i => new Date(i.date)))).toLocaleDateString() : '';
+                        
+                        return (
+                          <div key={field.id} className="space-y-1 pb-3 border-b">
+                            <div className="flex items-start gap-2">
+                              <div 
+                                className="w-6 h-6 rounded border-2 border-gray-700 flex-shrink-0" 
+                                style={{ backgroundColor: fieldColorMap[field.id] }}
+                              ></div>
+                              <div className="flex-1 min-w-0">
+                                <div className="font-semibold text-sm text-gray-900 truncate">{field.name}</div>
+                                <div className="text-xs text-gray-600 truncate">{field.crop_type}</div>
+                                <div className="flex items-center gap-1 mt-1 text-xs text-gray-500">
+                                  <Package className="w-3 h-3" />
+                                  <span>{totalQty.toFixed(0)} units</span>
+                                </div>
+                                {latestDate && (
+                                  <div className="flex items-center gap-1 mt-0.5 text-xs text-gray-500">
+                                    <Calendar className="w-3 h-3" />
+                                    <span>{latestDate}</span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })
+                    ) : (
+                      <p className="text-sm text-gray-500 italic">No stock in this shed yet</p>
+                    )}
+                  </div>
+                </ScrollArea>
+              </CardContent>
+            </Card>
+
+            {/* Shed Selector */}
+            <Card className="mt-4">
+              <CardHeader>
+                <CardTitle className="text-lg">Switch Shed</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Select value={shedId} onValueChange={(value) => navigate(`/floor-plan/${value}`)}>
+                  <SelectTrigger data-testid="select-shed">
+                    <SelectValue placeholder="Select a shed" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {sheds.map((s) => (
+                      <SelectItem key={s.id} value={s.id} data-testid={`shed-option-${s.id}`}>
+                        {s.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </CardContent>
+            </Card>
+          </div>
         </div>
+
+        {/* Zone Details Dialog */}
+        <Dialog open={showZoneDetails} onOpenChange={setShowZoneDetails}>
+          <DialogContent data-testid="dialog-zone-details" className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>{selectedZone?.name} - Details</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
+                <div>
+                  <p className="text-sm text-gray-600">Current Stock</p>
+                  <p className="text-2xl font-bold text-gray-900">{selectedZone?.total_quantity?.toFixed(0) || 0}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Max Capacity</p>
+                  <p className="text-2xl font-bold text-gray-900">{selectedZone?.max_capacity || 6}</p>
+                </div>
+              </div>
+
+              {selectedZoneIntakes.length > 0 && (
+                <div>
+                  <h3 className="font-semibold mb-2">Stock History</h3>
+                  <ScrollArea className="h-[200px] border rounded-lg p-2">
+                    <div className="space-y-2">
+                      {selectedZoneIntakes.map((intake) => {
+                        const field = fields.find(f => f.id === intake.field_id);
+                        return (
+                          <div key={intake.id} className="flex items-center gap-3 p-2 bg-white rounded border">
+                            <div 
+                              className="w-4 h-4 rounded flex-shrink-0" 
+                              style={{ backgroundColor: fieldColorMap[intake.field_id] }}
+                            ></div>
+                            <div className="flex-1">
+                              <p className="text-sm font-semibold">{field?.name || intake.field_name}</p>
+                              <p className="text-xs text-gray-600">{field?.crop_type}</p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-sm font-semibold">{intake.quantity} units</p>
+                              <p className="text-xs text-gray-500">{new Date(intake.date).toLocaleDateString()}</p>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </ScrollArea>
+                </div>
+              )}
+
+              <Button onClick={handleAddStock} className="w-full" data-testid="btn-add-stock-from-details">
+                <Plus className="mr-2 w-4 h-4" />
+                Add Stock to This Zone
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Add Zone Dialog */}
         <Dialog open={showZoneDialog} onOpenChange={setShowZoneDialog}>
