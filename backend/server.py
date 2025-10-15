@@ -41,6 +41,7 @@ class FieldCreate(BaseModel):
     name: str
     area: str
     crop_type: str
+    grade: Optional[str] = None
 
 class Shed(BaseModel):
     model_config = ConfigDict(extra="ignore")
