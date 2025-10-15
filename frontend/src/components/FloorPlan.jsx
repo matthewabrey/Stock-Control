@@ -152,11 +152,23 @@ const FloorPlan = () => {
     }
   };
 
-  const handleZoneClick = async (zone) => {
-    setSelectedZone(zone);
-    const intakes = await axios.get(`${API}/stock-intakes/zone/${zone.id}`);
-    setSelectedZoneIntakes(intakes.data);
-    setShowZoneDetails(true);
+  const handleZoneClick = async (zone, event) => {
+    // Check if Ctrl/Cmd key is pressed for multi-select
+    if (event?.ctrlKey || event?.metaKey) {
+      // Multi-select mode
+      const isAlreadySelected = selectedZones.some(z => z.id === zone.id);
+      if (isAlreadySelected) {
+        setSelectedZones(selectedZones.filter(z => z.id !== zone.id));
+      } else {
+        setSelectedZones([...selectedZones, zone]);
+      }
+    } else {
+      // Single select mode - show details
+      setSelectedZone(zone);
+      const intakes = await axios.get(`${API}/stock-intakes/zone/${zone.id}`);
+      setSelectedZoneIntakes(intakes.data);
+      setShowZoneDetails(true);
+    }
   };
 
   const handleAddStock = () => {
