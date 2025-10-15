@@ -63,6 +63,7 @@ class ShedCreate(BaseModel):
     width: float
     height: float
     description: Optional[str] = None
+    doors: List[DoorPosition] = []
 
 class Zone(BaseModel):
     model_config = ConfigDict(extra="ignore")
