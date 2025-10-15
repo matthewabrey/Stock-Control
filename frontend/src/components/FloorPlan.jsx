@@ -404,15 +404,20 @@ const FloorPlan = () => {
                       <div 
                         className="relative bg-white border-4 border-gray-400 rounded-lg"
                         style={{ 
-                          width: `${cols * gridCellSize}px`, 
-                          height: `${rows * gridCellSize}px`,
+                          width: `${cols * gridCellSize + shedPadding * 2}px`, 
+                          height: `${rows * gridCellSize + shedPadding * 2}px`,
+                          padding: `${shedPadding}px`
                         }}
                         data-testid="floor-plan-canvas"
                       >
                         {/* Grid lines */}
                         <div 
-                          className="absolute inset-0"
+                          className="absolute"
                           style={{
+                            left: `${shedPadding}px`,
+                            top: `${shedPadding}px`,
+                            width: `${cols * gridCellSize}px`,
+                            height: `${rows * gridCellSize}px`,
                             backgroundImage: 'linear-gradient(rgba(0,0,0,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,.1) 1px, transparent 1px)',
                             backgroundSize: `${gridCellSize}px ${gridCellSize}px`
                           }}
