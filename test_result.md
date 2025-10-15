@@ -172,11 +172,11 @@ frontend:
 
   - task: "Multi-select functionality (Ctrl+Click)"
     implemented: true
-    working: "pending_test"
+    working: true
     file: "/app/frontend/src/components/FloorPlan.jsx"
-    stuck_count: 1
+    stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: false
         agent: "user"
@@ -184,6 +184,15 @@ frontend:
       - working: "pending_test"
         agent: "main"
         comment: "Code review shows logic is in place - needs testing to verify if it's working or if there's an issue with event propagation due to draggable zones"
+      - working: true
+        agent: "main"
+        comment: |
+          ✅ VERIFIED: Multi-select IS working correctly!
+          - Tested Ctrl+Click on multiple zones (3 zones selected)
+          - "Add Stock to 3 Selected" button appears correctly in header
+          - Selected zones show blue selection indicators
+          - "Clear Selection" button also appears
+          - User may have been confused about how to use Ctrl+Click or tried on Mac (needs Cmd+Click)
 
 metadata:
   created_by: "main_agent"
