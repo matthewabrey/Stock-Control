@@ -435,22 +435,22 @@ const FloorPlan = () => {
                                 onDragOver={handleDragOver}
                                 onDrop={(e) => handleDrop(e, zone)}
                                 onClick={(e) => handleZoneClick(zone, e)}
-                                className={`absolute cursor-pointer hover:shadow-2xl hover:z-10 transition-all rounded-md ${
-                                  isSelected ? 'border-4 border-blue-600 z-10' : 'border-2 border-gray-800'
+                                className={`absolute cursor-pointer hover:shadow-2xl hover:z-10 transition-all rounded ${
+                                  isSelected ? 'border-4 border-blue-600 z-10' : 'border-2 border-gray-700'
                                 }`}
                                 style={{
-                                  left: `${colIdx * gridCellSize}px`,
-                                  top: `${rowIdx * gridCellSize}px`,
-                                  width: `${gridCellSize}px`,
-                                  height: `${gridCellSize}px`,
+                                  left: `${colIdx * gridCellSize + boxPadding}px`,
+                                  top: `${rowIdx * gridCellSize + boxPadding}px`,
+                                  width: `${gridCellSize - boxPadding * 2}px`,
+                                  height: `${gridCellSize - boxPadding * 2}px`,
                                   backgroundColor: zoneColor,
                                   opacity: isEmpty ? 0.5 : 1,
-                                  boxShadow: isSelected ? '0 0 0 2px #fff, 0 0 0 4px #2563eb' : 'none'
+                                  boxShadow: isSelected ? '0 0 0 2px #fff, 0 0 0 6px #2563eb' : '0 2px 4px rgba(0,0,0,0.1)'
                                 }}
                                 data-testid={`zone-${zone.id}`}
                               >
                                 {isSelected && (
-                                  <div className="absolute top-1 right-1 w-3 h-3 bg-blue-600 rounded-full border-2 border-white"></div>
+                                  <div className="absolute top-1 right-1 w-4 h-4 bg-blue-600 rounded-full border-2 border-white"></div>
                                 )}
                               </div>
                             );
