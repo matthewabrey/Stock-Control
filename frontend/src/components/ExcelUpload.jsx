@@ -33,14 +33,14 @@ const ExcelUpload = ({ onUploadSuccess }) => {
     formData.append('file', file);
 
     try {
-      const response = await axios.post(`${API}/upload-store-plans`, formData, {
+      const response = await axios.post(`${API}/upload-excel`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
       
       toast.success(
-        `Upload successful! Created ${response.data.stores_created} stores with ${response.data.zones_created} zones`
+        `Upload successful! Created ${response.data.fields_created} fields, ${response.data.stores_created} stores with ${response.data.zones_created} zones`
       );
       setFile(null);
       if (onUploadSuccess) {
