@@ -217,3 +217,27 @@ agent_communication:
       1. Test backend API endpoints
       2. Ask user to re-upload Excel to get correct grades
       3. Test multi-select functionality
+  - agent: "testing"
+    message: |
+      ✅ BACKEND TESTING COMPLETE - All critical backend functionality working correctly:
+      
+      GRADE PARSING SYSTEM VERIFIED:
+      - Excel upload endpoint correctly parses OnionGradeTable, MaincropGradeTable, SaladPotatoGradeTable
+      - Fields get appropriate grades based on crop_type (Onion→O1-O4, Maincrop→MC1-MC7, Salad→SP1-SP3)
+      - Stock intake API properly handles grade field
+      
+      API ENDPOINTS TESTED:
+      - POST /api/upload-excel ✅ (with grade table parsing)
+      - GET /api/fields ✅ (returns available_grades array)
+      - POST/GET/DELETE /api/sheds ✅
+      - POST/GET/PUT/DELETE /api/zones ✅  
+      - POST/GET /api/stock-intakes ✅ (with grade field)
+      
+      CRITICAL FINDING FOR USER:
+      The backend grade parsing is now working correctly. However, any existing fields in the database 
+      still have the old incorrect grades. User MUST re-upload their Excel file to get the correct 
+      grades assigned to their fields.
+      
+      NEXT STEPS:
+      1. User should re-upload Excel file to fix existing field grades
+      2. Frontend testing needed for grade dropdown and multi-select functionality
