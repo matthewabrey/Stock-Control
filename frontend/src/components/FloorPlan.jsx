@@ -419,8 +419,8 @@ const FloorPlan = () => {
                       <div 
                         className="relative bg-white border-4 border-gray-400 rounded-lg"
                         style={{ 
-                          width: `${cols * gridCellSize + shedPadding * 2}px`, 
-                          height: `${rows * gridCellSize + shedPadding * 2}px`,
+                          width: `${activeColumns.length * gridCellSize + shedPadding * 2}px`, 
+                          height: `${activeRows.length * gridCellSize + shedPadding * 2}px`,
                           padding: `${shedPadding}px`
                         }}
                         data-testid="floor-plan-canvas"
