@@ -760,11 +760,32 @@ const FloorPlan = () => {
                       <SelectValue placeholder="Choose a grade" />
                     </SelectTrigger>
                     <SelectContent>
-                      {fields.find(f => f.id === selectedField).available_grades.map((grade) => (
-                        <SelectItem key={grade} value={grade} data-testid={`grade-option-${grade}`}>
-                          {grade}
-                        </SelectItem>
-                      ))}
+                      {(() => {
+                        const field = fields.find(f => f.id === selectedField);
+                        const cropType = field.crop_type.toLowerCase();
+                        
+                        // Filter grades based on crop type
+                        let filteredGrades = field.available_grades;
+                        if (cropType.includes('onion')) {
+                          filteredGrades = field.available_grades.filter(g => 
+                            g.startsWith('O') || g.includes('Whole Crop')
+                          );
+                        } else if (cropType.includes('maincrop')) {
+                          filteredGrades = field.available_grades.filter(g => 
+                            g.startsWith('MC') || g.includes('Whole Crop')
+                          );
+                        } else if (cropType.includes('salad')) {
+                          filteredGrades = field.available_grades.filter(g => 
+                            g.startsWith('SP') || g.includes('Whole Crop')
+                          );
+                        }
+                        
+                        return filteredGrades.map((grade) => (
+                          <SelectItem key={grade} value={grade} data-testid={`grade-option-${grade}`}>
+                            {grade}
+                          </SelectItem>
+                        ));
+                      })()}
                     </SelectContent>
                   </Select>
                 </div>
