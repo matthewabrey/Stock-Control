@@ -45,6 +45,10 @@ class FieldCreate(BaseModel):
     variety: str
     available_grades: List[str] = []
 
+class DoorPosition(BaseModel):
+    side: str  # "top", "bottom", "left", "right"
+    position: float  # Position along that side (in meters)
+
 class Shed(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = PydanticField(default_factory=lambda: str(uuid.uuid4()))
@@ -52,6 +56,7 @@ class Shed(BaseModel):
     width: float
     height: float
     description: Optional[str] = None
+    doors: List[DoorPosition] = []
 
 class ShedCreate(BaseModel):
     name: str
