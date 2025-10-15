@@ -613,7 +613,10 @@ const FloorPlan = () => {
                             ></div>
                             <div className="flex-1">
                               <p className="text-sm font-semibold">{field?.name || intake.field_name}</p>
-                              <p className="text-xs text-gray-600">{field?.crop_type}</p>
+                              <p className="text-xs text-gray-600">{field?.variety} - {field?.crop_type}</p>
+                              {intake.grade && (
+                                <p className="text-xs font-medium text-blue-600">Grade: {intake.grade}</p>
+                              )}
                             </div>
                             <div className="text-right">
                               <p className="text-sm font-semibold">{intake.quantity} units</p>
