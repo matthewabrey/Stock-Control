@@ -176,6 +176,14 @@ const FloorPlan = () => {
     setShowIntakeDialog(true);
   };
 
+  const handleBulkAddStock = () => {
+    if (selectedZones.length === 0) {
+      toast.warning("Please select zones first (Ctrl+Click to select multiple)");
+      return;
+    }
+    setShowIntakeDialog(true);
+  };
+
   const handleStockIntake = async () => {
     if (!selectedField || !intakeQuantity) {
       toast.warning("Please fill all fields");
