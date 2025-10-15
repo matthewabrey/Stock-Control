@@ -38,6 +38,7 @@ const FloorPlan = () => {
   const [selectedZone, setSelectedZone] = useState(null);
   const [selectedZoneIntakes, setSelectedZoneIntakes] = useState([]);
   const [selectedField, setSelectedField] = useState("");
+  const [selectedGrade, setSelectedGrade] = useState("");
   const [intakeQuantity, setIntakeQuantity] = useState("");
   const [intakeDate, setIntakeDate] = useState(new Date().toISOString().split('T')[0]);
   const [moveQuantity, setMoveQuantity] = useState("");
