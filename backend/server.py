@@ -550,6 +550,26 @@ async def upload_excel(file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=f"Error processing file: {str(e)}")
 
 
+# Clear all data endpoint
+@api_router.delete("/clear-all-data")
+async def clear_all_data():
+    """Clear all data from the database"""
+    try:
+        # Delete all documents from each collection
+        await db.fields.delete_many({})
+        await db.sheds.delete_many({})
+        await db.zones.delete_many({})
+        await db.stock_intakes.delete_many({})
+        await db.stock_movements.delete_many({})
+        
+        return {
+            "message": "All data cleared successfully",
+            "collections_cleared": ["fields", "sheds", "zones", "stock_intakes", "stock_movements"]
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error clearing data: {str(e)}")
+
+
 # Root route
 @api_router.get("/")
 async def root():
