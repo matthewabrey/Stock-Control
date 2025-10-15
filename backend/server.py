@@ -369,6 +369,9 @@ async def upload_excel(file: UploadFile = File(...)):
                 print(f"No zones found in {store_name}, skipping...")
                 continue
             
+            print(f"Store {store_name}: Found {len(zone_positions)} zones")
+            print(f"  Bounds: rows {min_row}-{max_row}, cols {min_col}-{max_col}")
+            
             # Calculate store dimensions (2m per cell)
             store_width = (max_col - min_col + 1) * 2
             store_height = (max_row - min_row + 1) * 2
