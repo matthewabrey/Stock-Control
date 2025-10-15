@@ -416,50 +416,90 @@ const FloorPlan = () => {
           <div className="lg:col-span-1">
             <Card className="sticky top-8">
               <CardHeader>
-                <CardTitle className="text-lg">Color Legend</CardTitle>
+                <CardTitle className="text-lg">Stock Overview</CardTitle>
               </CardHeader>
               <CardContent>
-                <ScrollArea className="h-[500px] pr-4">
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2 pb-2 border-b">
-                      <div className="w-6 h-6 rounded border-2 border-gray-300" style={{ backgroundColor: "#e5e7eb" }}></div>
-                      <span className="text-sm font-medium">Empty Zone</span>
-                    </div>
-                    
-                    {fieldsInShed.length > 0 ? (
-                      fieldsInShed.map((field) => {
-                        const fieldIntakes = stockIntakes.filter(i => i.field_id === field.id && i.shed_id === shedId);
-                        const totalQty = fieldIntakes.reduce((sum, i) => sum + i.quantity, 0);
-                        const latestDate = fieldIntakes.length > 0 ? 
-                          new Date(Math.max(...fieldIntakes.map(i => new Date(i.date)))).toLocaleDateString() : '';
-                        
-                        return (
-                          <div key={field.id} className="space-y-1 pb-3 border-b">
-                            <div className="flex items-start gap-2">
-                              <div 
-                                className="w-6 h-6 rounded border-2 border-gray-700 flex-shrink-0" 
-                                style={{ backgroundColor: fieldColorMap[field.id] }}
-                              ></div>
-                              <div className="flex-1 min-w-0">
-                                <div className="font-semibold text-sm text-gray-900 truncate">{field.name}</div>
-                                <div className="text-xs text-gray-600 truncate">{field.crop_type}</div>
-                                <div className="flex items-center gap-1 mt-1 text-xs text-gray-500">
-                                  <Package className="w-3 h-3" />
-                                  <span>{totalQty.toFixed(0)} units</span>
-                                </div>
-                                {latestDate && (
-                                  <div className="flex items-center gap-1 mt-0.5 text-xs text-gray-500">
-                                    <Calendar className="w-3 h-3" />
-                                    <span>{latestDate}</span>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
+                <ScrollArea className="h-[600px] pr-4">
+                  <div className="space-y-4">
+                    {/* Color Legend */}
+                    <div>
+                      <h3 className="font-semibold text-sm mb-3 text-gray-700">Color Key</h3>
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <div className="w-5 h-5 rounded border-2 border-gray-400" style={{ backgroundColor: "#e5e7eb", opacity: 0.5 }}></div>
+                          <span className="text-xs text-gray-600">Empty</span>
+                        </div>
+                        {fieldsInShed.map((field) => (
+                          <div key={field.id} className="flex items-center gap-2">
+                            <div 
+                              className="w-5 h-5 rounded border-2 border-gray-800 flex-shrink-0" 
+                              style={{ backgroundColor: fieldColorMap[field.id] }}
+                            ></div>
+                            <span className="text-xs text-gray-900 font-medium truncate">{field.name}</span>
                           </div>
-                        );
-                      })
-                    ) : (
-                      <p className="text-sm text-gray-500 italic">No stock in this shed yet</p>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Stock Details */}
+                    {fieldsInShed.length > 0 && (
+                      <div className="pt-3 border-t">
+                        <h3 className="font-semibold text-sm mb-3 text-gray-700">Stock Details</h3>
+                        <div className="space-y-3">
+                          {fieldsInShed.map((field) => {
+                            const fieldIntakes = stockIntakes.filter(i => i.field_id === field.id && i.shed_id === shedId);
+                            const totalQty = fieldIntakes.reduce((sum, i) => sum + i.quantity, 0);
+                            const latestDate = fieldIntakes.length > 0 ? 
+                              new Date(Math.max(...fieldIntakes.map(i => new Date(i.date)))).toLocaleDateString() : '';
+                            
+                            // Get zones with this field
+                            const fieldZones = zones.filter(zone => {
+                              const zoneIntakes = getZoneIntakes(zone.id);
+                              return zoneIntakes.some(intake => intake.field_id === field.id);
+                            }).map(zone => {
+                              const col = Math.floor(zone.x / 2);
+                              const row = Math.floor(zone.y / 2);
+                              return `${getColumnLetter(col)}${row + 1}`;
+                            });
+                            
+                            return (
+                              <div key={field.id} className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                <div className="flex items-start gap-2 mb-2">
+                                  <div 
+                                    className="w-4 h-4 rounded border-2 border-gray-800 flex-shrink-0 mt-0.5" 
+                                    style={{ backgroundColor: fieldColorMap[field.id] }}
+                                  ></div>
+                                  <div className="flex-1 min-w-0">
+                                    <div className="font-bold text-sm text-gray-900 truncate">{field.name}</div>
+                                    <div className="text-xs text-gray-600 truncate">{field.crop_type}</div>
+                                  </div>
+                                </div>
+                                <div className="ml-6 space-y-1">
+                                  <div className="flex items-center gap-1 text-xs">
+                                    <Package className="w-3 h-3 text-gray-600" />
+                                    <span className="font-semibold text-gray-900">{totalQty.toFixed(0)} units</span>
+                                  </div>
+                                  {latestDate && (
+                                    <div className="flex items-center gap-1 text-xs">
+                                      <Calendar className="w-3 h-3 text-gray-600" />
+                                      <span className="text-gray-600">{latestDate}</span>
+                                    </div>
+                                  )}
+                                  {fieldZones.length > 0 && (
+                                    <div className="text-xs text-gray-600 mt-1">
+                                      <span className="font-medium">Locations:</span> {fieldZones.join(', ')}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {fieldsInShed.length === 0 && (
+                      <p className="text-sm text-gray-500 italic">No stock in this shed yet. Click a zone to add stock.</p>
                     )}
                   </div>
                 </ScrollArea>
