@@ -382,6 +382,51 @@ async def upload_excel(file: UploadFile = File(...)):
             store_width = (max_col - min_col + 1) * 2
             store_height = (max_row - min_row + 1) * 2
             
+            # Detect doors (red borders)
+            doors = []
+            for row_idx in range(min_row, max_row + 2):
+                for col_idx in range(min_col, max_col + 2):
+                    cell = ws.cell(row_idx, col_idx)
+                    if cell.border:
+                        # Check for red colored borders
+                        red_found = False
+                        door_side = None
+                        door_position = 0
+                        
+                        # Check each border side for red color
+                        for border_name, border_obj in [
+                            ('top', cell.border.top),
+                            ('bottom', cell.border.bottom),
+                            ('left', cell.border.left),
+                            ('right', cell.border.right)
+                        ]:
+                            if border_obj and border_obj.color:
+                                try:
+                                    color_str = str(border_obj.color.rgb) if hasattr(border_obj.color, 'rgb') else ""
+                                    # Check for red colors (FF0000, FFC00000, FFFF0000, etc.)
+                                    if 'FF0000' in color_str or 'C00000' in color_str or color_str.endswith('FF0000'):
+                                        # Determine door position based on border location
+                                        if border_name == 'top' and row_idx == min_row:
+                                            door_side = 'top'
+                                            door_position = (col_idx - min_col) * 2
+                                        elif border_name == 'bottom' and row_idx == max_row:
+                                            door_side = 'bottom'
+                                            door_position = (col_idx - min_col) * 2
+                                        elif border_name == 'left' and col_idx == min_col:
+                                            door_side = 'left'
+                                            door_position = (row_idx - min_row) * 2
+                                        elif border_name == 'right' and col_idx == max_col:
+                                            door_side = 'right'
+                                            door_position = (row_idx - min_row) * 2
+                                        
+                                        if door_side:
+                                            door_dict = {"side": door_side, "position": door_position}
+                                            if door_dict not in doors:
+                                                doors.append(door_dict)
+                                                print(f"  Found door: {door_side} at {door_position}m")
+                                except:
+                                    pass
+            
             # Create shed
             shed_id = str(uuid.uuid4())
             shed_doc = {
@@ -389,7 +434,8 @@ async def upload_excel(file: UploadFile = File(...)):
                 "name": store_name,
                 "width": store_width,
                 "height": store_height,
-                "description": f"Imported from Excel - {len(zone_positions)} zones"
+                "description": f"Imported from Excel - {len(zone_positions)} zones",
+                "doors": doors
             }
             await db.sheds.insert_one(shed_doc)
             stores_created += 1
