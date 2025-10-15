@@ -298,7 +298,62 @@ async def upload_excel(file: UploadFile = File(...)):
             # Clear existing fields
             await db.fields.delete_many({})
             
-            # Parse from row 4 onwards (row 3 is header)
+            # First, parse the grade tables from FRONT PAGE
+            # Find OnionGradeTable, MaincropGradeTable, and SaladPotatoGradeTable
+            grade_tables = {
+                'onion': [],
+                'maincrop': [],
+                'salad': []
+            }
+            
+            # Scan all cells to find grade table headers and their grades
+            for row_idx in range(1, ws.max_row + 1):
+                for col_idx in range(1, ws.max_column + 1):
+                    cell_value = ws.cell(row_idx, col_idx).value
+                    if cell_value and isinstance(cell_value, str):
+                        cell_str = cell_value.strip().lower()
+                        
+                        # Found OnionGradeTable
+                        if 'oniongradetable' in cell_str.replace(' ', ''):
+                            # Read grades below this cell (skip header row, read data rows)
+                            for grade_row in range(row_idx + 2, ws.max_row + 1):
+                                grade_val = ws.cell(grade_row, col_idx).value
+                                if grade_val and str(grade_val).strip():
+                                    grade_str = str(grade_val).strip()
+                                    # Stop if we hit another table or empty cells
+                                    if 'table' in grade_str.lower() or not grade_str:
+                                        break
+                                    grade_tables['onion'].append(grade_str)
+                                else:
+                                    break
+                        
+                        # Found MaincropGradeTable
+                        elif 'maincropgradetable' in cell_str.replace(' ', ''):
+                            for grade_row in range(row_idx + 2, ws.max_row + 1):
+                                grade_val = ws.cell(grade_row, col_idx).value
+                                if grade_val and str(grade_val).strip():
+                                    grade_str = str(grade_val).strip()
+                                    if 'table' in grade_str.lower() or not grade_str:
+                                        break
+                                    grade_tables['maincrop'].append(grade_str)
+                                else:
+                                    break
+                        
+                        # Found SaladPotatoGradeTable
+                        elif 'saladpotatogradetable' in cell_str.replace(' ', ''):
+                            for grade_row in range(row_idx + 2, ws.max_row + 1):
+                                grade_val = ws.cell(grade_row, col_idx).value
+                                if grade_val and str(grade_val).strip():
+                                    grade_str = str(grade_val).strip()
+                                    if 'table' in grade_str.lower() or not grade_str:
+                                        break
+                                    grade_tables['salad'].append(grade_str)
+                                else:
+                                    break
+            
+            print(f"Parsed grade tables: {grade_tables}")
+            
+            # Parse fields from row 4 onwards (row 3 is header)
             for row_idx in range(4, ws.max_row + 1):
                 farm = ws.cell(row_idx, 3).value  # Column C
                 field_name = ws.cell(row_idx, 4).value  # Column D
@@ -309,18 +364,16 @@ async def upload_excel(file: UploadFile = File(...)):
                 if not farm or not field_name:
                     continue
                 
-                # Assign all possible grades based on crop type
-                grades = []
+                # Assign grades based on crop type from parsed tables
+                grades = ['Whole Crop']  # Always include Whole Crop
                 crop_str = str(crop).lower() if crop else ""
                 
                 if 'onion' in crop_str:
-                    grades = ['Whole Crop', 'O1', 'O2', 'O3', 'O4', 'O5', 'O6', 'O7']
+                    grades.extend(grade_tables.get('onion', []))
                 elif 'maincrop' in crop_str or 'main crop' in crop_str:
-                    grades = ['Whole Crop', 'MC1', 'MC2', 'MC3', 'MC4', 'MC5', 'MC6', 'MC7']
+                    grades.extend(grade_tables.get('maincrop', []))
                 elif 'salad' in crop_str:
-                    grades = ['Whole Crop', 'SP1', 'SP2', 'SP3', 'SP4', 'SP5', 'SP6', 'SP7']
-                else:
-                    grades = ['Whole Crop']
+                    grades.extend(grade_tables.get('salad', []))
                 
                 full_field_name = f"{farm} - {field_name}"
                 area_str = f"{area} Acres" if area else "N/A"
