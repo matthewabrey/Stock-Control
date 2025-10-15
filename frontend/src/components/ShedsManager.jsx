@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ArrowLeft, Plus, Trash2, Map } from "lucide-react";
 import { toast } from "sonner";
+import ExcelUpload from "@/components/ExcelUpload";
 
 const ShedsManager = () => {
   const navigate = useNavigate();
