@@ -30,6 +30,7 @@ const FloorPlan = () => {
   const [stockIntakes, setStockIntakes] = useState([]);
   const [fieldColorMap, setFieldColorMap] = useState({});
   const [draggedZone, setDraggedZone] = useState(null);
+  const [selectedZones, setSelectedZones] = useState([]);
   const [showIntakeDialog, setShowIntakeDialog] = useState(false);
   const [showMoveDialog, setShowMoveDialog] = useState(false);
   const [showZoneDialog, setShowZoneDialog] = useState(false);
