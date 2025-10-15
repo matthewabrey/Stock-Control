@@ -62,7 +62,7 @@ const ExcelUpload = ({ onUploadSuccess }) => {
           Upload Store Plans from Excel
         </CardTitle>
         <CardDescription>
-          Upload your Store Plans sheet to automatically create sheds and storage zones
+          Upload your complete Excel file to import fields with grades and create sheds with storage zones
         </CardDescription>
       </CardHeader>
       <CardContent>
