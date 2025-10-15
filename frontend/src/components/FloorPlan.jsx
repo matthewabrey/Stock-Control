@@ -421,6 +421,7 @@ const FloorPlan = () => {
 
                             const zoneColor = getZoneColor(zone);
                             const isEmpty = zone.total_quantity === 0;
+                            const isSelected = selectedZones.some(z => z.id === zone.id);
                             
                             return (
                               <div
@@ -429,18 +430,24 @@ const FloorPlan = () => {
                                 onDragStart={(e) => handleDragStart(e, zone)}
                                 onDragOver={handleDragOver}
                                 onDrop={(e) => handleDrop(e, zone)}
-                                onClick={() => handleZoneClick(zone)}
-                                className="absolute cursor-pointer hover:shadow-2xl hover:z-10 transition-all border-2 border-gray-800 rounded-md"
+                                onClick={(e) => handleZoneClick(zone, e)}
+                                className={`absolute cursor-pointer hover:shadow-2xl hover:z-10 transition-all rounded-md ${
+                                  isSelected ? 'border-4 border-blue-600 z-10' : 'border-2 border-gray-800'
+                                }`}
                                 style={{
                                   left: `${colIdx * gridCellSize}px`,
                                   top: `${rowIdx * gridCellSize}px`,
                                   width: `${gridCellSize}px`,
                                   height: `${gridCellSize}px`,
                                   backgroundColor: zoneColor,
-                                  opacity: isEmpty ? 0.5 : 1
+                                  opacity: isEmpty ? 0.5 : 1,
+                                  boxShadow: isSelected ? '0 0 0 2px #fff, 0 0 0 4px #2563eb' : 'none'
                                 }}
                                 data-testid={`zone-${zone.id}`}
                               >
+                                {isSelected && (
+                                  <div className="absolute top-1 right-1 w-3 h-3 bg-blue-600 rounded-full border-2 border-white"></div>
+                                )}
                               </div>
                             );
                           })
