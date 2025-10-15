@@ -385,34 +385,9 @@ const FloorPlan = () => {
                 <div className="overflow-auto">
                   {/* Grid with labels */}
                   <div className="inline-block">
-                    {/* Column headers */}
-                    <div className="flex mb-1">
-                      <div style={{ width: `${gridCellSize}px` }} className="flex-shrink-0"></div>
-                      {activeColumns.map((col, i) => (
-                        <div 
-                          key={col} 
-                          className="text-center font-bold text-sm text-gray-700 flex-shrink-0"
-                          style={{ width: `${gridCellSize}px` }}
-                        >
-                          {getColumnLetter(col)}
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Grid rows */}
+                    {/* Grid rows and columns */}
                     <div className="flex">
-                      {/* Row numbers */}
-                      <div className="flex flex-col">
-                        {activeRows.map((row, i) => (
-                          <div 
-                            key={row}
-                            className="flex items-center justify-center font-bold text-sm text-gray-700 flex-shrink-0"
-                            style={{ height: `${gridCellSize}px` }}
-                          >
-                            {row + 1}
-                          </div>
-                        ))}
-                      </div>
+                      <div className="flex-shrink-0" style={{ width: `${gridCellSize}px` }}></div>
 
                       {/* Grid cells */}
                       <div 
