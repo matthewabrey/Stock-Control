@@ -321,14 +321,35 @@ const FloorPlan = () => {
             </h1>
             <p className="text-gray-600 mt-2">Dimensions: {shed.width}m × {shed.height}m</p>
           </div>
-          <Button 
-            onClick={() => setShowZoneDialog(true)} 
-            className="bg-purple-600 hover:bg-purple-700"
-            data-testid="btn-add-zone"
-          >
-            <Plus className="mr-2 w-4 h-4" />
-            Add Storage Zone
-          </Button>
+          <div className="flex gap-2">
+            {selectedZones.length > 0 && (
+              <Button 
+                onClick={handleBulkAddStock} 
+                className="bg-green-600 hover:bg-green-700"
+                data-testid="btn-bulk-add-stock"
+              >
+                <Package className="mr-2 w-4 h-4" />
+                Add Stock to {selectedZones.length} Selected
+              </Button>
+            )}
+            {selectedZones.length > 0 && (
+              <Button 
+                onClick={() => setSelectedZones([])} 
+                variant="outline"
+                data-testid="btn-clear-selection"
+              >
+                Clear Selection
+              </Button>
+            )}
+            <Button 
+              onClick={() => setShowZoneDialog(true)} 
+              className="bg-purple-600 hover:bg-purple-700"
+              data-testid="btn-add-zone"
+            >
+              <Plus className="mr-2 w-4 h-4" />
+              Add Storage Zone
+            </Button>
+          </div>
         </div>
 
         <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
