@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, HTTPException
+from fastapi import FastAPI, APIRouter, HTTPException, UploadFile, File
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -9,6 +9,8 @@ from pydantic import BaseModel, Field as PydanticField, ConfigDict
 from typing import List, Optional
 import uuid
 from datetime import datetime, timezone
+import openpyxl
+import io
 
 
 ROOT_DIR = Path(__file__).parent
@@ -63,6 +65,7 @@ class Zone(BaseModel):
     width: float
     height: float
     total_quantity: float = 0
+    max_capacity: int = 6
 
 class ZoneCreate(BaseModel):
     shed_id: str
@@ -71,6 +74,7 @@ class ZoneCreate(BaseModel):
     y: float
     width: float
     height: float
+    max_capacity: int = 6
 
 class StockIntake(BaseModel):
     model_config = ConfigDict(extra="ignore")
@@ -262,6 +266,116 @@ async def create_stock_movement(input: StockMovementCreate):
 async def get_stock_movements():
     movements = await db.stock_movements.find({}, {"_id": 0}).to_list(1000)
     return movements
+
+
+# Excel Upload for Store Plans
+@api_router.post("/upload-store-plans")
+async def upload_store_plans(file: UploadFile = File(...)):
+    try:
+        contents = await file.read()
+        wb = openpyxl.load_workbook(io.BytesIO(contents))
+        
+        if "Store Plans" not in wb.sheetnames:
+            raise HTTPException(status_code=400, detail="Store Plans sheet not found")
+        
+        ws = wb["Store Plans"]
+        
+        # Parse the store plans
+        stores_created = 0
+        zones_created = 0
+        
+        # Find store headers (row 3)
+        store_headers = {}
+        for col_idx in range(1, ws.max_column + 1):
+            cell = ws.cell(3, col_idx)
+            if cell.value and str(cell.value).strip():
+                store_name = str(cell.value).strip()
+                if store_name != "Line":
+                    store_headers[col_idx] = store_name
+        
+        # Process each store
+        for start_col, store_name in store_headers.items():
+            # Determine store boundaries
+            end_col = start_col
+            for check_col in range(start_col + 1, ws.max_column + 1):
+                if check_col in store_headers:
+                    break
+                end_col = check_col
+            
+            # Calculate store dimensions
+            store_width = (end_col - start_col + 1) * 2  # 2 meters per column
+            store_height = 0
+            
+            # Find zones with capacity (cells with "6")
+            zone_positions = []
+            for row_idx in range(4, ws.max_row + 1):
+                for col_idx in range(start_col, end_col + 1):
+                    cell = ws.cell(row_idx, col_idx)
+                    if cell.value and str(cell.value).strip() == "6":
+                        if store_height < (row_idx - 3):
+                            store_height = (row_idx - 3)
+                        
+                        # Check if zone already recorded
+                        zone_key = (row_idx, col_idx)
+                        if zone_key not in [z[0] for z in zone_positions]:
+                            zone_positions.append((zone_key, row_idx, col_idx))
+            
+            store_height = store_height * 2  # 2 meters per row
+            
+            # Create shed
+            shed_id = str(uuid.uuid4())
+            shed_doc = {
+                "id": shed_id,
+                "name": store_name,
+                "width": store_width,
+                "height": store_height,
+                "description": f"Imported from Excel"
+            }
+            await db.sheds.insert_one(shed_doc)
+            stores_created += 1
+            
+            # Get line number column (AD)
+            line_col = None
+            for col_idx in range(1, ws.max_column + 1):
+                if ws.cell(3, col_idx).value == "Line":
+                    line_col = col_idx
+                    break
+            
+            # Create zones
+            for _, row_idx, col_idx in zone_positions:
+                # Get line number
+                line_number = ""
+                if line_col:
+                    line_val = ws.cell(row_idx, line_col).value
+                    if line_val:
+                        line_number = f" L{line_val}"
+                
+                zone_name = f"Zone {openpyxl.utils.get_column_letter(col_idx)}{row_idx}{line_number}"
+                zone_x = (col_idx - start_col) * 2
+                zone_y = (row_idx - 4) * 2
+                
+                zone_doc = {
+                    "id": str(uuid.uuid4()),
+                    "shed_id": shed_id,
+                    "name": zone_name,
+                    "x": zone_x,
+                    "y": zone_y,
+                    "width": 2,
+                    "height": 2,
+                    "total_quantity": 0,
+                    "max_capacity": 6
+                }
+                await db.zones.insert_one(zone_doc)
+                zones_created += 1
+        
+        return {
+            "message": "Store plans uploaded successfully",
+            "stores_created": stores_created,
+            "zones_created": zones_created
+        }
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error processing file: {str(e)}")
 
 
 # Root route
