@@ -372,7 +372,6 @@ const FloorPlan = () => {
 
                             const zoneColor = getZoneColor(zone);
                             const isEmpty = zone.total_quantity === 0;
-                            const gridLabel = `${getColumnLetter(colIdx)}${rowIdx + 1}`;
                             
                             return (
                               <div
@@ -382,7 +381,7 @@ const FloorPlan = () => {
                                 onDragOver={handleDragOver}
                                 onDrop={(e) => handleDrop(e, zone)}
                                 onClick={() => handleZoneClick(zone)}
-                                className="absolute cursor-pointer hover:shadow-2xl hover:z-10 transition-all border-2 border-gray-800 rounded-md flex flex-col items-center justify-center text-center"
+                                className="absolute cursor-pointer hover:shadow-2xl hover:z-10 transition-all border-2 border-gray-800 rounded-md"
                                 style={{
                                   left: `${colIdx * gridCellSize}px`,
                                   top: `${rowIdx * gridCellSize}px`,
@@ -393,13 +392,6 @@ const FloorPlan = () => {
                                 }}
                                 data-testid={`zone-${zone.id}`}
                               >
-                                <div className="font-bold text-lg text-white drop-shadow-lg" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.9)' }}>
-                                  {gridLabel}
-                                </div>
-                                <div className="flex items-center gap-1 mt-1 text-white" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.9)' }}>
-                                  <Package className="w-4 h-4" />
-                                  <span className="text-sm font-bold">{zone.total_quantity?.toFixed(0) || 0}/{zone.max_capacity || 6}</span>
-                                </div>
                               </div>
                             );
                           })
