@@ -445,8 +445,8 @@ const FloorPlan = () => {
                                   isSelected ? 'border-4 border-blue-600 z-10' : 'border-2 border-gray-700'
                                 }`}
                                 style={{
-                                  left: `${colIdx * gridCellSize + boxPadding}px`,
-                                  top: `${rowIdx * gridCellSize + boxPadding}px`,
+                                  left: `${shedPadding + colIdx * gridCellSize + boxPadding}px`,
+                                  top: `${shedPadding + rowIdx * gridCellSize + boxPadding}px`,
                                   width: `${gridCellSize - boxPadding * 2}px`,
                                   height: `${gridCellSize - boxPadding * 2}px`,
                                   backgroundColor: zoneColor,
