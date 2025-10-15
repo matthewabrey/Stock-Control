@@ -194,18 +194,25 @@ const FloorPlan = () => {
     if (!field) return;
 
     try {
-      await axios.post(`${API}/stock-intakes`, {
-        field_id: field.id,
-        field_name: field.name,
-        zone_id: selectedZone.id,
-        shed_id: shedId,
-        quantity: parseFloat(intakeQuantity),
-        date: intakeDate
-      });
-      toast.success(`Stock added from ${field.name}`);
+      // If multiple zones selected, add to all
+      const zonesToUpdate = selectedZones.length > 0 ? selectedZones : [selectedZone];
+      
+      for (const zone of zonesToUpdate) {
+        await axios.post(`${API}/stock-intakes`, {
+          field_id: field.id,
+          field_name: field.name,
+          zone_id: zone.id,
+          shed_id: shedId,
+          quantity: parseFloat(intakeQuantity),
+          date: intakeDate
+        });
+      }
+      
+      toast.success(`Stock added to ${zonesToUpdate.length} zone(s) from ${field.name}`);
       setShowIntakeDialog(false);
       setSelectedField("");
       setIntakeQuantity("");
+      setSelectedZones([]);
       fetchZones();
       fetchStockIntakes();
     } catch (error) {
