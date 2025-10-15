@@ -212,8 +212,7 @@ test_plan:
     - "Parse grade tables from FRONT PAGE sheet"
     - "Grade dropdown display"
     - "Multi-select functionality (Ctrl+Click)"
-  stuck_tasks:
-    - "Multi-select functionality (Ctrl+Click)"
+  stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
