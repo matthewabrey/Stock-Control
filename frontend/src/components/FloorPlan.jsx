@@ -389,16 +389,17 @@ const FloorPlan = () => {
                     <div className="flex">
                       <div className="flex-shrink-0" style={{ width: `${gridCellSize}px` }}></div>
 
-                      {/* Grid cells */}
-                      <div 
-                        className="relative bg-white border-4 border-gray-400 rounded-lg"
-                        style={{ 
-                          width: `${activeColumns.length * gridCellSize + shedPadding * 2}px`, 
-                          height: `${activeRows.length * gridCellSize + shedPadding * 2}px`,
-                          padding: `${shedPadding}px`
-                        }}
-                        data-testid="floor-plan-canvas"
-                      >
+                      <div className="flex flex-col">
+                        {/* Grid canvas */}
+                        <div 
+                          className="relative bg-white border-4 border-gray-400 rounded-lg"
+                          style={{ 
+                            width: `${allColumns.length * gridCellSize + shedPadding * 2}px`, 
+                            height: `${allRows.length * gridCellSize + shedPadding * 2}px`,
+                            padding: `${shedPadding}px`
+                          }}
+                          data-testid="floor-plan-canvas"
+                        >
                         {/* Door markers */}
                         {shed.doors && shed.doors.map((door, idx) => {
                           const doorWidth = 60; // Width of door marker
