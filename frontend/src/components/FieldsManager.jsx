@@ -167,6 +167,11 @@ const FieldsManager = () => {
                   <p className="text-sm text-gray-600">
                     <span className="font-semibold">Crop:</span> {field.crop_type}
                   </p>
+                  {field.grade && (
+                    <p className="text-sm text-gray-600">
+                      <span className="font-semibold">Grade:</span> {field.grade}
+                    </p>
+                  )}
                 </div>
               </CardContent>
             </Card>
