@@ -465,8 +465,8 @@ const FloorPlan = () => {
                           
                           const actualCol = Math.floor(zone.x / 2);
                           const actualRow = Math.floor(zone.y / 2);
-                          const displayCol = colIndexToDisplay[actualCol];
-                          const displayRow = rowIndexToDisplay[actualRow];
+                          const displayCol = actualCol - minCol;
+                          const displayRow = actualRow - minRow;
                           
                           return (
                             <div
@@ -496,6 +496,36 @@ const FloorPlan = () => {
                             </div>
                           );
                         })}
+                        </div>
+                        
+                        {/* Row numbers on RIGHT side */}
+                        <div className="flex items-center ml-2">
+                          <div className="flex flex-col">
+                            {allRows.map((row, i) => (
+                              <div 
+                                key={row}
+                                className="flex items-center justify-center font-bold text-sm text-gray-700 flex-shrink-0"
+                                style={{ height: `${gridCellSize}px` }}
+                              >
+                                {row + 1}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Column headers on BOTTOM */}
+                      <div className="flex mt-2">
+                        <div style={{ width: `${gridCellSize}px` }} className="flex-shrink-0"></div>
+                        {allColumns.map((col, i) => (
+                          <div 
+                            key={col} 
+                            className="text-center font-bold text-sm text-gray-700 flex-shrink-0"
+                            style={{ width: `${gridCellSize}px` }}
+                          >
+                            {getColumnLetter(col)}
+                          </div>
+                        ))}
                       </div>
                     </div>
                   </div>
