@@ -455,7 +455,7 @@ async def upload_excel(file: UploadFile = File(...)):
             stores_created += 1
             
             # Create zones
-            for row_idx, col_idx in zone_positions:
+            for row_idx, col_idx, capacity in zone_positions:
                 # Calculate position relative to store origin
                 zone_x = (col_idx - min_col) * 2
                 zone_y = (row_idx - min_row) * 2
@@ -473,7 +473,7 @@ async def upload_excel(file: UploadFile = File(...)):
                     "width": 2,
                     "height": 2,
                     "total_quantity": 0,
-                    "max_capacity": 6
+                    "max_capacity": capacity  # Use the capacity from the cell (6 for boxes, tonnage for bulk)
                 }
                 await db.zones.insert_one(zone_doc)
                 zones_created += 1
