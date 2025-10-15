@@ -274,6 +274,7 @@ const FloorPlan = () => {
   const scale = 20; // Scale for better visibility
   const gridCellSize = scale * 2; // Each grid cell is 2 meters
   const boxPadding = 4; // Padding between boxes in pixels
+  const shedPadding = 40; // Padding between boxes and shed boundary (gray border)
 
   // Get unique fields with stock in this shed
   const fieldsInShed = [...new Set(stockIntakes
