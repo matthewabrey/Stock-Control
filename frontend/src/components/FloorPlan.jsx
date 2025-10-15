@@ -385,11 +385,10 @@ const FloorPlan = () => {
                 <div className="overflow-auto">
                   {/* Grid with labels */}
                   <div className="inline-block">
-                    {/* Grid rows and columns */}
-                    <div className="flex">
-                      <div className="flex-shrink-0" style={{ width: `${gridCellSize}px` }}></div>
-
-                      <div className="flex flex-col">
+                    {/* Grid with labels */}
+                    <div className="flex flex-col">
+                      {/* Main grid area */}
+                      <div className="flex">
                         {/* Grid canvas */}
                         <div 
                           className="relative bg-white border-4 border-gray-400 rounded-lg"
