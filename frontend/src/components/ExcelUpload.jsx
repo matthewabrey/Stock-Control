@@ -95,9 +95,9 @@ const ExcelUpload = ({ onUploadSuccess }) => {
             <ul className="list-disc list-inside text-blue-800 space-y-1">
               <li><strong>FRONT PAGE:</strong> Fields table with Farm, Field, Crop, Variety, and Grade columns</li>
               <li><strong>One Sheet Per Store:</strong> Sheet name = Store name (e.g., "D1", "D2", "AT1 - Bulk")</li>
-              <li><strong>Box Storage:</strong> Put "6" in cells for standard storage boxes</li>
-              <li><strong>Bulk Storage:</strong> Put tonnage like "175t", "200t" for bulk bays</li>
-              <li><strong>Doors:</strong> Use red borders on cells to mark door locations</li>
+              <li><strong>Box Storage:</strong> Put "6" in cells for standard storage boxes (2m wide)</li>
+              <li><strong>Bulk Storage:</strong> Put tonnage like "175t", "200t" for bulk bays (8m wide, 4x wider)</li>
+              <li><strong>Doors:</strong> Write "DOOR" in cells where you want door markers to appear</li>
             </ul>
           </div>
         </div>
