@@ -351,8 +351,8 @@ async def upload_excel(file: UploadFile = File(...)):
             
             ws = wb[sheet_name]
             
-            # Find all zones with "6" in the sheet
-            zone_positions = []
+            # Find all zones - either boxes ("6") or bulk storage (e.g., "175t")
+            zone_positions = []  # Will store (row, col, capacity)
             max_col = 0
             max_row = 0
             min_col = float('inf')
@@ -361,15 +361,29 @@ async def upload_excel(file: UploadFile = File(...)):
             for row_idx in range(1, ws.max_row + 1):
                 for col_idx in range(1, ws.max_column + 1):
                     cell = ws.cell(row_idx, col_idx)
-                    # Only accept exact "6" - no spaces, no other characters
                     if cell.value is not None:
                         cell_str = str(cell.value).strip()
+                        capacity = 6  # Default for box storage
+                        
+                        # Check for box storage (exact "6")
                         if cell_str == "6":
-                            zone_positions.append((row_idx, col_idx))
+                            zone_positions.append((row_idx, col_idx, 6))
                             max_col = max(max_col, col_idx)
                             max_row = max(max_row, row_idx)
                             min_col = min(min_col, col_idx)
                             min_row = min(min_row, row_idx)
+                        # Check for bulk storage (tonnage like "175t", "200t", etc.)
+                        elif cell_str.lower().endswith('t') and len(cell_str) > 1:
+                            try:
+                                # Extract the number before 't'
+                                tonnage = int(cell_str[:-1])
+                                zone_positions.append((row_idx, col_idx, tonnage))
+                                max_col = max(max_col, col_idx)
+                                max_row = max(max_row, row_idx)
+                                min_col = min(min_col, col_idx)
+                                min_row = min(min_row, row_idx)
+                            except ValueError:
+                                pass  # Not a valid tonnage format
             
             if not zone_positions:
                 print(f"No zones found in {store_name}, skipping...")
