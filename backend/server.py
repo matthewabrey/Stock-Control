@@ -74,14 +74,14 @@ class ZoneCreate(BaseModel):
 
 class StockIntake(BaseModel):
     model_config = ConfigDict(extra="ignore")
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    id: str = PydanticField(default_factory=lambda: str(uuid.uuid4()))
     field_id: str
     field_name: str
     zone_id: str
     shed_id: str
     quantity: float
     date: str
-    created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    created_at: str = PydanticField(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
 class StockIntakeCreate(BaseModel):
     field_id: str
