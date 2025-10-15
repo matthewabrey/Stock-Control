@@ -110,11 +110,11 @@ user_problem_statement: |
 backend:
   - task: "Parse grade tables from FRONT PAGE sheet"
     implemented: true
-    working: "pending_test"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "pending_test"
         agent: "main"
@@ -124,18 +124,38 @@ backend:
           2. Extract all grades from each table
           3. Assign appropriate grades to fields based on crop type
           Note: Existing fields need to be re-imported for grades to update
+      - working: true
+        agent: "testing"
+        comment: |
+          ✅ VERIFIED: Excel upload with grade parsing working correctly
+          - POST /api/upload-excel successfully parses grade tables from FRONT PAGE sheet
+          - OnionGradeTable: Extracts O1, O2, O3, O4 grades
+          - MaincropGradeTable: Extracts MC1-MC7 grades  
+          - SaladPotatoGradeTable: Extracts SP1, SP2, SP3 grades
+          - Fields get correct grades based on crop_type:
+            * Onion fields: ['Whole Crop', 'O1', 'O2', 'O3', 'O4']
+            * Maincrop Potato fields: ['Whole Crop', 'MC1', 'MC2', 'MC3', 'MC4', 'MC5', 'MC6', 'MC7']
+            * Salad Potato fields: ['Whole Crop', 'SP1', 'SP2', 'SP3']
 
   - task: "Field creation with correct grades"
     implemented: true
-    working: "pending_test"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "pending_test"
         agent: "main"
         comment: "Fields now get grades from parsed grade tables instead of hardcoded values"
+      - working: true
+        agent: "testing"
+        comment: |
+          ✅ VERIFIED: Field API working correctly
+          - GET /api/fields returns fields with available_grades array
+          - Grade assignment logic working: fields get correct grades based on crop_type
+          - Stock intake API accepts grade field and saves correctly
+          - All CRUD operations (sheds, zones, stock intake) working properly
 
 frontend:
   - task: "Grade dropdown display"
