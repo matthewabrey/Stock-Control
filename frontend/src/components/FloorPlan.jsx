@@ -483,16 +483,17 @@ const FloorPlan = () => {
                         ></div>
 
                         {/* Zones */}
-                        {Array.from({ length: rows }).map((_, rowIdx) =>
-                          Array.from({ length: cols }).map((_, colIdx) => {
-                            const zone = getZoneAt(colIdx, rowIdx);
-                            if (!zone) return null;
-
-                            const zoneColor = getZoneColor(zone);
-                            const isEmpty = zone.total_quantity === 0;
-                            const isSelected = selectedZones.some(z => z.id === zone.id);
-                            
-                            return (
+                        {zones.map((zone) => {
+                          const zoneColor = getZoneColor(zone);
+                          const isEmpty = zone.total_quantity === 0;
+                          const isSelected = selectedZones.some(z => z.id === zone.id);
+                          
+                          const actualCol = Math.floor(zone.x / 2);
+                          const actualRow = Math.floor(zone.y / 2);
+                          const displayCol = colIndexToDisplay[actualCol];
+                          const displayRow = rowIndexToDisplay[actualRow];
+                          
+                          return (
                               <div
                                 key={`${colIdx}-${rowIdx}`}
                                 draggable
