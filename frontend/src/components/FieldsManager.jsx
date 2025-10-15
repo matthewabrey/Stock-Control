@@ -124,6 +124,16 @@ const FieldsManager = () => {
                     data-testid="input-field-crop-type"
                   />
                 </div>
+                <div>
+                  <Label htmlFor="grade">Grade (Optional)</Label>
+                  <Input
+                    id="grade"
+                    placeholder="e.g., Grade A, Premium"
+                    value={newField.grade}
+                    onChange={(e) => setNewField({ ...newField, grade: e.target.value })}
+                    data-testid="input-field-grade"
+                  />
+                </div>
                 <Button onClick={handleCreateField} className="w-full" data-testid="btn-submit-field">
                   Create Field
                 </Button>
