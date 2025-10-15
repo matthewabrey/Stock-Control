@@ -35,13 +35,15 @@ class Field(BaseModel):
     name: str
     area: str
     crop_type: str
-    grade: Optional[str] = None
+    variety: str
+    available_grades: List[str] = []
 
 class FieldCreate(BaseModel):
     name: str
     area: str
     crop_type: str
-    grade: Optional[str] = None
+    variety: str
+    available_grades: List[str] = []
 
 class Shed(BaseModel):
     model_config = ConfigDict(extra="ignore")
@@ -87,6 +89,7 @@ class StockIntake(BaseModel):
     shed_id: str
     quantity: float
     date: str
+    grade: Optional[str] = None
     created_at: str = PydanticField(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
 class StockIntakeCreate(BaseModel):
@@ -96,6 +99,7 @@ class StockIntakeCreate(BaseModel):
     shed_id: str
     quantity: float
     date: str
+    grade: Optional[str] = None
 
 class StockMovement(BaseModel):
     model_config = ConfigDict(extra="ignore")
@@ -270,108 +274,148 @@ async def get_stock_movements():
     return movements
 
 
-# Excel Upload for Store Plans
-@api_router.post("/upload-store-plans")
-async def upload_store_plans(file: UploadFile = File(...)):
+# Excel Upload for Fields and Store Plans
+@api_router.post("/upload-excel")
+async def upload_excel(file: UploadFile = File(...)):
     try:
         contents = await file.read()
         wb = openpyxl.load_workbook(io.BytesIO(contents))
         
-        if "Store Plans" not in wb.sheetnames:
-            raise HTTPException(status_code=400, detail="Store Plans sheet not found")
-        
-        ws = wb["Store Plans"]
-        
-        # Parse the store plans
+        fields_created = 0
         stores_created = 0
         zones_created = 0
         
-        # Find store headers (row 3)
-        store_headers = {}
-        for col_idx in range(1, ws.max_column + 1):
-            cell = ws.cell(3, col_idx)
-            if cell.value and str(cell.value).strip():
-                store_name = str(cell.value).strip()
-                if store_name != "Line":
-                    store_headers[col_idx] = store_name
-        
-        # Process each store
-        for start_col, store_name in store_headers.items():
-            # Determine store boundaries
-            end_col = start_col
-            for check_col in range(start_col + 1, ws.max_column + 1):
-                if check_col in store_headers:
-                    break
-                end_col = check_col
+        # Parse FRONT PAGE for fields with grades
+        if "FRONT PAGE" in wb.sheetnames:
+            ws = wb["FRONT PAGE"]
             
-            # Calculate store dimensions
-            store_width = (end_col - start_col + 1) * 2  # 2 meters per column
-            store_height = 0
+            # Clear existing fields
+            await db.fields.delete_many({})
             
-            # Find zones with capacity (cells with "6")
-            zone_positions = []
+            # Parse from row 4 onwards (row 3 is header)
             for row_idx in range(4, ws.max_row + 1):
-                for col_idx in range(start_col, end_col + 1):
-                    cell = ws.cell(row_idx, col_idx)
-                    if cell.value and str(cell.value).strip() == "6":
-                        if store_height < (row_idx - 3):
-                            store_height = (row_idx - 3)
-                        
-                        # Check if zone already recorded
-                        zone_key = (row_idx, col_idx)
-                        if zone_key not in [z[0] for z in zone_positions]:
-                            zone_positions.append((zone_key, row_idx, col_idx))
-            
-            store_height = store_height * 2  # 2 meters per row
-            
-            # Create shed
-            shed_id = str(uuid.uuid4())
-            shed_doc = {
-                "id": shed_id,
-                "name": store_name,
-                "width": store_width,
-                "height": store_height,
-                "description": f"Imported from Excel"
-            }
-            await db.sheds.insert_one(shed_doc)
-            stores_created += 1
-            
-            # Get line number column (AD)
-            line_col = None
-            for col_idx in range(1, ws.max_column + 1):
-                if ws.cell(3, col_idx).value == "Line":
-                    line_col = col_idx
-                    break
-            
-            # Create zones
-            for _, row_idx, col_idx in zone_positions:
-                # Get line number
-                line_number = ""
-                if line_col:
-                    line_val = ws.cell(row_idx, line_col).value
-                    if line_val:
-                        line_number = f" L{line_val}"
+                farm = ws.cell(row_idx, 3).value  # Column C
+                field_name = ws.cell(row_idx, 4).value  # Column D
+                area = ws.cell(row_idx, 5).value  # Column E
+                crop = ws.cell(row_idx, 6).value  # Column F
+                variety = ws.cell(row_idx, 7).value  # Column G
                 
-                zone_name = f"Zone {openpyxl.utils.get_column_letter(col_idx)}{row_idx}{line_number}"
-                zone_x = (col_idx - start_col) * 2
-                zone_y = (row_idx - 4) * 2
+                if not farm or not field_name:
+                    continue
                 
-                zone_doc = {
+                # Get grade codes from columns I, K, M (Onion, Maincrop Potato, Salad Potato)
+                grades = []
+                for col in [9, 11, 13]:  # Columns I, K, M
+                    grade_val = ws.cell(row_idx, col).value
+                    if grade_val and str(grade_val).strip() and str(grade_val).strip() != "Whole Crop":
+                        grades.append(str(grade_val).strip())
+                
+                if not grades:
+                    grades = ["Whole Crop"]
+                
+                full_field_name = f"{farm} - {field_name}"
+                area_str = f"{area} Acres" if area else "N/A"
+                
+                field_doc = {
                     "id": str(uuid.uuid4()),
-                    "shed_id": shed_id,
-                    "name": zone_name,
-                    "x": zone_x,
-                    "y": zone_y,
-                    "width": 2,
-                    "height": 2,
-                    "total_quantity": 0,
-                    "max_capacity": 6
+                    "name": full_field_name,
+                    "area": area_str,
+                    "crop_type": str(crop) if crop else "Unknown",
+                    "variety": str(variety) if variety else "Unknown",
+                    "available_grades": grades
                 }
-                await db.zones.insert_one(zone_doc)
-                zones_created += 1
+                await db.fields.insert_one(field_doc)
+                fields_created += 1
+        
+        # Parse Store Plans
+        if "Store Plans" in wb.sheetnames:
+            ws = wb["Store Plans"]
+            
+            # Find store headers (row 3)
+            store_headers = {}
+            for col_idx in range(1, ws.max_column + 1):
+                cell = ws.cell(3, col_idx)
+                if cell.value and str(cell.value).strip():
+                    store_name = str(cell.value).strip()
+                    if store_name != "Line":
+                        store_headers[col_idx] = store_name
+            
+            # Process each store
+            for start_col, store_name in store_headers.items():
+                # Determine store boundaries
+                end_col = start_col
+                for check_col in range(start_col + 1, ws.max_column + 1):
+                    if check_col in store_headers:
+                        break
+                    end_col = check_col
+                
+                # Calculate store dimensions
+                store_width = (end_col - start_col + 1) * 2
+                store_height = 0
+                
+                # Find zones with capacity
+                zone_positions = []
+                for row_idx in range(4, ws.max_row + 1):
+                    for col_idx in range(start_col, end_col + 1):
+                        cell = ws.cell(row_idx, col_idx)
+                        if cell.value and str(cell.value).strip() == "6":
+                            if store_height < (row_idx - 3):
+                                store_height = (row_idx - 3)
+                            
+                            zone_key = (row_idx, col_idx)
+                            if zone_key not in [z[0] for z in zone_positions]:
+                                zone_positions.append((zone_key, row_idx, col_idx))
+                
+                store_height = store_height * 2
+                
+                # Create shed
+                shed_id = str(uuid.uuid4())
+                shed_doc = {
+                    "id": shed_id,
+                    "name": store_name,
+                    "width": store_width,
+                    "height": store_height,
+                    "description": f"Imported from Excel"
+                }
+                await db.sheds.insert_one(shed_doc)
+                stores_created += 1
+                
+                # Get line number column
+                line_col = None
+                for col_idx in range(1, ws.max_column + 1):
+                    if ws.cell(3, col_idx).value == "Line":
+                        line_col = col_idx
+                        break
+                
+                # Create zones
+                for _, row_idx, col_idx in zone_positions:
+                    line_number = ""
+                    if line_col:
+                        line_val = ws.cell(row_idx, line_col).value
+                        if line_val:
+                            line_number = f" L{line_val}"
+                    
+                    zone_name = f"Zone {openpyxl.utils.get_column_letter(col_idx)}{row_idx}{line_number}"
+                    zone_x = (col_idx - start_col) * 2
+                    zone_y = (row_idx - 4) * 2
+                    
+                    zone_doc = {
+                        "id": str(uuid.uuid4()),
+                        "shed_id": shed_id,
+                        "name": zone_name,
+                        "x": zone_x,
+                        "y": zone_y,
+                        "width": 2,
+                        "height": 2,
+                        "total_quantity": 0,
+                        "max_capacity": 6
+                    }
+                    await db.zones.insert_one(zone_doc)
+                    zones_created += 1
         
         return {
-            "message": "Store plans uploaded successfully",
+            "message": "Excel uploaded successfully",
+            "fields_created": fields_created,
             "stores_created": stores_created,
             "zones_created": zones_created
         }
