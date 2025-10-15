@@ -342,6 +342,12 @@ async def upload_excel(file: UploadFile = File(...)):
             
             # Process each store
             for start_col, store_name in store_headers.items():
+                # Check if store already exists
+                existing_shed = await db.sheds.find_one({"name": store_name})
+                if existing_shed:
+                    print(f"Store {store_name} already exists, skipping...")
+                    continue
+                
                 # Determine store boundaries
                 end_col = start_col
                 for check_col in range(start_col + 1, ws.max_column + 1):
