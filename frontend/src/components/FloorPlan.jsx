@@ -711,6 +711,13 @@ const FloorPlan = () => {
               </DialogTitle>
             </DialogHeader>
             <div className="space-y-4 py-4">
+              {selectedZones.length > 0 && (
+                <div className="bg-blue-50 p-3 rounded-lg text-sm">
+                  <p className="font-semibold text-blue-900">Selected Zones: {selectedZones.length}</p>
+                  <p className="text-blue-700 text-xs mt-1">Stock will be added to all selected zones</p>
+                </div>
+              )}
+              
               <div>
                 <Label htmlFor="field">Select Field</Label>
                 <Select value={selectedField} onValueChange={setSelectedField}>
@@ -720,11 +727,25 @@ const FloorPlan = () => {
                   <SelectContent>
                     {fields.map((field) => (
                       <SelectItem key={field.id} value={field.id} data-testid={`field-option-${field.id}`}>
-                        {field.name} - {field.crop_type}
+                        <div className="flex flex-col">
+                          <span className="font-semibold">{field.name}</span>
+                          <span className="text-xs text-gray-600">
+                            {field.crop_type}{field.grade ? ` - Grade: ${field.grade}` : ''}
+                          </span>
+                        </div>
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
+                {selectedField && fields.find(f => f.id === selectedField) && (
+                  <div className="mt-2 p-2 bg-gray-50 rounded text-xs space-y-1">
+                    <p><strong>Area:</strong> {fields.find(f => f.id === selectedField).area}</p>
+                    <p><strong>Crop Type:</strong> {fields.find(f => f.id === selectedField).crop_type}</p>
+                    {fields.find(f => f.id === selectedField).grade && (
+                      <p><strong>Grade:</strong> {fields.find(f => f.id === selectedField).grade}</p>
+                    )}
+                  </div>
+                )}
               </div>
               <div>
                 <Label htmlFor="quantity">Quantity</Label>
