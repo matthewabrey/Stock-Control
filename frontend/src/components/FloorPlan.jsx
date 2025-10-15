@@ -186,8 +186,8 @@ const FloorPlan = () => {
   };
 
   const handleStockIntake = async () => {
-    if (!selectedField || !intakeQuantity) {
-      toast.warning("Please fill all fields");
+    if (!selectedField || !intakeQuantity || !selectedGrade) {
+      toast.warning("Please fill all required fields including grade");
       return;
     }
 
@@ -205,13 +205,15 @@ const FloorPlan = () => {
           zone_id: zone.id,
           shed_id: shedId,
           quantity: parseFloat(intakeQuantity),
-          date: intakeDate
+          date: intakeDate,
+          grade: selectedGrade
         });
       }
       
-      toast.success(`Stock added to ${zonesToUpdate.length} zone(s) from ${field.name}`);
+      toast.success(`Stock added to ${zonesToUpdate.length} zone(s) from ${field.name} (${selectedGrade})`);
       setShowIntakeDialog(false);
       setSelectedField("");
+      setSelectedGrade("");
       setIntakeQuantity("");
       setSelectedZones([]);
       fetchZones();
