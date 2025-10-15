@@ -240,7 +240,8 @@ const FloorPlan = () => {
 
   if (!shed) return <div className="p-8">Loading...</div>;
 
-  const scale = 12; // Increased from 10 to 12 for larger boxes
+  const scale = 18; // Increased for much larger boxes
+  const gridCellSize = scale * 2; // Each grid cell is 2 meters
 
   // Get unique fields with stock in this shed
   const fieldsInShed = [...new Set(stockIntakes
@@ -248,6 +249,30 @@ const FloorPlan = () => {
     .map(intake => intake.field_id))]
     .map(fieldId => fields.find(f => f.id === fieldId))
     .filter(f => f);
+
+  // Calculate grid dimensions
+  const cols = Math.ceil(shed.width / 2);
+  const rows = Math.ceil(shed.height / 2);
+
+  // Helper to get column letter (A, B, C, ...)
+  const getColumnLetter = (index) => {
+    let letter = '';
+    let num = index;
+    while (num >= 0) {
+      letter = String.fromCharCode(65 + (num % 26)) + letter;
+      num = Math.floor(num / 26) - 1;
+    }
+    return letter;
+  };
+
+  // Helper to get zone at position
+  const getZoneAt = (col, row) => {
+    const x = col * 2;
+    const y = row * 2;
+    return zones.find(z => 
+      Math.floor(z.x / 2) === col && Math.floor(z.y / 2) === row
+    );
+  };
 
   return (
     <div className="min-h-screen p-8">
