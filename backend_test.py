@@ -40,7 +40,7 @@ class StockControlTester:
         ws = wb.active
         ws.title = "FRONT PAGE"
         
-        # Add grade tables
+        # Add grade tables in separate columns to avoid conflicts
         # OnionGradeTable
         ws['A1'] = "OnionGradeTable"
         ws['A2'] = "Grade"
@@ -50,24 +50,24 @@ class StockControlTester:
         ws['A6'] = "O4"
         
         # MaincropGradeTable
-        ws['C1'] = "MaincropGradeTable"
-        ws['C2'] = "Grade"
-        ws['C3'] = "MC1"
-        ws['C4'] = "MC2"
-        ws['C5'] = "MC3"
-        ws['C6'] = "MC4"
-        ws['C7'] = "MC5"
-        ws['C8'] = "MC6"
-        ws['C9'] = "MC7"
+        ws['B1'] = "MaincropGradeTable"
+        ws['B2'] = "Grade"
+        ws['B3'] = "MC1"
+        ws['B4'] = "MC2"
+        ws['B5'] = "MC3"
+        ws['B6'] = "MC4"
+        ws['B7'] = "MC5"
+        ws['B8'] = "MC6"
+        ws['B9'] = "MC7"
         
         # SaladPotatoGradeTable
-        ws['E1'] = "SaladPotatoGradeTable"
-        ws['E2'] = "Grade"
-        ws['E3'] = "SP1"
-        ws['E4'] = "SP2"
-        ws['E5'] = "SP3"
+        ws['H1'] = "SaladPotatoGradeTable"
+        ws['H2'] = "Grade"
+        ws['H3'] = "SP1"
+        ws['H4'] = "SP2"
+        ws['H5'] = "SP3"
         
-        # Field data headers (row 3)
+        # Field data headers (row 3) - using columns C, D, E, F, G
         ws['C3'] = "Farm"
         ws['D3'] = "Field"
         ws['E3'] = "Area"
