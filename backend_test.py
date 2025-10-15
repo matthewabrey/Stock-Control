@@ -382,7 +382,14 @@ class StockControlTester:
                 self.log_test("Stock Intake Setup", False, "Field has no available grades")
                 return False
             
-            # Create stock intake with grade
+            # Create stock intake with grade - use a specific grade if available
+            selected_grade = available_grades[0]  # Default to first grade
+            # Try to use a crop-specific grade if available
+            for grade in available_grades:
+                if grade.startswith(('O', 'MC', 'SP')) and grade != 'Whole Crop':
+                    selected_grade = grade
+                    break
+            
             intake_data = {
                 "field_id": field.get('id'),
                 "field_name": field.get('name'),
@@ -390,7 +397,7 @@ class StockControlTester:
                 "shed_id": shed_id,
                 "quantity": 50.0,
                 "date": "2024-01-15",
-                "grade": available_grades[0]  # Use first available grade
+                "grade": selected_grade
             }
             
             response = self.session.post(f"{self.base_url}/stock-intakes", json=intake_data)
