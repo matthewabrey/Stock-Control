@@ -16,6 +16,7 @@ const Dashboard = () => {
     totalStock: 0
   });
   const [sheds, setSheds] = useState([]);
+  const [shedDetails, setShedDetails] = useState({});
 
   useEffect(() => {
     fetchStats();
@@ -39,6 +40,22 @@ const Dashboard = () => {
       });
 
       setSheds(shedsRes.data);
+      
+      // Calculate details for each shed
+      const details = {};
+      shedsRes.data.forEach(shed => {
+        const shedZones = zonesRes.data.filter(z => z.shed_id === shed.id);
+        const shedStock = shedZones.reduce((sum, z) => sum + (z.total_quantity || 0), 0);
+        const utilization = shedZones.length > 0 ? 
+          ((shedZones.filter(z => z.total_quantity > 0).length / shedZones.length) * 100).toFixed(0) : 0;
+        
+        details[shed.id] = {
+          zoneCount: shedZones.length,
+          totalStock: shedStock,
+          utilization: utilization
+        };
+      });
+      setShedDetails(details);
     } catch (error) {
       console.error("Error fetching stats:", error);
       toast.error("Failed to load dashboard data");
