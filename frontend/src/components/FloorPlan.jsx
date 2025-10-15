@@ -271,8 +271,9 @@ const FloorPlan = () => {
 
   if (!shed) return <div className="p-8">Loading...</div>;
 
-  const scale = 18; // Increased for much larger boxes
+  const scale = 20; // Scale for better visibility
   const gridCellSize = scale * 2; // Each grid cell is 2 meters
+  const boxPadding = 4; // Padding between boxes in pixels
 
   // Get unique fields with stock in this shed
   const fieldsInShed = [...new Set(stockIntakes
