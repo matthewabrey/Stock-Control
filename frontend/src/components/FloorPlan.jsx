@@ -723,7 +723,7 @@ const FloorPlan = () => {
               
               <div>
                 <Label htmlFor="field">Select Field</Label>
-                <Select value={selectedField} onValueChange={setSelectedField}>
+                <Select value={selectedField} onValueChange={(value) => { setSelectedField(value); setSelectedGrade(""); }}>
                   <SelectTrigger id="field" data-testid="select-field">
                     <SelectValue placeholder="Choose a field" />
                   </SelectTrigger>
@@ -733,7 +733,7 @@ const FloorPlan = () => {
                         <div className="flex flex-col">
                           <span className="font-semibold">{field.name}</span>
                           <span className="text-xs text-gray-600">
-                            {field.crop_type}{field.grade ? ` - Grade: ${field.grade}` : ''}
+                            {field.variety} - {field.crop_type}
                           </span>
                         </div>
                       </SelectItem>
@@ -744,12 +744,28 @@ const FloorPlan = () => {
                   <div className="mt-2 p-2 bg-gray-50 rounded text-xs space-y-1">
                     <p><strong>Area:</strong> {fields.find(f => f.id === selectedField).area}</p>
                     <p><strong>Crop Type:</strong> {fields.find(f => f.id === selectedField).crop_type}</p>
-                    {fields.find(f => f.id === selectedField).grade && (
-                      <p><strong>Grade:</strong> {fields.find(f => f.id === selectedField).grade}</p>
-                    )}
+                    <p><strong>Variety:</strong> {fields.find(f => f.id === selectedField).variety}</p>
                   </div>
                 )}
               </div>
+              
+              {selectedField && fields.find(f => f.id === selectedField)?.available_grades?.length > 0 && (
+                <div>
+                  <Label htmlFor="grade">Select Grade *</Label>
+                  <Select value={selectedGrade} onValueChange={setSelectedGrade}>
+                    <SelectTrigger id="grade" data-testid="select-grade">
+                      <SelectValue placeholder="Choose a grade" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {fields.find(f => f.id === selectedField).available_grades.map((grade) => (
+                        <SelectItem key={grade} value={grade} data-testid={`grade-option-${grade}`}>
+                          {grade}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
               <div>
                 <Label htmlFor="quantity">Quantity</Label>
                 <Input
