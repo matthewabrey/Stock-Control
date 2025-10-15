@@ -29,7 +29,7 @@ api_router = APIRouter(prefix="/api")
 # Define Models
 class Field(BaseModel):
     model_config = ConfigDict(extra="ignore")
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    id: str = PydanticField(default_factory=lambda: str(uuid.uuid4()))
     name: str
     area: str
     crop_type: str
