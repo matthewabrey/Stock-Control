@@ -408,8 +408,8 @@ class StockControlTester:
             intake = response.json()
             
             # Verify grade was saved
-            if intake.get('grade') != available_grades[0]:
-                self.log_test("Stock Intake Grade", False, f"Grade not saved correctly. Expected: {available_grades[0]}, Got: {intake.get('grade')}")
+            if intake.get('grade') != selected_grade:
+                self.log_test("Stock Intake Grade", False, f"Grade not saved correctly. Expected: {selected_grade}, Got: {intake.get('grade')}")
                 return False
             
             # Get stock intakes
