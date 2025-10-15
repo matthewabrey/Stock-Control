@@ -35,6 +35,7 @@ class Field(BaseModel):
     name: str
     area: str
     crop_type: str
+    grade: Optional[str] = None
 
 class FieldCreate(BaseModel):
     name: str
