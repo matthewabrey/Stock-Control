@@ -389,13 +389,13 @@ const FloorPlan = () => {
                     {/* Column headers */}
                     <div className="flex mb-1">
                       <div style={{ width: `${gridCellSize}px` }} className="flex-shrink-0"></div>
-                      {Array.from({ length: cols }).map((_, i) => (
+                      {activeColumns.map((col, i) => (
                         <div 
-                          key={i} 
+                          key={col} 
                           className="text-center font-bold text-sm text-gray-700 flex-shrink-0"
                           style={{ width: `${gridCellSize}px` }}
                         >
-                          {getColumnLetter(i)}
+                          {getColumnLetter(col)}
                         </div>
                       ))}
                     </div>
@@ -404,13 +404,13 @@ const FloorPlan = () => {
                     <div className="flex">
                       {/* Row numbers */}
                       <div className="flex flex-col">
-                        {Array.from({ length: rows }).map((_, i) => (
+                        {activeRows.map((row, i) => (
                           <div 
-                            key={i}
+                            key={row}
                             className="flex items-center justify-center font-bold text-sm text-gray-700 flex-shrink-0"
                             style={{ height: `${gridCellSize}px` }}
                           >
-                            {i + 1}
+                            {row + 1}
                           </div>
                         ))}
                       </div>
