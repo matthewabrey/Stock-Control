@@ -475,8 +475,8 @@ const FloorPlan = () => {
                           style={{
                             left: `${shedPadding}px`,
                             top: `${shedPadding}px`,
-                            width: `${cols * gridCellSize}px`,
-                            height: `${rows * gridCellSize}px`,
+                            width: `${activeColumns.length * gridCellSize}px`,
+                            height: `${activeRows.length * gridCellSize}px`,
                             backgroundImage: 'linear-gradient(rgba(0,0,0,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,.1) 1px, transparent 1px)',
                             backgroundSize: `${gridCellSize}px ${gridCellSize}px`
                           }}
