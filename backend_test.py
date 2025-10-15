@@ -418,7 +418,7 @@ class StockControlTester:
                 self.log_test("Stock Intake Retrieval", False, f"Failed to get stock intakes, status: {response.status_code}")
                 return False
             
-            self.log_test("Stock Intake with Grade", True, f"Successfully created stock intake with grade '{available_grades[0]}'")
+            self.log_test("Stock Intake with Grade", True, f"Successfully created stock intake with grade '{selected_grade}'")
             return True
             
         except Exception as e:
