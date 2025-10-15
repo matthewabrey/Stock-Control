@@ -112,44 +112,63 @@ const ManualStoreCreator = ({ onStoreCreated }) => {
               data-testid="input-store-name"
             />
           </div>
+
+          <div>
+            <Label htmlFor="num-boxes">Number of Storage Boxes/Units</Label>
+            <Input
+              id="num-boxes"
+              type="number"
+              min="1"
+              max="1000"
+              value={numberOfBoxes}
+              onChange={(e) => setNumberOfBoxes(parseInt(e.target.value) || 1)}
+              data-testid="input-num-boxes"
+            />
+            <p className="text-xs text-gray-500 mt-1">Total boxes in this shed</p>
+          </div>
           
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="grid-cols">Columns (Width)</Label>
+              <Label htmlFor="box-width">Box Width (m)</Label>
               <Input
-                id="grid-cols"
+                id="box-width"
                 type="number"
-                min="1"
-                max="50"
-                value={gridCols}
-                onChange={(e) => setGridCols(parseInt(e.target.value) || 1)}
-                data-testid="input-grid-cols"
+                step="0.5"
+                min="0.5"
+                max="10"
+                value={boxWidth}
+                onChange={(e) => setBoxWidth(parseFloat(e.target.value) || 2)}
+                data-testid="input-box-width"
               />
-              <p className="text-xs text-gray-500 mt-1">A, B, C...</p>
             </div>
             
             <div>
-              <Label htmlFor="grid-rows">Rows (Height)</Label>
+              <Label htmlFor="box-height">Box Height (m)</Label>
               <Input
-                id="grid-rows"
+                id="box-height"
                 type="number"
-                min="1"
-                max="50"
-                value={gridRows}
-                onChange={(e) => setGridRows(parseInt(e.target.value) || 1)}
-                data-testid="input-grid-rows"
+                step="0.5"
+                min="0.5"
+                max="10"
+                value={boxHeight}
+                onChange={(e) => setBoxHeight(parseFloat(e.target.value) || 2)}
+                data-testid="input-box-height"
               />
-              <p className="text-xs text-gray-500 mt-1">1, 2, 3...</p>
             </div>
           </div>
 
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm space-y-1">
             <p className="text-blue-900">
-              <strong>Preview:</strong> {storeName || "Store"} will have {gridCols} columns × {gridRows} rows 
-              = <strong>{gridCols * gridRows} storage zones</strong>
+              <strong>Layout:</strong> {numberOfBoxes} boxes will be arranged in a {layout.cols}×{layout.rows} grid
+            </p>
+            <p className="text-blue-900">
+              <strong>Shed Size:</strong> {shedWidth}m × {shedHeight}m
+            </p>
+            <p className="text-blue-900">
+              <strong>Box Size:</strong> {boxWidth}m × {boxHeight}m each (holds 6 units)
             </p>
             <p className="text-blue-700 text-xs mt-1">
-              Zones labeled: A1, A2, B1, B2... Each zone holds 6 boxes
+              Boxes labeled: A1, B1, C1... Each box position can hold up to 6 stacked units
             </p>
           </div>
 
