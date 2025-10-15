@@ -153,33 +153,59 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {sheds.map((shed) => (
-                  <Card 
-                    key={shed.id} 
-                    className="cursor-pointer hover:shadow-lg transition-shadow border-2 hover:border-blue-400"
-                    onClick={() => navigate(`/floor-plan/${shed.id}`)}
-                    data-testid={`shed-card-${shed.id}`}
-                  >
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Warehouse className="w-5 h-5" />
-                        {shed.name}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm text-gray-600">
-                        Dimensions: {shed.width}m × {shed.height}m
-                      </p>
-                      {shed.description && (
-                        <p className="text-sm text-gray-500 mt-2">{shed.description}</p>
-                      )}
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
+                {sheds.map((shed) => {
+                  // Get zones for this shed
+                  const shedZonesRes = axios.get(`${API}/zones?shed_id=${shed.id}`);
+                  const [shedZones, setShedZones] = useState([]);
+                  const [shedStock, setShedStock] = useState(0);
+                  
+                  useEffect(() => {
+                    const fetchShedData = async () => {
+                      try {
+                        const zonesRes = await axios.get(`${API}/zones?shed_id=${shed.id}`);
+                        setShedZones(zonesRes.data);
+                        const total = zonesRes.data.reduce((sum, z) => sum + (z.total_quantity || 0), 0);
+                        setShedStock(total);
+                      } catch (error) {
+                        console.error("Error fetching shed data:", error);
+                      }
+                    };
+                    fetchShedData();
+                  }, [shed.id]);
+                  
+                  return (
+                    <Card 
+                      key={shed.id} 
+                      className="cursor-pointer hover:shadow-lg transition-shadow border-2 hover:border-blue-400"
+                      onClick={() => navigate(`/floor-plan/${shed.id}`)}
+                      data-testid={`shed-card-${shed.id}`}
+                    >
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <Warehouse className="w-5 h-5" />
+                          {shed.name}
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-2">
+                          <p className="text-sm text-gray-600">
+                            <strong>Dimensions:</strong> {shed.width}m × {shed.height}m
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            <strong>Storage Zones:</strong> {shedZones.length}
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            <strong>Total Stock:</strong> {shedStock.toFixed(0)} units
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            <strong>Utilization:</strong> {shedZones.length > 0 ? 
+                              ((shedZones.filter(z => z.total_quantity > 0).length / shedZones.length) * 100).toFixed(0) : 0}%
+                          </p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
       </div>
     </div>
   );
