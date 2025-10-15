@@ -187,7 +187,13 @@ agent_communication:
       Fixed grade parsing in backend to read from Excel grade tables.
       Simplified frontend to display grades directly from backend.
       Multi-select logic exists but needs verification.
-      Need to test:
-      1. Upload Excel file to verify grade tables are parsed correctly
-      2. Check grade dropdown shows all grades for selected field
-      3. Test Ctrl+Click multi-select on zones
+      
+      IMPORTANT FINDING:
+      Checked existing data - fields have incorrect grades (e.g., Maincrop Potato has ["O1", "MC1", "SP1"]).
+      This confirms the old hardcoded logic was buggy.
+      User MUST re-upload Excel file to get correct grades from the new parsing logic.
+      
+      Next steps:
+      1. Test backend API endpoints
+      2. Ask user to re-upload Excel to get correct grades
+      3. Test multi-select functionality
