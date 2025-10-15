@@ -314,49 +314,99 @@ const FloorPlan = () => {
           <div className="lg:col-span-3">
             <Card>
               <CardContent className="p-6">
-                <div 
-                  className="relative bg-white border-4 border-gray-300 rounded-lg overflow-hidden"
-                  style={{ 
-                    width: `${shed.width * scale}px`, 
-                    height: `${shed.height * scale}px`,
-                    backgroundImage: 'linear-gradient(rgba(0,0,0,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,.05) 1px, transparent 1px)',
-                    backgroundSize: `${scale}px ${scale}px`
-                  }}
-                  data-testid="floor-plan-canvas"
-                >
-                  {zones.map((zone) => {
-                    const zoneColor = getZoneColor(zone);
-                    const isEmpty = zone.total_quantity === 0;
-                    
-                    return (
-                      <div
-                        key={zone.id}
-                        draggable
-                        onDragStart={(e) => handleDragStart(e, zone)}
-                        onDragOver={handleDragOver}
-                        onDrop={(e) => handleDrop(e, zone)}
-                        onClick={() => handleZoneClick(zone)}
-                        className="absolute cursor-pointer hover:shadow-2xl transition-all border-2 border-gray-700 rounded-md flex flex-col items-center justify-center text-center p-1"
-                        style={{
-                          left: `${zone.x * scale}px`,
-                          top: `${zone.y * scale}px`,
-                          width: `${zone.width * scale}px`,
-                          height: `${zone.height * scale}px`,
-                          backgroundColor: zoneColor,
-                          opacity: isEmpty ? 0.4 : 1
-                        }}
-                        data-testid={`zone-${zone.id}`}
-                      >
-                        <div className="font-bold text-xs text-white drop-shadow-md" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }}>
-                          {zone.name.length > 12 ? zone.name.substring(0, 12) + '...' : zone.name}
+                <div className="overflow-auto">
+                  {/* Grid with labels */}
+                  <div className="inline-block">
+                    {/* Column headers */}
+                    <div className="flex mb-1">
+                      <div style={{ width: `${gridCellSize}px` }} className="flex-shrink-0"></div>
+                      {Array.from({ length: cols }).map((_, i) => (
+                        <div 
+                          key={i} 
+                          className="text-center font-bold text-sm text-gray-700 flex-shrink-0"
+                          style={{ width: `${gridCellSize}px` }}
+                        >
+                          {getColumnLetter(i)}
                         </div>
-                        <div className="flex items-center gap-1 mt-0.5 text-white" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }}>
-                          <Package className="w-3 h-3" />
-                          <span className="text-xs font-semibold">{zone.total_quantity?.toFixed(0) || 0}/{zone.max_capacity || 6}</span>
-                        </div>
+                      ))}
+                    </div>
+
+                    {/* Grid rows */}
+                    <div className="flex">
+                      {/* Row numbers */}
+                      <div className="flex flex-col">
+                        {Array.from({ length: rows }).map((_, i) => (
+                          <div 
+                            key={i}
+                            className="flex items-center justify-center font-bold text-sm text-gray-700 flex-shrink-0"
+                            style={{ height: `${gridCellSize}px` }}
+                          >
+                            {i + 1}
+                          </div>
+                        ))}
                       </div>
-                    );
-                  })}
+
+                      {/* Grid cells */}
+                      <div 
+                        className="relative bg-white border-4 border-gray-400 rounded-lg"
+                        style={{ 
+                          width: `${cols * gridCellSize}px`, 
+                          height: `${rows * gridCellSize}px`,
+                        }}
+                        data-testid="floor-plan-canvas"
+                      >
+                        {/* Grid lines */}
+                        <div 
+                          className="absolute inset-0"
+                          style={{
+                            backgroundImage: 'linear-gradient(rgba(0,0,0,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,.1) 1px, transparent 1px)',
+                            backgroundSize: `${gridCellSize}px ${gridCellSize}px`
+                          }}
+                        ></div>
+
+                        {/* Zones */}
+                        {Array.from({ length: rows }).map((_, rowIdx) =>
+                          Array.from({ length: cols }).map((_, colIdx) => {
+                            const zone = getZoneAt(colIdx, rowIdx);
+                            if (!zone) return null;
+
+                            const zoneColor = getZoneColor(zone);
+                            const isEmpty = zone.total_quantity === 0;
+                            const gridLabel = `${getColumnLetter(colIdx)}${rowIdx + 1}`;
+                            
+                            return (
+                              <div
+                                key={`${colIdx}-${rowIdx}`}
+                                draggable
+                                onDragStart={(e) => handleDragStart(e, zone)}
+                                onDragOver={handleDragOver}
+                                onDrop={(e) => handleDrop(e, zone)}
+                                onClick={() => handleZoneClick(zone)}
+                                className="absolute cursor-pointer hover:shadow-2xl hover:z-10 transition-all border-2 border-gray-800 rounded-md flex flex-col items-center justify-center text-center"
+                                style={{
+                                  left: `${colIdx * gridCellSize}px`,
+                                  top: `${rowIdx * gridCellSize}px`,
+                                  width: `${gridCellSize}px`,
+                                  height: `${gridCellSize}px`,
+                                  backgroundColor: zoneColor,
+                                  opacity: isEmpty ? 0.5 : 1
+                                }}
+                                data-testid={`zone-${zone.id}`}
+                              >
+                                <div className="font-bold text-lg text-white drop-shadow-lg" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.9)' }}>
+                                  {gridLabel}
+                                </div>
+                                <div className="flex items-center gap-1 mt-1 text-white" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.9)' }}>
+                                  <Package className="w-4 h-4" />
+                                  <span className="text-sm font-bold">{zone.total_quantity?.toFixed(0) || 0}/{zone.max_capacity || 6}</span>
+                                </div>
+                              </div>
+                            );
+                          })
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
