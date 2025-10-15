@@ -148,6 +148,10 @@ const ShedsManager = () => {
           </Dialog>
         </div>
 
+        <div className="mb-8">
+          <ExcelUpload onUploadSuccess={fetchSheds} />
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {sheds.map((shed) => (
             <Card key={shed.id} className="hover:shadow-lg transition-shadow" data-testid={`shed-card-${shed.id}`}>
