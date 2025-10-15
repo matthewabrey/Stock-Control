@@ -494,34 +494,33 @@ const FloorPlan = () => {
                           const displayRow = rowIndexToDisplay[actualRow];
                           
                           return (
-                              <div
-                                key={`${colIdx}-${rowIdx}`}
-                                draggable
-                                onDragStart={(e) => handleDragStart(e, zone)}
-                                onDragOver={handleDragOver}
-                                onDrop={(e) => handleDrop(e, zone)}
-                                onClick={(e) => handleZoneClick(zone, e)}
-                                className={`absolute cursor-pointer hover:shadow-2xl hover:z-10 transition-all rounded ${
-                                  isSelected ? 'border-4 border-blue-600 z-10' : 'border-2 border-gray-700'
-                                }`}
-                                style={{
-                                  left: `${shedPadding + colIdx * gridCellSize + boxPadding}px`,
-                                  top: `${shedPadding + rowIdx * gridCellSize + boxPadding}px`,
-                                  width: `${gridCellSize - boxPadding * 2}px`,
-                                  height: `${gridCellSize - boxPadding * 2}px`,
-                                  backgroundColor: zoneColor,
-                                  opacity: isEmpty ? 0.5 : 1,
-                                  boxShadow: isSelected ? '0 0 0 2px #fff, 0 0 0 6px #2563eb' : '0 2px 4px rgba(0,0,0,0.1)'
-                                }}
-                                data-testid={`zone-${zone.id}`}
-                              >
-                                {isSelected && (
-                                  <div className="absolute top-1 right-1 w-4 h-4 bg-blue-600 rounded-full border-2 border-white"></div>
-                                )}
-                              </div>
-                            );
-                          })
-                        )}
+                            <div
+                              key={zone.id}
+                              draggable
+                              onDragStart={(e) => handleDragStart(e, zone)}
+                              onDragOver={handleDragOver}
+                              onDrop={(e) => handleDrop(e, zone)}
+                              onClick={(e) => handleZoneClick(zone, e)}
+                              className={`absolute cursor-pointer hover:shadow-2xl hover:z-10 transition-all rounded ${
+                                isSelected ? 'border-4 border-blue-600 z-10' : 'border-2 border-gray-700'
+                              }`}
+                              style={{
+                                left: `${shedPadding + displayCol * gridCellSize + boxPadding}px`,
+                                top: `${shedPadding + displayRow * gridCellSize + boxPadding}px`,
+                                width: `${gridCellSize - boxPadding * 2}px`,
+                                height: `${gridCellSize - boxPadding * 2}px`,
+                                backgroundColor: zoneColor,
+                                opacity: isEmpty ? 0.5 : 1,
+                                boxShadow: isSelected ? '0 0 0 2px #fff, 0 0 0 6px #2563eb' : '0 2px 4px rgba(0,0,0,0.1)'
+                              }}
+                              data-testid={`zone-${zone.id}`}
+                            >
+                              {isSelected && (
+                                <div className="absolute top-1 right-1 w-4 h-4 bg-blue-600 rounded-full border-2 border-white"></div>
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   </div>
