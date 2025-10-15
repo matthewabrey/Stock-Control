@@ -355,12 +355,15 @@ async def upload_excel(file: UploadFile = File(...)):
             for row_idx in range(1, ws.max_row + 1):
                 for col_idx in range(1, ws.max_column + 1):
                     cell = ws.cell(row_idx, col_idx)
-                    if cell.value and str(cell.value).strip() == "6":
-                        zone_positions.append((row_idx, col_idx))
-                        max_col = max(max_col, col_idx)
-                        max_row = max(max_row, row_idx)
-                        min_col = min(min_col, col_idx)
-                        min_row = min(min_row, row_idx)
+                    # Only accept exact "6" - no spaces, no other characters
+                    if cell.value is not None:
+                        cell_str = str(cell.value).strip()
+                        if cell_str == "6":
+                            zone_positions.append((row_idx, col_idx))
+                            max_col = max(max_col, col_idx)
+                            max_row = max(max_row, row_idx)
+                            min_col = min(min_col, col_idx)
+                            min_row = min(min_row, row_idx)
             
             if not zone_positions:
                 print(f"No zones found in {store_name}, skipping...")
