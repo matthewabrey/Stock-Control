@@ -94,8 +94,9 @@ const ExcelUpload = ({ onUploadSuccess }) => {
             <p className="font-semibold text-blue-900 mb-2">Excel Format Requirements:</p>
             <ul className="list-disc list-inside text-blue-800 space-y-1">
               <li><strong>FRONT PAGE:</strong> Fields table with Farm, Field, Crop, Variety, and Grade columns</li>
-              <li><strong>Store Plans:</strong> Store names in Row 3, cells with "6" = storage zones</li>
-              <li>Green borders indicate store outlines and doors</li>
+              <li><strong>One Sheet Per Store:</strong> Sheet name = Store name (e.g., "D1", "D2", "D3")</li>
+              <li><strong>Mark Zones:</strong> Put "6" in cells where storage boxes are located</li>
+              <li>System auto-detects layout and creates grid labels (A1, B2, etc.)</li>
             </ul>
           </div>
         </div>
