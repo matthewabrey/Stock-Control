@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { ArrowLeft, Plus, Trash2, Map } from "lucide-react";
 import { toast } from "sonner";
 import ExcelUpload from "@/components/ExcelUpload";
+import ManualStoreCreator from "@/components/ManualStoreCreator";
 
 const ShedsManager = () => {
   const navigate = useNavigate();
