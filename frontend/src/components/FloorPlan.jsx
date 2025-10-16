@@ -429,7 +429,7 @@ const FloorPlan = () => {
       return;
     }
 
-    try;
+    try {
       
       // Distribute quantity across selected zones
       const qtyPerZone = qty / zonesToUpdate.length;
