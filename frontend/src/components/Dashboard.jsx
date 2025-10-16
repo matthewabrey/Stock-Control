@@ -63,13 +63,13 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen p-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-5xl font-bold mb-2" style={{ fontFamily: 'Playfair Display, serif' }}>
+          <h1 className="text-4xl font-semibold mb-2 text-gray-900">
             Stock Control System
           </h1>
-          <p className="text-lg text-gray-600" style={{ fontFamily: 'Inter, sans-serif' }}>
+          <p className="text-gray-600">
             Manage your crop inventory across fields and sheds
           </p>
         </div>
