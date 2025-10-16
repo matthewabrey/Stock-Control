@@ -775,23 +775,28 @@ const FloorPlan = () => {
                         <div className="space-y-3">
                           {fieldsInShed.map((field) => {
                             const fieldIntakes = stockIntakes.filter(i => i.field_id === field.id && i.shed_id === shedId);
-                            const totalQty = fieldIntakes.reduce((sum, i) => sum + i.quantity, 0);
-                            const latestDate = fieldIntakes.length > 0 ? 
-                              new Date(Math.max(...fieldIntakes.map(i => new Date(i.date)))).toLocaleDateString() : '';
                             
                             // Get zones with this field that have stock
-                            const fieldZones = zones.filter(zone => {
+                            const fieldZonesData = zones.filter(zone => {
                               if (!zone.total_quantity || zone.total_quantity === 0) return false;
                               const zoneIntakes = getZoneIntakes(zone.id);
                               return zoneIntakes.some(intake => intake.field_id === field.id);
-                            }).map(zone => {
+                            });
+                            
+                            // Calculate actual total from zone quantities (not intake records)
+                            const totalQty = fieldZonesData.reduce((sum, zone) => sum + (zone.total_quantity || 0), 0);
+                            
+                            const fieldZones = fieldZonesData.map(zone => {
                               const col = Math.floor(zone.x / 2);
                               const row = Math.floor(zone.y / 2);
                               return `${getColumnLetter(col)}${row + 1}`;
                             });
                             
+                            const latestDate = fieldIntakes.length > 0 ? 
+                              new Date(Math.max(...fieldIntakes.map(i => new Date(i.date)))).toLocaleDateString() : '';
+                            
                             // Only show field if it has stock in zones
-                            if (fieldZones.length === 0) return null;
+                            if (fieldZones.length === 0 || totalQty === 0) return null;
                             
                             return (
                               <div key={field.id} className="p-3 bg-gray-50 rounded-lg border border-gray-200">
