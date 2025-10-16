@@ -142,7 +142,11 @@ const Overview = () => {
                         <div>
                           <CardTitle className="text-2xl text-gray-900">{shed.name}</CardTitle>
                           <p className="text-sm text-gray-600 mt-1">
-                            Total Stock: <span className="font-semibold">{totalStock.toFixed(0)} units</span>
+                            Total Stock: <span className="font-semibold">{(() => {
+                              const shedZones = zones.filter(z => z.shed_id === shed.id);
+                              const actualTotal = shedZones.reduce((sum, z) => sum + (z.total_quantity || 0), 0);
+                              return actualTotal.toFixed(0);
+                            })()} units</span>
                           </p>
                         </div>
                       </div>
