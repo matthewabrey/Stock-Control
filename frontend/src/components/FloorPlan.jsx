@@ -382,41 +382,84 @@ const FloorPlan = () => {
         const sourceZone = sourceZonesForMove[i];
         const destZone = selectedDestinationZones[i];
         const qtyToMove = parseFloat(moveQuantities[sourceZone.id] || 0);
+        const selectedFieldId = moveFieldSelections[sourceZone.id];
         
         if (qtyToMove > 0) {
-          // Get stock intakes from source zone to know what fields/grades are being moved
-          const sourceIntakes = await axios.get(`${API}/stock-intakes/zone/${sourceZone.id}`);
+          // Get stock intakes from source zone
+          const sourceIntakesRes = await axios.get(`${API}/stock-intakes/zone/${sourceZone.id}`);
+          const sourceIntakes = sourceIntakesRes.data;
           
-          // Calculate if moving all or partial stock
-          const isMovingAll = qtyToMove >= sourceZone.total_quantity;
-          
-          // Update source zone quantity (set to 0 if moving all)
-          await axios.put(`${API}/zones/${sourceZone.id}`, null, {
-            params: { quantity: isMovingAll ? 0 : (sourceZone.total_quantity - qtyToMove) }
-          });
-          
-          // Add to destination zone
-          const newDestQty = destZone.total_quantity + qtyToMove;
-          await axios.put(`${API}/zones/${destZone.id}`, null, {
-            params: { quantity: newDestQty }
-          });
+          // If moving from specific field in mixed zone
+          if (selectedFieldId) {
+            // Only move the selected field
+            const fieldIntakes = sourceIntakes.filter(i => i.field_id === selectedFieldId);
+            const totalFieldIntakeQty = fieldIntakes.reduce((sum, i) => sum + i.quantity, 0);
+            const reductionRatio = qtyToMove / totalFieldIntakeQty;
+            
+            // Update source zone quantity
+            await axios.put(`${API}/zones/${sourceZone.id}`, null, {
+              params: { quantity: Math.max(0, sourceZone.total_quantity - qtyToMove) }
+            });
+            
+            // Reduce or delete field intakes from source
+            for (const intake of fieldIntakes) {
+              const newIntakeQty = intake.quantity * (1 - reductionRatio);
+              if (newIntakeQty < 0.01) {
+                // Delete intake if quantity becomes negligible
+                await axios.delete(`${API}/stock-intakes/${intake.id}`);
+              } else {
+                // Update intake quantity
+                await axios.put(`${API}/stock-intakes/${intake.id}`, {
+                  ...intake,
+                  quantity: newIntakeQty
+                });
+              }
+            }
+            
+            // Add to destination zone
+            await axios.put(`${API}/zones/${destZone.id}`, null, {
+              params: { quantity: destZone.total_quantity + qtyToMove }
+            });
+            
+            // Create intake record for destination (use first field intake as template)
+            if (fieldIntakes.length > 0) {
+              const template = fieldIntakes[0];
+              await axios.post(`${API}/stock-intakes`, {
+                field_id: template.field_id,
+                field_name: template.field_name,
+                zone_id: destZone.id,
+                shed_id: moveDestinationShed,
+                quantity: qtyToMove,
+                date: new Date().toISOString().split('T')[0],
+                grade: template.grade
+              });
+            }
+          } else {
+            // Moving all stock from zone (not field-specific)
+            // Update source zone quantity
+            await axios.put(`${API}/zones/${sourceZone.id}`, null, {
+              params: { quantity: Math.max(0, sourceZone.total_quantity - qtyToMove) }
+            });
+            
+            // Add to destination zone
+            await axios.put(`${API}/zones/${destZone.id}`, null, {
+              params: { quantity: destZone.total_quantity + qtyToMove }
+            });
 
-          // Create stock intake records for destination zone (so colors show up)
-          if (sourceIntakes.data.length > 0) {
-            // Group intakes by field to handle multiple fields in one zone
+            // Calculate proportional quantities to move
+            const totalSourceQty = sourceIntakes.reduce((sum, i) => sum + i.quantity, 0);
+            const moveRatio = qtyToMove / totalSourceQty;
+
+            // Group by field
             const intakesByField = {};
-            sourceIntakes.data.forEach(intake => {
+            sourceIntakes.forEach(intake => {
               if (!intakesByField[intake.field_id]) {
                 intakesByField[intake.field_id] = [];
               }
               intakesByField[intake.field_id].push(intake);
             });
 
-            // Calculate proportional quantities if moving partial stock
-            const totalSourceQty = sourceIntakes.data.reduce((sum, i) => sum + i.quantity, 0);
-            const moveRatio = qtyToMove / totalSourceQty;
-
-            // Create intake records for each field
+            // Create intake records for destination for each field
             for (const fieldId in intakesByField) {
               const fieldIntakes = intakesByField[fieldId];
               const fieldTotalQty = fieldIntakes.reduce((sum, i) => sum + i.quantity, 0);
