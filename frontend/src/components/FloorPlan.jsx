@@ -226,18 +226,42 @@ const FloorPlan = () => {
       toast.warning("Please select zones first (click to select multiple)");
       return;
     }
-    // Initialize move quantities with current quantities
+    
+    // Initialize move quantities and field selections
     const quantities = {};
+    const fieldSelections = {};
     selectedZones.forEach(zone => {
       quantities[zone.id] = zone.total_quantity || 0;
+      
+      // Check if zone has mixed stock
+      const zoneIntakes = getZoneIntakes(zone.id);
+      const fieldGroups = {};
+      zoneIntakes.forEach(intake => {
+        if (!fieldGroups[intake.field_id]) {
+          fieldGroups[intake.field_id] = 0;
+        }
+        fieldGroups[intake.field_id] += intake.quantity;
+      });
+      
+      // If only one field, pre-select it
+      const fieldIds = Object.keys(fieldGroups);
+      if (fieldIds.length === 1) {
+        fieldSelections[zone.id] = fieldIds[0];
+      } else {
+        fieldSelections[zone.id] = ""; // User needs to select
+      }
     });
+    
     setMoveQuantities(quantities);
+    setMoveFieldSelections(fieldSelections);
     setMoveDestinationType("");
     setMoveDestinationShed("");
     setSourceZonesForMove([...selectedZones]);
     setSelectedDestinationZones([]);
     setShowBulkMoveDialog(true);
   };
+  
+  const [moveFieldSelections, setMoveFieldSelections] = useState({}); // {zoneId: fieldId}
 
   const handleBulkMoveSubmit = async () => {
     if (!moveDestinationType) {
