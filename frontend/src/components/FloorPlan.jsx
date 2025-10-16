@@ -50,6 +50,8 @@ const FloorPlan = () => {
   const [moveDestinationType, setMoveDestinationType] = useState(""); // "store", "grader", "customer"
   const [moveDestinationShed, setMoveDestinationShed] = useState("");
   const [moveQuantities, setMoveQuantities] = useState({}); // {zoneId: quantity}
+  const [selectedDestinationZones, setSelectedDestinationZones] = useState([]); // zones selected in destination store
+  const [sourceZonesForMove, setSourceZonesForMove] = useState([]); // copy of source zones
   const [newZone, setNewZone] = useState({
     name: "",
     x: 10,
