@@ -184,7 +184,7 @@ const FloorPlan = () => {
 
   const handleBulkAddStock = () => {
     if (selectedZones.length === 0) {
-      toast.warning("Please select zones first (Ctrl+Click to select multiple)");
+      toast.warning("Please select zones first (click to select multiple)");
       return;
     }
     setShowIntakeDialog(true);
@@ -192,7 +192,7 @@ const FloorPlan = () => {
 
   const handleBulkMoveStock = () => {
     if (selectedZones.length === 0) {
-      toast.warning("Please select zones first (Ctrl+Click to select multiple)");
+      toast.warning("Please select zones first (click to select multiple)");
       return;
     }
     // Initialize move quantities with current quantities
