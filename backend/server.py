@@ -291,89 +291,64 @@ async def upload_excel(file: UploadFile = File(...)):
         stores_created = 0
         zones_created = 0
         
-        # Parse FRONT PAGE for fields with grades
+        # Parse grade tables from "Grade Options Page" sheet
+        grade_tables = {
+            'onion': [],
+            'onion_special': [],
+            'maincrop': [],
+            'salad': [],
+            'carrot': []
+        }
+        
+        if "Grade Options Page" in wb.sheetnames:
+            ws_grades = wb["Grade Options Page"]
+            print("=== Parsing Grade Options Page ===")
+            
+            # Row 1 contains headers (crop types)
+            # Find which column corresponds to which crop type
+            crop_columns = {}
+            for col_idx in range(1, ws_grades.max_column + 1):
+                header = ws_grades.cell(1, col_idx).value
+                if header:
+                    header_str = str(header).strip().lower()
+                    print(f"Column {col_idx}: '{header}'")
+                    
+                    if 'onion' in header_str and 'special' in header_str:
+                        crop_columns['onion_special'] = col_idx
+                    elif 'onion' in header_str:
+                        crop_columns['onion'] = col_idx
+                    elif 'maincrop' in header_str or 'main crop' in header_str:
+                        crop_columns['maincrop'] = col_idx
+                    elif 'salad' in header_str:
+                        crop_columns['salad'] = col_idx
+                    elif 'carrot' in header_str:
+                        crop_columns['carrot'] = col_idx
+            
+            print(f"Found crop columns: {crop_columns}")
+            
+            # Read grades from row 2 onwards for each crop type
+            for crop_type, col_idx in crop_columns.items():
+                grades = []
+                for row_idx in range(2, ws_grades.max_row + 1):
+                    grade_val = ws_grades.cell(row_idx, col_idx).value
+                    if grade_val:
+                        grade_str = str(grade_val).strip()
+                        if grade_str:
+                            grades.append(grade_str)
+                
+                grade_tables[crop_type] = grades
+                print(f"{crop_type}: {len(grades)} grades - {grades[:3]}...")
+            
+            print(f"Final grade tables: {grade_tables}")
+        else:
+            print("Warning: 'Grade Options Page' sheet not found")
+        
+        # Parse FRONT PAGE for fields
         if "FRONT PAGE" in wb.sheetnames:
             ws = wb["FRONT PAGE"]
             
             # Clear existing fields
             await db.fields.delete_many({})
-            
-            # First, parse the grade tables from FRONT PAGE
-            # Find OnionGradeTable, MaincropGradeTable, and SaladPotatoGradeTable
-            grade_tables = {
-                'onion': [],
-                'maincrop': [],
-                'salad': []
-            }
-            
-            # Log all non-empty cells in FRONT PAGE to understand structure
-            print("=== FRONT PAGE Sheet Scan ===")
-            for row_idx in range(1, min(50, ws.max_row + 1)):  # Check first 50 rows
-                for col_idx in range(1, min(30, ws.max_column + 1)):  # Check first 30 columns
-                    cell_value = ws.cell(row_idx, col_idx).value
-                    if cell_value and isinstance(cell_value, str) and 'table' in cell_value.lower():
-                        print(f"Row {row_idx}, Col {col_idx}: '{cell_value}'")
-            
-            # Scan all cells to find grade table headers and their grades
-            for row_idx in range(1, ws.max_row + 1):
-                for col_idx in range(1, ws.max_column + 1):
-                    cell_value = ws.cell(row_idx, col_idx).value
-                    if cell_value and isinstance(cell_value, str):
-                        cell_str = cell_value.strip()
-                        
-                        # Found OnionGradeTable
-                        if 'OnionGradeTable' in cell_str:
-                            print(f"Found OnionGradeTable at row {row_idx}, col {col_idx}")
-                            # Read grades below this cell (skip 1 row for header like "Onion")
-                            for grade_row in range(row_idx + 2, ws.max_row + 1):
-                                grade_val = ws.cell(grade_row, col_idx).value
-                                if grade_val:
-                                    grade_str = str(grade_val).strip()
-                                    # Stop if we hit another table name or empty cell
-                                    if 'GradeTable' in grade_str or not grade_str:
-                                        break
-                                    # Skip if it's a header like "Onion"
-                                    if grade_str.lower() in ['onion', 'maincrop potato', 'salad potato']:
-                                        continue
-                                    grade_tables['onion'].append(grade_str)
-                                    print(f"  Added onion grade: {grade_str}")
-                                else:
-                                    # Stop on empty cell
-                                    break
-                        
-                        # Found MaincropGradeTable
-                        elif 'MaincropGradeTable' in cell_str:
-                            print(f"Found MaincropGradeTable at row {row_idx}, col {col_idx}")
-                            for grade_row in range(row_idx + 2, ws.max_row + 1):
-                                grade_val = ws.cell(grade_row, col_idx).value
-                                if grade_val:
-                                    grade_str = str(grade_val).strip()
-                                    if 'GradeTable' in grade_str or not grade_str:
-                                        break
-                                    if grade_str.lower() in ['onion', 'maincrop potato', 'salad potato']:
-                                        continue
-                                    grade_tables['maincrop'].append(grade_str)
-                                    print(f"  Added maincrop grade: {grade_str}")
-                                else:
-                                    break
-                        
-                        # Found SaladPotatoGradeTable
-                        elif 'SaladPotatoGradeTable' in cell_str:
-                            print(f"Found SaladPotatoGradeTable at row {row_idx}, col {col_idx}")
-                            for grade_row in range(row_idx + 2, ws.max_row + 1):
-                                grade_val = ws.cell(grade_row, col_idx).value
-                                if grade_val:
-                                    grade_str = str(grade_val).strip()
-                                    if 'GradeTable' in grade_str or not grade_str:
-                                        break
-                                    if grade_str.lower() in ['onion', 'maincrop potato', 'salad potato']:
-                                        continue
-                                    grade_tables['salad'].append(grade_str)
-                                    print(f"  Added salad grade: {grade_str}")
-                                else:
-                                    break
-            
-            print(f"Parsed grade tables: {grade_tables}")
             
             # Parse fields from row 4 onwards (row 3 is header)
             for row_idx in range(4, ws.max_row + 1):
