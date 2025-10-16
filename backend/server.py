@@ -242,6 +242,28 @@ async def get_zone_stock_intakes(zone_id: str):
     intakes = await db.stock_intakes.find({"zone_id": zone_id}, {"_id": 0}).to_list(1000)
     return intakes
 
+@api_router.put("/stock-intakes/{intake_id}", response_model=StockIntake)
+async def update_stock_intake(intake_id: str, input: StockIntakeCreate):
+    # Get existing intake
+    existing = await db.stock_intakes.find_one({"id": intake_id})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Stock intake not found")
+    
+    # Update the intake
+    intake_obj = StockIntake(**input.model_dump())
+    intake_obj.id = intake_id  # Keep same ID
+    doc = intake_obj.model_dump()
+    await db.stock_intakes.update_one({"id": intake_id}, {"$set": doc})
+    
+    return intake_obj
+
+@api_router.delete("/stock-intakes/{intake_id}")
+async def delete_stock_intake(intake_id: str):
+    result = await db.stock_intakes.delete_one({"id": intake_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Stock intake not found")
+    return {"message": "Stock intake deleted"}
+
 
 # Stock Movement Routes
 @api_router.post("/stock-movements", response_model=StockMovement)
