@@ -206,6 +206,8 @@ const FloorPlan = () => {
     setMoveQuantities(quantities);
     setMoveDestinationType("");
     setMoveDestinationShed("");
+    setSourceZonesForMove([...selectedZones]);
+    setSelectedDestinationZones([]);
     setShowBulkMoveDialog(true);
   };
 
