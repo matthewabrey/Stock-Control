@@ -6,6 +6,7 @@ import Dashboard from "@/components/Dashboard";
 import FieldsManager from "@/components/FieldsManager";
 import ShedsManager from "@/components/ShedsManager";
 import FloorPlan from "@/components/FloorPlan";
+import Overview from "@/components/Overview";
 import { Toaster } from "@/components/ui/sonner";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -20,6 +21,7 @@ function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/fields" element={<FieldsManager />} />
           <Route path="/sheds" element={<ShedsManager />} />
+          <Route path="/overview" element={<Overview />} />
           <Route path="/floor-plan/:shedId" element={<FloorPlan />} />
         </Routes>
       </BrowserRouter>
