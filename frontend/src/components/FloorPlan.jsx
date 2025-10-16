@@ -213,12 +213,66 @@ const FloorPlan = () => {
     setShowIntakeDialog(true);
   };
 
-  const handleBulkAddStock = () => {
+  const handleBulkAddStock = async () => {
     if (selectedZones.length === 0) {
       toast.warning("Please select zones first (click to select multiple)");
       return;
     }
-    setShowIntakeDialog(true);
+
+    if (!selectedField || !intakeQuantity || !selectedGrade) {
+      toast.warning("Please fill in all fields");
+      return;
+    }
+
+    const qty = parseFloat(intakeQuantity);
+    if (isNaN(qty) || qty <= 0) {
+      toast.warning("Please enter a valid quantity");
+      return;
+    }
+
+    // Check available capacity
+    const totalAvailable = selectedZones.reduce((sum, z) => {
+      const available = (z.max_capacity || 6) - (z.total_quantity || 0);
+      return sum + Math.max(0, available);
+    }, 0);
+
+    if (qty > totalAvailable) {
+      toast.error(`Quantity exceeds available capacity. Max available: ${totalAvailable} units`);
+      return;
+    }
+
+    try {
+      const field = fields.find(f => f.id === selectedField);
+      
+      // Distribute quantity across selected zones
+      const zonesToUpdate = selectedZones.filter(z => z.shed_id === shedId);
+      const qtyPerZone = qty / zonesToUpdate.length;
+
+      for (const zone of zonesToUpdate) {
+        await axios.post(`${API}/stock-intakes`, {
+          field_id: field.id,
+          field_name: field.name,
+          zone_id: zone.id,
+          shed_id: shedId,
+          quantity: qtyPerZone,
+          date: intakeDate,
+          grade: selectedGrade
+        });
+      }
+      
+      toast.success(`Stock added to ${zonesToUpdate.length} zone(s) from ${field.name} (${selectedGrade})`);
+      setShowIntakeDialog(false);
+      setSelectedCrop("");
+      setSelectedField("");
+      setSelectedGrade("");
+      setIntakeQuantity("");
+      setSelectedZones([]);
+      fetchZones();
+      fetchStockIntakes();
+    } catch (error) {
+      console.error("Error adding stock:", error);
+      toast.error("Failed to add stock");
+    }
   };
 
   const handleBulkMoveStock = () => {
