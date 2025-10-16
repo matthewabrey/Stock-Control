@@ -41,46 +41,46 @@ const Overview = () => {
   };
 
   const getShedStockDetails = (shedId) => {
-    const shedZones = zones.filter(z => z.shed_id === shedId);
+    const shedZones = zones.filter(z => z.shed_id === shedId && z.total_quantity > 0);
     const shedIntakes = stockIntakes.filter(i => i.shed_id === shedId);
     
-    // Group by field
+    // Group by field, calculating actual quantities from zones
     const fieldGroups = {};
     
-    shedIntakes.forEach(intake => {
-      if (!fieldGroups[intake.field_id]) {
+    // Process each zone
+    shedZones.forEach(zone => {
+      const zoneIntakes = shedIntakes.filter(i => i.zone_id === zone.id);
+      
+      // Calculate total intake quantity for this zone to determine proportions
+      const totalIntakeQty = zoneIntakes.reduce((sum, i) => sum + i.quantity, 0);
+      
+      if (totalIntakeQty === 0) return;
+      
+      // Distribute zone's actual quantity proportionally based on intake records
+      zoneIntakes.forEach(intake => {
         const field = fields.find(f => f.id === intake.field_id);
-        fieldGroups[intake.field_id] = {
-          fieldName: intake.field_name,
-          cropType: field?.crop_type || 'Unknown',
-          grades: {},
-          totalQuantity: 0
-        };
-      }
-      
-      // Sum quantities from zones (not from intakes)
-      const zonesWithField = shedZones.filter(z => {
-        const zoneIntakes = stockIntakes.filter(i => i.zone_id === z.id && i.field_id === intake.field_id);
-        return zoneIntakes.length > 0 && z.total_quantity > 0;
+        
+        if (!fieldGroups[intake.field_id]) {
+          fieldGroups[intake.field_id] = {
+            fieldId: intake.field_id,
+            fieldName: intake.field_name,
+            cropType: field?.crop_type || 'Unknown',
+            grades: {},
+            totalQuantity: 0
+          };
+        }
+        
+        // Calculate this field's share of the zone's actual quantity
+        const proportion = intake.quantity / totalIntakeQty;
+        const actualQtyForField = zone.total_quantity * proportion;
+        
+        if (!fieldGroups[intake.field_id].grades[intake.grade]) {
+          fieldGroups[intake.field_id].grades[intake.grade] = 0;
+        }
+        
+        fieldGroups[intake.field_id].grades[intake.grade] += actualQtyForField;
+        fieldGroups[intake.field_id].totalQuantity += actualQtyForField;
       });
-      
-      const fieldQtyInZones = zonesWithField.reduce((sum, z) => sum + (z.total_quantity || 0), 0);
-      
-      if (!fieldGroups[intake.field_id].grades[intake.grade]) {
-        fieldGroups[intake.field_id].grades[intake.grade] = 0;
-      }
-      
-      // Distribute quantity proportionally by grade
-      const totalIntakesForField = shedIntakes.filter(i => i.field_id === intake.field_id);
-      const intakeSum = totalIntakesForField.reduce((sum, i) => sum + i.quantity, 0);
-      const proportion = intake.quantity / intakeSum;
-      fieldGroups[intake.field_id].grades[intake.grade] += fieldQtyInZones * proportion;
-    });
-    
-    // Calculate totals
-    Object.keys(fieldGroups).forEach(fieldId => {
-      fieldGroups[fieldId].totalQuantity = Object.values(fieldGroups[fieldId].grades)
-        .reduce((sum, qty) => sum + qty, 0);
     });
     
     // Filter out fields with 0 quantity
