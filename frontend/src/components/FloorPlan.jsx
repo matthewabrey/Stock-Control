@@ -528,13 +528,16 @@ const FloorPlan = () => {
           <div className="flex gap-2">
             {selectedZones.length > 0 && (
               <>
+                <div className="text-sm text-gray-700 bg-blue-50 px-4 py-2 rounded-md border border-blue-200">
+                  {selectedZones.length} zone{selectedZones.length > 1 ? 's' : ''} selected
+                </div>
                 <Button 
                   onClick={handleBulkAddStock} 
                   className="bg-green-600 hover:bg-green-700"
                   data-testid="btn-bulk-add-stock"
                 >
                   <Package className="mr-2 w-4 h-4" />
-                  Add Stock to {selectedZones.length} Selected
+                  Add Stock
                 </Button>
                 <Button 
                   onClick={handleBulkMoveStock} 
@@ -542,7 +545,7 @@ const FloorPlan = () => {
                   data-testid="btn-bulk-move-stock"
                 >
                   <ArrowLeft className="mr-2 w-4 h-4" />
-                  Move Stock from {selectedZones.length} Selected
+                  Move Stock
                 </Button>
               </>
             )}
