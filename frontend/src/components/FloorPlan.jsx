@@ -472,24 +472,41 @@ const FloorPlan = () => {
             });
 
             // Create intake records for destination for each field
-            for (const fieldId in intakesByField) {
-              const fieldIntakes = intakesByField[fieldId];
-              const fieldTotalQty = fieldIntakes.reduce((sum, i) => sum + i.quantity, 0);
-              const qtyToMoveForField = fieldTotalQty * moveRatio;
-              
-              const latestIntake = fieldIntakes.sort((a, b) => 
-                new Date(b.created_at) - new Date(a.created_at)
-              )[0];
-              
+            // Use the actual quantity being moved, not calculated from intakes
+            if (sourceIntakes.length === 1) {
+              // Single field - use full quantity
+              const template = sourceIntakes[0];
               await axios.post(`${API}/stock-intakes`, {
-                field_id: latestIntake.field_id,
-                field_name: latestIntake.field_name,
+                field_id: template.field_id,
+                field_name: template.field_name,
                 zone_id: destZone.id,
                 shed_id: moveDestinationShed,
-                quantity: qtyToMoveForField,
+                quantity: qtyToMove,
                 date: new Date().toISOString().split('T')[0],
-                grade: latestIntake.grade
+                grade: template.grade
               });
+            } else {
+              // Multiple fields - distribute proportionally based on CURRENT zone proportions
+              for (const fieldId in intakesByField) {
+                const fieldIntakes = intakesByField[fieldId];
+                const fieldTotalQty = fieldIntakes.reduce((sum, i) => sum + i.quantity, 0);
+                const proportion = fieldTotalQty / totalSourceQty;
+                const qtyToMoveForField = qtyToMove * proportion;
+                
+                const latestIntake = fieldIntakes.sort((a, b) => 
+                  new Date(b.created_at) - new Date(a.created_at)
+                )[0];
+                
+                await axios.post(`${API}/stock-intakes`, {
+                  field_id: latestIntake.field_id,
+                  field_name: latestIntake.field_name,
+                  zone_id: destZone.id,
+                  shed_id: moveDestinationShed,
+                  quantity: qtyToMoveForField,
+                  date: new Date().toISOString().split('T')[0],
+                  grade: latestIntake.grade
+                });
+              }
             }
           }
         }
