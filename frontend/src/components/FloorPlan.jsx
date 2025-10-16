@@ -1312,32 +1312,98 @@ const FloorPlan = () => {
             <div className="space-y-4 py-4">
               {/* Show selected zones with quantity inputs */}
               <div className="max-h-60 overflow-y-auto space-y-2">
-                {selectedZones.map((zone) => (
-                  <div key={zone.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                    <div className="flex-1">
-                      <p className="font-semibold">{zone.name}</p>
-                      <p className="text-xs text-gray-600">Current: {zone.total_quantity?.toFixed(0) || 0} units</p>
+                {selectedZones.map((zone) => {
+                  // Check if zone has mixed stock
+                  const zoneIntakes = getZoneIntakes(zone.id);
+                  const fieldGroups = {};
+                  zoneIntakes.forEach(intake => {
+                    if (!fieldGroups[intake.field_id]) {
+                      fieldGroups[intake.field_id] = {
+                        fieldId: intake.field_id,
+                        fieldName: intake.field_name,
+                        quantity: 0
+                      };
+                    }
+                    fieldGroups[intake.field_id].quantity += intake.quantity;
+                  });
+                  
+                  const fields = Object.values(fieldGroups);
+                  const isMixed = fields.length > 1;
+                  const selectedFieldId = moveFieldSelections[zone.id];
+                  const maxQty = selectedFieldId && fieldGroups[selectedFieldId] 
+                    ? fieldGroups[selectedFieldId].quantity 
+                    : zone.total_quantity;
+                  
+                  return (
+                    <div key={zone.id} className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                      <div className="flex items-start gap-3 mb-2">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <p className="font-semibold">{zone.name}</p>
+                            {isMixed && (
+                              <span className="px-1.5 py-0.5 bg-orange-100 text-orange-700 text-xs font-bold rounded">
+                                MIX
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-gray-600">Total: {zone.total_quantity?.toFixed(0) || 0} units</p>
+                        </div>
+                        <div className="w-28">
+                          <Input
+                            type="number"
+                            placeholder="Qty"
+                            min="0"
+                            max={maxQty}
+                            value={moveQuantities[zone.id] || ""}
+                            onChange={(e) => {
+                              const val = parseFloat(e.target.value) || 0;
+                              setMoveQuantities({
+                                ...moveQuantities,
+                                [zone.id]: Math.min(val, maxQty)
+                              });
+                            }}
+                          />
+                          <p className="text-xs text-gray-500 mt-0.5">Max: {maxQty?.toFixed(0) || 0}</p>
+                        </div>
+                      </div>
+                      
+                      {/* Field selector for mixed zones */}
+                      {isMixed && (
+                        <div className="mt-2 pt-2 border-t border-gray-200">
+                          <Label className="text-xs text-gray-600">Move from which field?</Label>
+                          <Select 
+                            value={moveFieldSelections[zone.id] || ""} 
+                            onValueChange={(value) => {
+                              setMoveFieldSelections({
+                                ...moveFieldSelections,
+                                [zone.id]: value
+                              });
+                              // Update max quantity based on selected field
+                              const fieldQty = fieldGroups[value]?.quantity || 0;
+                              if (moveQuantities[zone.id] > fieldQty) {
+                                setMoveQuantities({
+                                  ...moveQuantities,
+                                  [zone.id]: fieldQty
+                                });
+                              }
+                            }}
+                          >
+                            <SelectTrigger className="h-8 text-xs">
+                              <SelectValue placeholder="Select field" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {fields.map((field) => (
+                                <SelectItem key={field.fieldId} value={field.fieldId}>
+                                  {field.fieldName} ({field.quantity.toFixed(0)} units)
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      )}
                     </div>
-                    <div className="w-32">
-                      <Input
-                        type="number"
-                        placeholder="Quantity"
-                        min="0"
-                        max={zone.total_quantity}
-                        value={moveQuantities[zone.id] || ""}
-                        onChange={(e) => {
-                          const val = parseFloat(e.target.value) || 0;
-                          const maxVal = zone.total_quantity || 0;
-                          setMoveQuantities({
-                            ...moveQuantities,
-                            [zone.id]: Math.min(val, maxVal)
-                          });
-                        }}
-                      />
-                      <p className="text-xs text-gray-500 mt-0.5">Max: {zone.total_quantity?.toFixed(0) || 0}</p>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               {/* Destination selection */}
