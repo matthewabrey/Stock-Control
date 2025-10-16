@@ -431,13 +431,16 @@ const FloorPlan = () => {
 
     try;
       
+      // Distribute quantity across selected zones
+      const qtyPerZone = qty / zonesToUpdate.length;
+      
       for (const zone of zonesToUpdate) {
         await axios.post(`${API}/stock-intakes`, {
           field_id: field.id,
           field_name: field.name,
           zone_id: zone.id,
           shed_id: shedId,
-          quantity: parseFloat(intakeQuantity),
+          quantity: qtyPerZone,
           date: intakeDate,
           grade: selectedGrade
         });
