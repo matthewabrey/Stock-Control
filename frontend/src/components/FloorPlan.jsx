@@ -1277,13 +1277,19 @@ const FloorPlan = () => {
                       <Input
                         type="number"
                         placeholder="Quantity"
+                        min="0"
                         max={zone.total_quantity}
                         value={moveQuantities[zone.id] || ""}
-                        onChange={(e) => setMoveQuantities({
-                          ...moveQuantities,
-                          [zone.id]: e.target.value
-                        })}
+                        onChange={(e) => {
+                          const val = parseFloat(e.target.value) || 0;
+                          const maxVal = zone.total_quantity || 0;
+                          setMoveQuantities({
+                            ...moveQuantities,
+                            [zone.id]: Math.min(val, maxVal)
+                          });
+                        }}
                       />
+                      <p className="text-xs text-gray-500 mt-0.5">Max: {zone.total_quantity?.toFixed(0) || 0}</p>
                     </div>
                   </div>
                 ))}
