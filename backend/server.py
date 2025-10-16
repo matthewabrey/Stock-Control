@@ -362,15 +362,27 @@ async def upload_excel(file: UploadFile = File(...)):
                     continue
                 
                 # Assign grades based on crop type from parsed tables
-                grades = ['Whole Crop']  # Always include Whole Crop
+                grades = []
                 crop_str = str(crop).lower() if crop else ""
+                variety_str = str(variety).lower() if variety else ""
                 
+                # Match crop type to grade table
                 if 'onion' in crop_str:
-                    grades.extend(grade_tables.get('onion', []))
+                    # Check if it's a special onion variety
+                    if 'special' in variety_str or 'shallot' in variety_str:
+                        grades = grade_tables.get('onion_special', grade_tables.get('onion', []))
+                    else:
+                        grades = grade_tables.get('onion', [])
                 elif 'maincrop' in crop_str or 'main crop' in crop_str:
-                    grades.extend(grade_tables.get('maincrop', []))
+                    grades = grade_tables.get('maincrop', [])
                 elif 'salad' in crop_str:
-                    grades.extend(grade_tables.get('salad', []))
+                    grades = grade_tables.get('salad', [])
+                elif 'carrot' in crop_str:
+                    grades = grade_tables.get('carrot', [])
+                
+                # If no grades found, add a default
+                if not grades:
+                    grades = ['Whole Crop']
                 
                 full_field_name = f"{farm} - {field_name}"
                 area_str = f"{area} Acres" if area else "N/A"
