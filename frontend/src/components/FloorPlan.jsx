@@ -33,6 +33,8 @@ const FloorPlan = () => {
   const [selectedZones, setSelectedZones] = useState([]);
   const [showIntakeDialog, setShowIntakeDialog] = useState(false);
   const [showMoveDialog, setShowMoveDialog] = useState(false);
+  const [showBulkMoveDialog, setShowBulkMoveDialog] = useState(false);
+  const [showDestinationPicker, setShowDestinationPicker] = useState(false);
   const [showZoneDialog, setShowZoneDialog] = useState(false);
   const [showZoneDetails, setShowZoneDetails] = useState(false);
   const [selectedZone, setSelectedZone] = useState(null);
