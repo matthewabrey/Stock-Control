@@ -191,6 +191,99 @@ const FloorPlan = () => {
     setShowIntakeDialog(true);
   };
 
+  const handleBulkMoveStock = () => {
+    if (selectedZones.length === 0) {
+      toast.warning("Please select zones first (Ctrl+Click to select multiple)");
+      return;
+    }
+    // Initialize move quantities with current quantities
+    const quantities = {};
+    selectedZones.forEach(zone => {
+      quantities[zone.id] = zone.total_quantity || 0;
+    });
+    setMoveQuantities(quantities);
+    setMoveDestinationType("");
+    setMoveDestinationShed("");
+    setShowBulkMoveDialog(true);
+  };
+
+  const handleBulkMoveSubmit = async () => {
+    if (!moveDestinationType) {
+      toast.warning("Please select a destination type");
+      return;
+    }
+
+    // Validate quantities
+    const totalToMove = Object.values(moveQuantities).reduce((sum, qty) => sum + parseFloat(qty || 0), 0);
+    if (totalToMove === 0) {
+      toast.warning("Please enter quantities to move");
+      return;
+    }
+
+    try {
+      if (moveDestinationType === "grader" || moveDestinationType === "customer") {
+        // Remove stock from zones (going out of facility)
+        for (const zone of selectedZones) {
+          const qtyToMove = parseFloat(moveQuantities[zone.id] || 0);
+          if (qtyToMove > 0) {
+            const newQuantity = zone.total_quantity - qtyToMove;
+            await axios.put(`${API}/zones/${zone.id}`, null, {
+              params: { quantity: Math.max(0, newQuantity) }
+            });
+          }
+        }
+        
+        const destName = moveDestinationType === "grader" ? "Grader" : "Customer";
+        toast.success(`Moved stock to ${destName}`);
+        setShowBulkMoveDialog(false);
+        setSelectedZones([]);
+        fetchZones();
+      } else if (moveDestinationType === "store") {
+        // Show destination store picker
+        if (!moveDestinationShed) {
+          toast.warning("Please select a destination store");
+          return;
+        }
+        // Show floor plan for zone selection
+        setShowDestinationPicker(true);
+      }
+    } catch (error) {
+      console.error("Error moving stock:", error);
+      toast.error("Failed to move stock");
+    }
+  };
+
+  const handleDestinationZoneClick = async (destZone) => {
+    try {
+      // Move stock from each selected zone to the destination zone
+      for (const zone of selectedZones) {
+        const qtyToMove = parseFloat(moveQuantities[zone.id] || 0);
+        if (qtyToMove > 0) {
+          // Reduce from source
+          const newSourceQty = zone.total_quantity - qtyToMove;
+          await axios.put(`${API}/zones/${zone.id}`, null, {
+            params: { quantity: Math.max(0, newSourceQty) }
+          });
+          
+          // Add to destination
+          const newDestQty = destZone.total_quantity + qtyToMove;
+          await axios.put(`${API}/zones/${destZone.id}`, null, {
+            params: { quantity: newDestQty }
+          });
+        }
+      }
+      
+      toast.success(`Moved stock to ${destZone.name}`);
+      setShowDestinationPicker(false);
+      setShowBulkMoveDialog(false);
+      setSelectedZones([]);
+      fetchZones();
+    } catch (error) {
+      console.error("Error moving stock:", error);
+      toast.error("Failed to move stock");
+    }
+  };
+
   const handleStockIntake = async () => {
     if (!selectedField || !intakeQuantity || !selectedGrade) {
       toast.warning("Please fill all required fields including grade");
