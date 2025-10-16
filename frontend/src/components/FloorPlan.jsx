@@ -1176,14 +1176,31 @@ const FloorPlan = () => {
               )}
               <div>
                 <Label htmlFor="quantity">Quantity</Label>
-                <Input
-                  id="quantity"
-                  type="number"
-                  placeholder="Enter quantity"
-                  value={intakeQuantity}
-                  onChange={(e) => setIntakeQuantity(e.target.value)}
-                  data-testid="input-intake-quantity"
-                />
+                {(() => {
+                  // Calculate total available capacity across selected zones
+                  const totalCapacity = selectedZones.reduce((sum, z) => {
+                    const available = (z.max_capacity || 6) - (z.total_quantity || 0);
+                    return sum + Math.max(0, available);
+                  }, 0);
+                  
+                  return (
+                    <>
+                      <Input
+                        id="quantity"
+                        type="number"
+                        placeholder="Enter quantity"
+                        min="1"
+                        max={totalCapacity}
+                        value={intakeQuantity}
+                        onChange={(e) => setIntakeQuantity(e.target.value)}
+                        data-testid="input-intake-quantity"
+                      />
+                      <p className="text-xs text-gray-600 mt-1">
+                        Available capacity: {totalCapacity} units across {selectedZones.length} zone{selectedZones.length > 1 ? 's' : ''}
+                      </p>
+                    </>
+                  );
+                })()}
               </div>
               <div>
                 <Label htmlFor="date">Date</Label>
