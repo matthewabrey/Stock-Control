@@ -593,6 +593,104 @@ async def upload_excel(file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=f"Error processing file: {str(e)}")
 
 
+# Database integrity check endpoint
+@api_router.get("/database-integrity")
+async def check_database_integrity():
+    """Check database integrity and report any inconsistencies"""
+    try:
+        issues = []
+        stats = {}
+        
+        # Count documents
+        sheds_count = await db.sheds.count_documents({})
+        zones_count = await db.zones.count_documents({})
+        intakes_count = await db.stock_intakes.count_documents({})
+        fields_count = await db.fields.count_documents({})
+        
+        stats["sheds"] = sheds_count
+        stats["zones"] = zones_count
+        stats["stock_intakes"] = intakes_count
+        stats["fields"] = fields_count
+        
+        # Check for orphaned zones (zones whose shed_id doesn't exist)
+        zones = await db.zones.find({}).to_list(length=None)
+        shed_ids = set([s["id"] for s in await db.sheds.find({}).to_list(length=None)])
+        
+        orphaned_zones = []
+        for zone in zones:
+            if zone["shed_id"] not in shed_ids:
+                orphaned_zones.append({"zone_id": zone["id"], "zone_name": zone["name"], "invalid_shed_id": zone["shed_id"]})
+        
+        if orphaned_zones:
+            issues.append({
+                "type": "orphaned_zones",
+                "count": len(orphaned_zones),
+                "message": f"Found {len(orphaned_zones)} zones with invalid shed_id",
+                "examples": orphaned_zones[:5]
+            })
+        
+        # Check for stock intakes with invalid zone_id or shed_id
+        intakes = await db.stock_intakes.find({}).to_list(length=None)
+        zone_ids = set([z["id"] for z in zones])
+        
+        invalid_intakes = []
+        for intake in intakes:
+            if intake["zone_id"] not in zone_ids:
+                invalid_intakes.append({
+                    "intake_id": intake["id"],
+                    "invalid_zone_id": intake["zone_id"],
+                    "shed_id": intake["shed_id"]
+                })
+            elif intake["shed_id"] not in shed_ids:
+                invalid_intakes.append({
+                    "intake_id": intake["id"],
+                    "zone_id": intake["zone_id"],
+                    "invalid_shed_id": intake["shed_id"]
+                })
+        
+        if invalid_intakes:
+            issues.append({
+                "type": "invalid_stock_intakes",
+                "count": len(invalid_intakes),
+                "message": f"Found {len(invalid_intakes)} stock intakes with invalid zone_id or shed_id",
+                "examples": invalid_intakes[:5]
+            })
+        
+        # Check for zone quantity mismatches
+        quantity_mismatches = []
+        for zone in zones:
+            zone_intakes = [i for i in intakes if i["zone_id"] == zone["id"]]
+            expected_qty = sum(i["quantity"] for i in zone_intakes)
+            actual_qty = zone.get("total_quantity", 0)
+            
+            if abs(expected_qty - actual_qty) > 0.01:  # Allow small floating point differences
+                quantity_mismatches.append({
+                    "zone_id": zone["id"],
+                    "zone_name": zone["name"],
+                    "shed_id": zone["shed_id"],
+                    "expected_quantity": expected_qty,
+                    "actual_quantity": actual_qty,
+                    "difference": expected_qty - actual_qty
+                })
+        
+        if quantity_mismatches:
+            issues.append({
+                "type": "quantity_mismatches",
+                "count": len(quantity_mismatches),
+                "message": f"Found {len(quantity_mismatches)} zones where total_quantity doesn't match sum of intakes",
+                "examples": quantity_mismatches[:10]
+            })
+        
+        return {
+            "status": "healthy" if len(issues) == 0 else "issues_found",
+            "stats": stats,
+            "issues": issues,
+            "message": "No issues found" if len(issues) == 0 else f"Found {len(issues)} types of issues"
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error checking integrity: {str(e)}")
+
+
 # Clear all data endpoint
 @api_router.delete("/clear-all-data")
 async def clear_all_data():
