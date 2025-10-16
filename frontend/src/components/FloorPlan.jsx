@@ -129,6 +129,11 @@ const FloorPlan = () => {
   };
 
   const getZoneColor = (zone) => {
+    // If zone has no quantity, it's empty regardless of intake records
+    if (!zone.total_quantity || zone.total_quantity === 0) {
+      return "#e5e7eb"; // Gray for empty
+    }
+    
     const zoneIntakes = getZoneIntakes(zone.id);
     if (zoneIntakes.length === 0) return "#e5e7eb"; // Gray for empty
     
