@@ -137,12 +137,43 @@ const FloorPlan = () => {
     const zoneIntakes = getZoneIntakes(zone.id);
     if (zoneIntakes.length === 0) return "#e5e7eb"; // Gray for empty
     
-    // If multiple fields, use gradient or most recent
-    const latestIntake = zoneIntakes.sort((a, b) => 
-      new Date(b.created_at) - new Date(a.created_at)
-    )[0];
+    // Group by field to check for mixed stock
+    const fieldGroups = {};
+    zoneIntakes.forEach(intake => {
+      if (!fieldGroups[intake.field_id]) {
+        fieldGroups[intake.field_id] = [];
+      }
+      fieldGroups[intake.field_id].push(intake);
+    });
     
-    return fieldColorMap[latestIntake.field_id] || "#94a3b8";
+    const uniqueFields = Object.keys(fieldGroups);
+    
+    // If only one field, return solid color
+    if (uniqueFields.length === 1) {
+      return fieldColorMap[uniqueFields[0]] || "#94a3b8";
+    }
+    
+    // Multiple fields - return "mixed" indicator
+    return "mixed";
+  };
+  
+  const getZoneMixedFields = (zone) => {
+    const zoneIntakes = getZoneIntakes(zone.id);
+    const fieldGroups = {};
+    
+    zoneIntakes.forEach(intake => {
+      if (!fieldGroups[intake.field_id]) {
+        fieldGroups[intake.field_id] = {
+          fieldId: intake.field_id,
+          fieldName: intake.field_name,
+          color: fieldColorMap[intake.field_id] || "#94a3b8",
+          quantity: 0
+        };
+      }
+      fieldGroups[intake.field_id].quantity += intake.quantity;
+    });
+    
+    return Object.values(fieldGroups);
   };
 
   const handleCreateZone = async () => {
