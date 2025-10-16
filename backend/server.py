@@ -411,8 +411,10 @@ async def upload_excel(file: UploadFile = File(...)):
             # Check if store already exists
             existing_shed = await db.sheds.find_one({"name": store_name})
             if existing_shed:
-                print(f"Store {store_name} already exists, skipping...")
+                print(f"Store '{store_name}' already exists in database, skipping...")
                 continue
+            
+            print(f"Processing new store: '{store_name}'")
             
             ws = wb[sheet_name]
             
