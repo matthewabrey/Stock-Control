@@ -947,33 +947,58 @@ const FloorPlan = () => {
 
               {selectedZoneIntakes.length > 0 && (
                 <div>
-                  <h3 className="font-semibold mb-2">Stock History</h3>
-                  <ScrollArea className="h-[200px] border rounded-lg p-2">
-                    <div className="space-y-2">
-                      {selectedZoneIntakes.map((intake) => {
-                        const field = fields.find(f => f.id === intake.field_id);
+                  <h3 className="font-semibold mb-3">Stock Breakdown</h3>
+                  <div className="space-y-3">
+                    {(() => {
+                      // Group by field
+                      const fieldGroups = {};
+                      selectedZoneIntakes.forEach(intake => {
+                        if (!fieldGroups[intake.field_id]) {
+                          const field = fields.find(f => f.id === intake.field_id);
+                          fieldGroups[intake.field_id] = {
+                            fieldId: intake.field_id,
+                            fieldName: intake.field_name,
+                            variety: field?.variety,
+                            cropType: field?.crop_type,
+                            color: fieldColorMap[intake.field_id],
+                            grades: {}
+                          };
+                        }
+                        if (!fieldGroups[intake.field_id].grades[intake.grade]) {
+                          fieldGroups[intake.field_id].grades[intake.grade] = 0;
+                        }
+                        fieldGroups[intake.field_id].grades[intake.grade] += intake.quantity;
+                      });
+                      
+                      return Object.values(fieldGroups).map((group, idx) => {
+                        const totalQty = Object.values(group.grades).reduce((sum, q) => sum + q, 0);
                         return (
-                          <div key={intake.id} className="flex items-center gap-3 p-2 bg-white rounded border">
-                            <div 
-                              className="w-4 h-4 rounded flex-shrink-0" 
-                              style={{ backgroundColor: fieldColorMap[intake.field_id] }}
-                            ></div>
-                            <div className="flex-1">
-                              <p className="text-sm font-semibold">{field?.name || intake.field_name}</p>
-                              <p className="text-xs text-gray-600">{field?.variety} - {field?.crop_type}</p>
-                              {intake.grade && (
-                                <p className="text-xs font-medium text-blue-600">Grade: {intake.grade}</p>
-                              )}
+                          <div key={idx} className="p-4 bg-gray-50 rounded-lg border-l-4" style={{ borderColor: group.color }}>
+                            <div className="flex items-start justify-between mb-2">
+                              <div>
+                                <p className="font-semibold text-gray-900">{group.fieldName}</p>
+                                <p className="text-xs text-gray-600">{group.variety} - {group.cropType}</p>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-lg font-bold text-gray-900">{totalQty.toFixed(0)}</p>
+                                <p className="text-xs text-gray-600">units</p>
+                              </div>
                             </div>
-                            <div className="text-right">
-                              <p className="text-sm font-semibold">{intake.quantity} units</p>
-                              <p className="text-xs text-gray-500">{new Date(intake.date).toLocaleDateString()}</p>
+                            <div className="mt-2 pt-2 border-t border-gray-200">
+                              <p className="text-xs font-medium text-gray-500 mb-1">GRADES:</p>
+                              <div className="flex flex-wrap gap-2">
+                                {Object.entries(group.grades).map(([grade, qty]) => (
+                                  <span key={grade} className="px-2 py-1 bg-white border border-gray-300 rounded text-xs">
+                                    {grade}: <span className="font-semibold">{qty.toFixed(0)}</span>
+                                  </span>
+                                ))}
+                              </div>
                             </div>
                           </div>
                         );
-                      })}
-                    </div>
-                  </ScrollArea>
+                      });
+                    })()}
+                  </div>
                 </div>
               )}
 
