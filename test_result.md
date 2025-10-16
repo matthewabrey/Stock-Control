@@ -134,6 +134,14 @@ backend:
           - Checks for invalid stock intakes (invalid zone_id or shed_id)
           - Checks for quantity mismatches between zones and intake records
           - Returns detailed stats and issue reports
+      - working: true
+        agent: "testing"
+        comment: |
+          ✅ DATABASE INTEGRITY ENDPOINT FULLY TESTED
+          - Clean state: Returns "healthy" status with all counts at 0, no issues
+          - Post-upload: Correctly reports healthy status with proper counts
+          - Detects and reports data inconsistencies when they exist
+          - Provides detailed stats and issue breakdowns for diagnostics
   
   - task: "Clear all data functionality"
     implemented: true
@@ -149,6 +157,14 @@ backend:
           ✅ Successfully cleared all data from database
           - Deleted all fields, sheds, zones, stock_intakes, and stock_movements
           - Database now in clean state ready for fresh data
+      - working: true
+        agent: "testing"
+        comment: |
+          ✅ CLEAR ALL DATA FUNCTIONALITY VERIFIED
+          - DELETE /api/clear-all-data successfully clears all collections
+          - Returns confirmation of cleared collections: fields, sheds, zones, stock_intakes, stock_movements
+          - Database integrity check confirms clean state after clearing (all counts = 0)
+          - System ready for fresh Excel upload after clear operation
   
   - task: "Parse grade tables from FRONT PAGE sheet"
     implemented: true
