@@ -306,6 +306,14 @@ async def upload_excel(file: UploadFile = File(...)):
                 'salad': []
             }
             
+            # Log all non-empty cells in FRONT PAGE to understand structure
+            print("=== FRONT PAGE Sheet Scan ===")
+            for row_idx in range(1, min(50, ws.max_row + 1)):  # Check first 50 rows
+                for col_idx in range(1, min(30, ws.max_column + 1)):  # Check first 30 columns
+                    cell_value = ws.cell(row_idx, col_idx).value
+                    if cell_value and isinstance(cell_value, str) and 'table' in cell_value.lower():
+                        print(f"Row {row_idx}, Col {col_idx}: '{cell_value}'")
+            
             # Scan all cells to find grade table headers and their grades
             for row_idx in range(1, ws.max_row + 1):
                 for col_idx in range(1, ws.max_column + 1):
