@@ -275,6 +275,20 @@ const FloorPlan = () => {
       toast.warning("Please enter quantities to move");
       return;
     }
+    
+    // Validate field selections for mixed zones
+    for (const zone of selectedZones) {
+      const zoneIntakes = getZoneIntakes(zone.id);
+      const fieldGroups = {};
+      zoneIntakes.forEach(intake => {
+        if (!fieldGroups[intake.field_id]) fieldGroups[intake.field_id] = true;
+      });
+      
+      if (Object.keys(fieldGroups).length > 1 && !moveFieldSelections[zone.id]) {
+        toast.warning(`Please select which field to move from ${zone.name}`);
+        return;
+      }
+    }
 
     try {
       if (moveDestinationType === "grader" || moveDestinationType === "customer") {
@@ -282,10 +296,34 @@ const FloorPlan = () => {
         for (const zone of selectedZones) {
           const qtyToMove = parseFloat(moveQuantities[zone.id] || 0);
           if (qtyToMove > 0) {
-            const isMovingAll = qtyToMove >= zone.total_quantity;
+            // Update zone quantity
+            const newQuantity = Math.max(0, zone.total_quantity - qtyToMove);
             await axios.put(`${API}/zones/${zone.id}`, null, {
-              params: { quantity: isMovingAll ? 0 : (zone.total_quantity - qtyToMove) }
+              params: { quantity: newQuantity }
             });
+            
+            // If moving from specific field in mixed zone, update intake records
+            const selectedFieldId = moveFieldSelections[zone.id];
+            if (selectedFieldId) {
+              // Reduce intake quantity for this field proportionally
+              const zoneIntakes = await axios.get(`${API}/stock-intakes/zone/${zone.id}`);
+              const fieldIntakes = zoneIntakes.data.filter(i => i.field_id === selectedFieldId);
+              const totalFieldQty = fieldIntakes.reduce((sum, i) => sum + i.quantity, 0);
+              const reductionRatio = qtyToMove / totalFieldQty;
+              
+              for (const intake of fieldIntakes) {
+                const newIntakeQty = intake.quantity * (1 - reductionRatio);
+                if (newIntakeQty > 0.01) {
+                  await axios.put(`${API}/stock-intakes/${intake.id}`, {
+                    ...intake,
+                    quantity: newIntakeQty
+                  });
+                } else {
+                  // Delete intake if quantity becomes negligible
+                  await axios.delete(`${API}/stock-intakes/${intake.id}`);
+                }
+              }
+            }
           }
         }
         
