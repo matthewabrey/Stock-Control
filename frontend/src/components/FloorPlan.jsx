@@ -1282,22 +1282,29 @@ const DestinationFloorPlan = ({ shed, onZoneClick, selectedZones = [] }) => {
           const zoneWidthCells = zone.width / 2;
           const zoneHeightCells = zone.height / 2;
           const isEmpty = zone.total_quantity === 0;
+          const isSelected = selectedZones.find(z => z.id === zone.id);
+          const selectionIndex = selectedZones.findIndex(z => z.id === zone.id);
           
           return (
             <div
               key={zone.id}
               onClick={() => onZoneClick(zone)}
-              className="absolute cursor-pointer hover:shadow-2xl hover:z-10 transition-all rounded border-2 border-gray-700 hover:border-blue-500"
+              className={`absolute cursor-pointer hover:shadow-2xl hover:z-10 transition-all rounded ${
+                isSelected ? 'border-4 border-blue-600 z-10' : 'border-2 border-gray-700 hover:border-blue-500'
+              }`}
               style={{
                 left: `${shedPadding + displayCol * gridCellSize + boxPadding}px`,
                 top: `${shedPadding + displayRow * gridCellSize + boxPadding}px`,
                 width: `${zoneWidthCells * gridCellSize - boxPadding * 2}px`,
                 height: `${zoneHeightCells * gridCellSize - boxPadding * 2}px`,
-                backgroundColor: isEmpty ? '#e5e7eb' : '#94a3b8',
-                opacity: isEmpty ? 0.5 : 1
+                backgroundColor: isSelected ? '#3b82f6' : (isEmpty ? '#e5e7eb' : '#94a3b8'),
+                opacity: isEmpty && !isSelected ? 0.5 : 1
               }}
             >
-              <div className="text-xs text-center font-bold text-gray-800 pt-1">{zone.name}</div>
+              <div className="text-xs text-center font-bold text-white pt-1">
+                {zone.name}
+                {isSelected && <span className="ml-1">#{selectionIndex + 1}</span>}
+              </div>
             </div>
           );
         })}
