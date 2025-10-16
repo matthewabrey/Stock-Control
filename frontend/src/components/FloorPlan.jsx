@@ -406,12 +406,30 @@ const FloorPlan = () => {
       return;
     }
 
+    const qty = parseFloat(intakeQuantity);
+    if (isNaN(qty) || qty <= 0) {
+      toast.warning("Please enter a valid quantity");
+      return;
+    }
+
     const field = fields.find(f => f.id === selectedField);
     if (!field) return;
 
-    try {
-      // If multiple zones selected, add to all
-      const zonesToUpdate = selectedZones.length > 0 ? selectedZones : [selectedZone];
+    // If multiple zones selected, add to all
+    const zonesToUpdate = selectedZones.length > 0 ? selectedZones : [selectedZone];
+
+    // Check available capacity
+    const totalAvailable = zonesToUpdate.reduce((sum, z) => {
+      const available = (z.max_capacity || 6) - (z.total_quantity || 0);
+      return sum + Math.max(0, available);
+    }, 0);
+
+    if (qty > totalAvailable) {
+      toast.error(`Quantity exceeds available capacity. Max available: ${totalAvailable} units`);
+      return;
+    }
+
+    try;
       
       for (const zone of zonesToUpdate) {
         await axios.post(`${API}/stock-intakes`, {
