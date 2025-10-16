@@ -76,7 +76,7 @@ const Dashboard = () => {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card className="border-l-4 border-l-emerald-500 hover:shadow-lg transition-shadow" data-testid="stat-card-fields">
+          <Card className="bg-white shadow rounded-xl border border-gray-200 hover:shadow-lg transition-shadow" data-testid="stat-card-fields">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-sm font-medium text-gray-600">
                 <Sprout className="w-4 h-4" />
@@ -84,11 +84,11 @@ const Dashboard = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-emerald-600">{stats.totalFields}</div>
+              <div className="text-3xl font-semibold text-gray-900">{stats.totalFields}</div>
             </CardContent>
           </Card>
 
-          <Card className="border-l-4 border-l-blue-500 hover:shadow-lg transition-shadow" data-testid="stat-card-sheds">
+          <Card className="bg-white shadow rounded-xl border border-gray-200 hover:shadow-lg transition-shadow" data-testid="stat-card-sheds">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-sm font-medium text-gray-600">
                 <Warehouse className="w-4 h-4" />
@@ -96,11 +96,11 @@ const Dashboard = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-blue-600">{stats.totalSheds}</div>
+              <div className="text-3xl font-semibold text-gray-900">{stats.totalSheds}</div>
             </CardContent>
           </Card>
 
-          <Card className="border-l-4 border-l-purple-500 hover:shadow-lg transition-shadow" data-testid="stat-card-zones">
+          <Card className="bg-white shadow rounded-xl border border-gray-200 hover:shadow-lg transition-shadow" data-testid="stat-card-zones">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-sm font-medium text-gray-600">
                 <Map className="w-4 h-4" />
@@ -108,11 +108,11 @@ const Dashboard = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-purple-600">{stats.totalZones}</div>
+              <div className="text-3xl font-semibold text-gray-900">{stats.totalZones}</div>
             </CardContent>
           </Card>
 
-          <Card className="border-l-4 border-l-orange-500 hover:shadow-lg transition-shadow" data-testid="stat-card-stock">
+          <Card className="bg-white shadow rounded-xl border border-gray-200 hover:shadow-lg transition-shadow" data-testid="stat-card-stock">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-sm font-medium text-gray-600">
                 <Package className="w-4 h-4" />
@@ -120,7 +120,7 @@ const Dashboard = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-orange-600">{stats.totalStock.toFixed(0)}</div>
+              <div className="text-3xl font-semibold text-gray-900">{stats.totalStock.toFixed(0)}</div>
             </CardContent>
           </Card>
         </div>
