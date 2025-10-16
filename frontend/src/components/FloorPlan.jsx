@@ -690,6 +690,8 @@ const FloorPlan = () => {
                           const zoneColor = getZoneColor(zone);
                           const isEmpty = zone.total_quantity === 0;
                           const isSelected = selectedZones.some(z => z.id === zone.id);
+                          const isMixed = zoneColor === "mixed";
+                          const mixedFields = isMixed ? getZoneMixedFields(zone) : [];
                           
                           const actualCol = Math.floor(zone.x / 2);
                           const actualRow = Math.floor(zone.y / 2);
@@ -716,12 +718,37 @@ const FloorPlan = () => {
                                 top: `${shedPadding + displayRow * gridCellSize + boxPadding}px`,
                                 width: `${zoneWidthCells * gridCellSize - boxPadding * 2}px`,
                                 height: `${zoneHeightCells * gridCellSize - boxPadding * 2}px`,
-                                backgroundColor: zoneColor,
+                                backgroundColor: isMixed ? 'transparent' : zoneColor,
                                 opacity: isEmpty ? 0.5 : 1,
-                                boxShadow: isSelected ? '0 0 0 2px #fff, 0 0 0 6px #2563eb' : '0 2px 4px rgba(0,0,0,0.1)'
+                                boxShadow: isSelected ? '0 0 0 2px #fff, 0 0 0 6px #2563eb' : '0 2px 4px rgba(0,0,0,0.1)',
+                                overflow: 'hidden'
                               }}
                               data-testid={`zone-${zone.id}`}
                             >
+                              {/* Mixed stock - show split colors */}
+                              {isMixed && mixedFields.length > 0 && (
+                                <div className="w-full h-full flex">
+                                  {mixedFields.map((field, idx) => (
+                                    <div
+                                      key={idx}
+                                      style={{
+                                        flex: 1,
+                                        backgroundColor: field.color,
+                                        borderRight: idx < mixedFields.length - 1 ? '2px solid white' : 'none'
+                                      }}
+                                      title={`${field.fieldName}: ${field.quantity.toFixed(0)} units`}
+                                    />
+                                  ))}
+                                </div>
+                              )}
+                              
+                              {/* Mixed stock indicator */}
+                              {isMixed && (
+                                <div className="absolute top-1 left-1 bg-white px-1 rounded text-xs font-bold text-gray-800 border border-gray-400">
+                                  MIX
+                                </div>
+                              )}
+                              
                               {isSelected && (
                                 <div className="absolute top-1 right-1 w-4 h-4 bg-blue-600 rounded-full border-2 border-white"></div>
                               )}
