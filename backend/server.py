@@ -189,7 +189,7 @@ async def create_zone(input: ZoneCreate):
 @api_router.get("/zones", response_model=List[Zone])
 async def get_zones(shed_id: Optional[str] = None):
     query = {"shed_id": shed_id} if shed_id else {}
-    zones = await db.zones.find(query, {"_id": 0}).to_list(1000)
+    zones = await db.zones.find(query, {"_id": 0}).to_list(length=None)
     return zones
 
 @api_router.put("/zones/{zone_id}", response_model=Zone)
