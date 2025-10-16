@@ -162,7 +162,11 @@ const Overview = () => {
                     {stockDetails.length === 0 ? (
                       <p className="text-gray-500 text-center py-4">No stock in this shed</p>
                     ) : (
-                      <div className="space-y-4">
+                      <>
+                        <p className="text-xs text-gray-500 italic mb-4">
+                          * Field quantities are estimated based on intake proportions in mixed zones
+                        </p>
+                        <div className="space-y-4">
                         {stockDetails.map((detail, idx) => (
                           <div 
                             key={idx}
