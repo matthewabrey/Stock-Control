@@ -103,9 +103,19 @@
 #====================================================================================================
 
 user_problem_statement: |
-  The user reported two critical issues:
-  1. Grade dropdown not working - only showing limited grades (e.g., "MC2") instead of all relevant grades for the crop type (e.g., all MC1-MC7 for Maincrop Potato)
-  2. Multi-select functionality broken - Ctrl+Click not working to select multiple zones
+  User reported data integrity issues:
+  1. Stock added to "Grader Shed" was not displaying correctly in Overview
+  2. Duplicate zone names across multiple sheds (e.g., "R1" exists in D1, Grader Shed, etc.)
+  
+  Investigation revealed:
+  - Zone name duplication across sheds is EXPECTED and NORMAL behavior (each shed has its own layout)
+  - The actual issue was 1 orphaned stock intake record with invalid zone_id
+  - All data was cleared and system reset to fresh state as per user request
+  
+  Resolution:
+  - Added database integrity check endpoint to diagnose issues
+  - Cleared all data (fields, sheds, zones, stock intakes, movements)
+  - System is now ready for fresh Excel upload
 
 backend:
   - task: "Parse grade tables from FRONT PAGE sheet"
