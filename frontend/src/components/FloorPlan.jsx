@@ -487,20 +487,36 @@ const FloorPlan = () => {
               intakesByField[intake.field_id].push(intake);
             });
 
-            // Create intake records for destination for each field
-            // Use the actual quantity being moved, not calculated from intakes
+            // Create or update intake records for destination for each field
+            // Get existing intakes in destination
+            const destIntakesRes = await axios.get(`${API}/stock-intakes/zone/${destZone.id}`);
+            const destIntakes = destIntakesRes.data;
+            
             if (sourceIntakes.length === 1) {
               // Single field - use full quantity
               const template = sourceIntakes[0];
-              await axios.post(`${API}/stock-intakes`, {
-                field_id: template.field_id,
-                field_name: template.field_name,
-                zone_id: destZone.id,
-                shed_id: moveDestinationShed,
-                quantity: qtyToMove,
-                date: new Date().toISOString().split('T')[0],
-                grade: template.grade
-              });
+              const existingIntake = destIntakes.find(i => 
+                i.field_id === template.field_id && i.grade === template.grade
+              );
+              
+              if (existingIntake) {
+                // Update existing intake
+                await axios.put(`${API}/stock-intakes/${existingIntake.id}`, {
+                  ...existingIntake,
+                  quantity: existingIntake.quantity + qtyToMove
+                });
+              } else {
+                // Create new intake
+                await axios.post(`${API}/stock-intakes`, {
+                  field_id: template.field_id,
+                  field_name: template.field_name,
+                  zone_id: destZone.id,
+                  shed_id: moveDestinationShed,
+                  quantity: qtyToMove,
+                  date: new Date().toISOString().split('T')[0],
+                  grade: template.grade
+                });
+              }
             } else {
               // Multiple fields - distribute proportionally based on CURRENT zone proportions
               for (const fieldId in intakesByField) {
@@ -513,15 +529,28 @@ const FloorPlan = () => {
                   new Date(b.created_at) - new Date(a.created_at)
                 )[0];
                 
-                await axios.post(`${API}/stock-intakes`, {
-                  field_id: latestIntake.field_id,
-                  field_name: latestIntake.field_name,
-                  zone_id: destZone.id,
-                  shed_id: moveDestinationShed,
-                  quantity: qtyToMoveForField,
-                  date: new Date().toISOString().split('T')[0],
-                  grade: latestIntake.grade
-                });
+                const existingIntake = destIntakes.find(i => 
+                  i.field_id === latestIntake.field_id && i.grade === latestIntake.grade
+                );
+                
+                if (existingIntake) {
+                  // Update existing intake
+                  await axios.put(`${API}/stock-intakes/${existingIntake.id}`, {
+                    ...existingIntake,
+                    quantity: existingIntake.quantity + qtyToMoveForField
+                  });
+                } else {
+                  // Create new intake
+                  await axios.post(`${API}/stock-intakes`, {
+                    field_id: latestIntake.field_id,
+                    field_name: latestIntake.field_name,
+                    zone_id: destZone.id,
+                    shed_id: moveDestinationShed,
+                    quantity: qtyToMoveForField,
+                    date: new Date().toISOString().split('T')[0],
+                    grade: latestIntake.grade
+                  });
+                }
               }
             }
           }
