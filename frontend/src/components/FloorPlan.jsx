@@ -197,8 +197,17 @@ const FloorPlan = () => {
     }
   };
 
-  const handleZoneClick = (zone, event) => {
-    // Simple click to toggle selection
+  const handleZoneClick = async (zone, event) => {
+    // Check if zone has stock - if so, show details dialog first
+    if (zone.total_quantity > 0 && !selectedZones.find(z => z.id === zone.id)) {
+      setSelectedZone(zone);
+      const intakes = await axios.get(`${API}/stock-intakes/zone/${zone.id}`);
+      setSelectedZoneIntakes(intakes.data);
+      setShowZoneDetails(true);
+      return;
+    }
+    
+    // Otherwise toggle selection
     if (selectedZones.find(z => z.id === zone.id)) {
       // Deselect if already selected
       setSelectedZones(selectedZones.filter(z => z.id !== zone.id));
