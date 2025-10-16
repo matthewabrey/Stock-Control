@@ -1220,7 +1220,7 @@ const FloorPlan = () => {
 };
 
 // Component to show destination floor plan for zone selection
-const DestinationFloorPlan = ({ shed, onZoneClick }) => {
+const DestinationFloorPlan = ({ shed, onZoneClick, selectedZones = [] }) => {
   const [zones, setZones] = useState([]);
   
   useEffect(() => {
