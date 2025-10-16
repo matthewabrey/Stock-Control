@@ -402,8 +402,13 @@ async def upload_excel(file: UploadFile = File(...)):
         # Skip FRONT PAGE, Grade Options Page, and other non-store sheets
         skip_sheets = ["FRONT PAGE", "Grade Options Page", "Sheet1", "Sheet2", "Sheet3"]
         
+        print(f"=== Processing Store Sheets ===")
+        print(f"All sheets in workbook: {wb.sheetnames}")
+        print(f"Skip list: {skip_sheets}")
+        
         for sheet_name in wb.sheetnames:
             if sheet_name in skip_sheets:
+                print(f"Skipping sheet: '{sheet_name}' (in skip list)")
                 continue
             
             store_name = sheet_name.strip()
