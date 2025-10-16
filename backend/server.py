@@ -311,43 +311,57 @@ async def upload_excel(file: UploadFile = File(...)):
                 for col_idx in range(1, ws.max_column + 1):
                     cell_value = ws.cell(row_idx, col_idx).value
                     if cell_value and isinstance(cell_value, str):
-                        cell_str = cell_value.strip().lower()
+                        cell_str = cell_value.strip()
                         
                         # Found OnionGradeTable
-                        if 'oniongradetable' in cell_str.replace(' ', ''):
-                            # Read grades below this cell (skip header row, read data rows)
+                        if 'OnionGradeTable' in cell_str:
+                            print(f"Found OnionGradeTable at row {row_idx}, col {col_idx}")
+                            # Read grades below this cell (skip 1 row for header like "Onion")
                             for grade_row in range(row_idx + 2, ws.max_row + 1):
                                 grade_val = ws.cell(grade_row, col_idx).value
-                                if grade_val and str(grade_val).strip():
+                                if grade_val:
                                     grade_str = str(grade_val).strip()
-                                    # Stop if we hit another table or empty cells
-                                    if 'table' in grade_str.lower() or not grade_str:
+                                    # Stop if we hit another table name or empty cell
+                                    if 'GradeTable' in grade_str or not grade_str:
                                         break
+                                    # Skip if it's a header like "Onion"
+                                    if grade_str.lower() in ['onion', 'maincrop potato', 'salad potato']:
+                                        continue
                                     grade_tables['onion'].append(grade_str)
+                                    print(f"  Added onion grade: {grade_str}")
                                 else:
+                                    # Stop on empty cell
                                     break
                         
                         # Found MaincropGradeTable
-                        elif 'maincropgradetable' in cell_str.replace(' ', ''):
+                        elif 'MaincropGradeTable' in cell_str:
+                            print(f"Found MaincropGradeTable at row {row_idx}, col {col_idx}")
                             for grade_row in range(row_idx + 2, ws.max_row + 1):
                                 grade_val = ws.cell(grade_row, col_idx).value
-                                if grade_val and str(grade_val).strip():
+                                if grade_val:
                                     grade_str = str(grade_val).strip()
-                                    if 'table' in grade_str.lower() or not grade_str:
+                                    if 'GradeTable' in grade_str or not grade_str:
                                         break
+                                    if grade_str.lower() in ['onion', 'maincrop potato', 'salad potato']:
+                                        continue
                                     grade_tables['maincrop'].append(grade_str)
+                                    print(f"  Added maincrop grade: {grade_str}")
                                 else:
                                     break
                         
                         # Found SaladPotatoGradeTable
-                        elif 'saladpotatogradetable' in cell_str.replace(' ', ''):
+                        elif 'SaladPotatoGradeTable' in cell_str:
+                            print(f"Found SaladPotatoGradeTable at row {row_idx}, col {col_idx}")
                             for grade_row in range(row_idx + 2, ws.max_row + 1):
                                 grade_val = ws.cell(grade_row, col_idx).value
-                                if grade_val and str(grade_val).strip():
+                                if grade_val:
                                     grade_str = str(grade_val).strip()
-                                    if 'table' in grade_str.lower() or not grade_str:
+                                    if 'GradeTable' in grade_str or not grade_str:
                                         break
+                                    if grade_str.lower() in ['onion', 'maincrop potato', 'salad potato']:
+                                        continue
                                     grade_tables['salad'].append(grade_str)
+                                    print(f"  Added salad grade: {grade_str}")
                                 else:
                                     break
             
