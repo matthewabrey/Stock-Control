@@ -230,9 +230,9 @@ const FloorPlan = () => {
         for (const zone of selectedZones) {
           const qtyToMove = parseFloat(moveQuantities[zone.id] || 0);
           if (qtyToMove > 0) {
-            const newQuantity = zone.total_quantity - qtyToMove;
+            const isMovingAll = qtyToMove >= zone.total_quantity;
             await axios.put(`${API}/zones/${zone.id}`, null, {
-              params: { quantity: Math.max(0, newQuantity) }
+              params: { quantity: isMovingAll ? 0 : (zone.total_quantity - qtyToMove) }
             });
           }
         }
@@ -241,7 +241,15 @@ const FloorPlan = () => {
         toast.success(`Moved stock to ${destName}`);
         setShowBulkMoveDialog(false);
         setSelectedZones([]);
-        fetchZones();
+        
+        // Force refresh
+        await fetchZones();
+        await fetchStockIntakes();
+        
+        setTimeout(() => {
+          fetchZones();
+          fetchStockIntakes();
+        }, 500);
       } else if (moveDestinationType === "store") {
         // Show destination store picker
         if (!moveDestinationShed) {
