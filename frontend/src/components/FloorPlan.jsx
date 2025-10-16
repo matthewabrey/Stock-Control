@@ -800,32 +800,50 @@ const FloorPlan = () => {
               )}
               
               <div>
-                <Label htmlFor="field">Select Field</Label>
-                <Select value={selectedField} onValueChange={(value) => { setSelectedField(value); setSelectedGrade(""); }}>
-                  <SelectTrigger id="field" data-testid="select-field">
-                    <SelectValue placeholder="Choose a field" />
+                <Label htmlFor="crop">Select Crop Type</Label>
+                <Select value={selectedCrop} onValueChange={(value) => { setSelectedCrop(value); setSelectedField(""); setSelectedGrade(""); }}>
+                  <SelectTrigger id="crop" data-testid="select-crop">
+                    <SelectValue placeholder="Choose a crop type" />
                   </SelectTrigger>
                   <SelectContent>
-                    {fields.map((field) => (
-                      <SelectItem key={field.id} value={field.id} data-testid={`field-option-${field.id}`}>
-                        <div className="flex flex-col">
-                          <span className="font-semibold">{field.name}</span>
-                          <span className="text-xs text-gray-600">
-                            {field.variety} - {field.crop_type}
-                          </span>
-                        </div>
+                    {[...new Set(fields.map(f => f.crop_type))].sort().map((cropType) => (
+                      <SelectItem key={cropType} value={cropType} data-testid={`crop-option-${cropType}`}>
+                        {cropType}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                {selectedField && fields.find(f => f.id === selectedField) && (
-                  <div className="mt-2 p-2 bg-gray-50 rounded text-xs space-y-1">
-                    <p><strong>Area:</strong> {fields.find(f => f.id === selectedField).area}</p>
-                    <p><strong>Crop Type:</strong> {fields.find(f => f.id === selectedField).crop_type}</p>
-                    <p><strong>Variety:</strong> {fields.find(f => f.id === selectedField).variety}</p>
-                  </div>
-                )}
               </div>
+              
+              {selectedCrop && (
+                <div>
+                  <Label htmlFor="field">Select Field</Label>
+                  <Select value={selectedField} onValueChange={(value) => { setSelectedField(value); setSelectedGrade(""); }}>
+                    <SelectTrigger id="field" data-testid="select-field">
+                      <SelectValue placeholder="Choose a field" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {fields.filter(f => f.crop_type === selectedCrop).map((field) => (
+                        <SelectItem key={field.id} value={field.id} data-testid={`field-option-${field.id}`}>
+                          <div className="flex flex-col">
+                            <span className="font-semibold">{field.name}</span>
+                            <span className="text-xs text-gray-600">
+                              {field.variety} - {field.area}
+                            </span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {selectedField && fields.find(f => f.id === selectedField) && (
+                    <div className="mt-2 p-2 bg-gray-50 rounded text-xs space-y-1">
+                      <p><strong>Area:</strong> {fields.find(f => f.id === selectedField).area}</p>
+                      <p><strong>Crop Type:</strong> {fields.find(f => f.id === selectedField).crop_type}</p>
+                      <p><strong>Variety:</strong> {fields.find(f => f.id === selectedField).variety}</p>
+                    </div>
+                  )}
+                </div>
+              )}
               
               {selectedField && fields.find(f => f.id === selectedField)?.available_grades?.length > 0 && (
                 <div>
