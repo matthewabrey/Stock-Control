@@ -399,8 +399,8 @@ async def upload_excel(file: UploadFile = File(...)):
                 fields_created += 1
         
         # Parse Store Sheets (each sheet = one store)
-        # Skip FRONT PAGE and other non-store sheets
-        skip_sheets = ["FRONT PAGE", "Sheet1", "Sheet2", "Sheet3"]
+        # Skip FRONT PAGE, Grade Options Page, and other non-store sheets
+        skip_sheets = ["FRONT PAGE", "Grade Options Page", "Sheet1", "Sheet2", "Sheet3"]
         
         for sheet_name in wb.sheetnames:
             if sheet_name in skip_sheets:
