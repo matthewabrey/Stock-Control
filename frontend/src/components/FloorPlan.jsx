@@ -289,10 +289,12 @@ const FloorPlan = () => {
           // Get stock intakes from source zone to know what fields/grades are being moved
           const sourceIntakes = await axios.get(`${API}/stock-intakes/zone/${sourceZone.id}`);
           
-          // Reduce from source zone
-          const newSourceQty = sourceZone.total_quantity - qtyToMove;
+          // Calculate if moving all or partial stock
+          const isMovingAll = qtyToMove >= sourceZone.total_quantity;
+          
+          // Update source zone quantity (set to 0 if moving all)
           await axios.put(`${API}/zones/${sourceZone.id}`, null, {
-            params: { quantity: Math.max(0, newSourceQty) }
+            params: { quantity: isMovingAll ? 0 : (sourceZone.total_quantity - qtyToMove) }
           });
           
           // Add to destination zone
@@ -303,20 +305,39 @@ const FloorPlan = () => {
 
           // Create stock intake records for destination zone (so colors show up)
           if (sourceIntakes.data.length > 0) {
-            // Use the most recent intake info
-            const latestIntake = sourceIntakes.data.sort((a, b) => 
-              new Date(b.created_at) - new Date(a.created_at)
-            )[0];
-            
-            await axios.post(`${API}/stock-intakes`, {
-              field_id: latestIntake.field_id,
-              field_name: latestIntake.field_name,
-              zone_id: destZone.id,
-              shed_id: moveDestinationShed,
-              quantity: qtyToMove,
-              date: new Date().toISOString().split('T')[0],
-              grade: latestIntake.grade
+            // Group intakes by field to handle multiple fields in one zone
+            const intakesByField = {};
+            sourceIntakes.data.forEach(intake => {
+              if (!intakesByField[intake.field_id]) {
+                intakesByField[intake.field_id] = [];
+              }
+              intakesByField[intake.field_id].push(intake);
             });
+
+            // Calculate proportional quantities if moving partial stock
+            const totalSourceQty = sourceIntakes.data.reduce((sum, i) => sum + i.quantity, 0);
+            const moveRatio = qtyToMove / totalSourceQty;
+
+            // Create intake records for each field
+            for (const fieldId in intakesByField) {
+              const fieldIntakes = intakesByField[fieldId];
+              const fieldTotalQty = fieldIntakes.reduce((sum, i) => sum + i.quantity, 0);
+              const qtyToMoveForField = fieldTotalQty * moveRatio;
+              
+              const latestIntake = fieldIntakes.sort((a, b) => 
+                new Date(b.created_at) - new Date(a.created_at)
+              )[0];
+              
+              await axios.post(`${API}/stock-intakes`, {
+                field_id: latestIntake.field_id,
+                field_name: latestIntake.field_name,
+                zone_id: destZone.id,
+                shed_id: moveDestinationShed,
+                quantity: qtyToMoveForField,
+                date: new Date().toISOString().split('T')[0],
+                grade: latestIntake.grade
+              });
+            }
           }
         }
       }
@@ -327,8 +348,16 @@ const FloorPlan = () => {
       setShowBulkMoveDialog(false);
       setSelectedZones([]);
       setSelectedDestinationZones([]);
-      fetchZones();
-      fetchStockIntakes();
+      
+      // Force refresh of zones and stock intakes
+      await fetchZones();
+      await fetchStockIntakes();
+      
+      // Small delay to ensure UI updates
+      setTimeout(() => {
+        fetchZones();
+        fetchStockIntakes();
+      }, 500);
     } catch (error) {
       console.error("Error moving stock:", error);
       toast.error("Failed to move stock");
