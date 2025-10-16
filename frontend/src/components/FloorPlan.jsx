@@ -1036,6 +1036,201 @@ const FloorPlan = () => {
             </div>
           </DialogContent>
         </Dialog>
+
+        {/* Bulk Move Dialog */}
+        <Dialog open={showBulkMoveDialog} onOpenChange={setShowBulkMoveDialog}>
+          <DialogContent className="max-w-2xl" data-testid="dialog-bulk-move">
+            <DialogHeader>
+              <DialogTitle>Move Stock from {selectedZones.length} Zones</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              {/* Show selected zones with quantity inputs */}
+              <div className="max-h-60 overflow-y-auto space-y-2">
+                {selectedZones.map((zone) => (
+                  <div key={zone.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                    <div className="flex-1">
+                      <p className="font-semibold">{zone.name}</p>
+                      <p className="text-xs text-gray-600">Current: {zone.total_quantity?.toFixed(0) || 0} units</p>
+                    </div>
+                    <div className="w-32">
+                      <Input
+                        type="number"
+                        placeholder="Quantity"
+                        max={zone.total_quantity}
+                        value={moveQuantities[zone.id] || ""}
+                        onChange={(e) => setMoveQuantities({
+                          ...moveQuantities,
+                          [zone.id]: e.target.value
+                        })}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Destination selection */}
+              <div>
+                <Label>Move To:</Label>
+                <div className="grid grid-cols-3 gap-2 mt-2">
+                  <Button
+                    variant={moveDestinationType === "store" ? "default" : "outline"}
+                    onClick={() => setMoveDestinationType("store")}
+                    className="w-full"
+                  >
+                    Store
+                  </Button>
+                  <Button
+                    variant={moveDestinationType === "grader" ? "default" : "outline"}
+                    onClick={() => setMoveDestinationType("grader")}
+                    className="w-full"
+                  >
+                    Grader
+                  </Button>
+                  <Button
+                    variant={moveDestinationType === "customer" ? "default" : "outline"}
+                    onClick={() => setMoveDestinationType("customer")}
+                    className="w-full"
+                  >
+                    Customer
+                  </Button>
+                </div>
+              </div>
+
+              {/* Store selector if "store" is selected */}
+              {moveDestinationType === "store" && (
+                <div>
+                  <Label htmlFor="dest-shed">Select Destination Store</Label>
+                  <Select value={moveDestinationShed} onValueChange={setMoveDestinationShed}>
+                    <SelectTrigger id="dest-shed">
+                      <SelectValue placeholder="Choose a store" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {sheds.map((s) => (
+                        <SelectItem key={s.id} value={s.id}>
+                          {s.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
+              <Button onClick={handleBulkMoveSubmit} className="w-full">
+                {moveDestinationType === "store" ? "Select Destination Zone" : "Confirm Move"}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Destination Zone Picker Dialog */}
+        <Dialog open={showDestinationPicker} onOpenChange={setShowDestinationPicker}>
+          <DialogContent className="max-w-6xl max-h-[90vh]" data-testid="dialog-destination-picker">
+            <DialogHeader>
+              <DialogTitle>Select Destination Zone</DialogTitle>
+            </DialogHeader>
+            <div className="overflow-auto py-4">
+              <p className="text-sm text-gray-600 mb-4">Click on a zone in the destination store to complete the move</p>
+              {moveDestinationShed && (() => {
+                const destShed = sheds.find(s => s.id === moveDestinationShed);
+                if (!destShed) return null;
+                
+                return (
+                  <DestinationFloorPlan 
+                    shed={destShed} 
+                    onZoneClick={handleDestinationZoneClick}
+                  />
+                );
+              })()}
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </div>
+  );
+};
+
+// Component to show destination floor plan for zone selection
+const DestinationFloorPlan = ({ shed, onZoneClick }) => {
+  const [zones, setZones] = useState([]);
+  
+  useEffect(() => {
+    const fetchZones = async () => {
+      try {
+        const response = await axios.get(`${API}/zones?shed_id=${shed.id}`);
+        setZones(response.data);
+      } catch (error) {
+        console.error("Error fetching zones:", error);
+      }
+    };
+    fetchZones();
+  }, [shed.id]);
+
+  const scale = 15;
+  const gridCellSize = scale * 2;
+  const boxPadding = 3;
+  const shedPadding = 30;
+
+  const activeColumns = [...new Set(zones.map(z => Math.floor(z.x / 2)))].sort((a, b) => a - b);
+  const activeRows = [...new Set(zones.map(z => Math.floor(z.y / 2)))].sort((a, b) => a - b);
+  
+  const minCol = activeColumns.length > 0 ? Math.min(...activeColumns) : 0;
+  const maxCol = activeColumns.length > 0 ? Math.max(...activeColumns) : 0;
+  const minRow = activeRows.length > 0 ? Math.min(...activeRows) : 0;
+  const maxRow = activeRows.length > 0 ? Math.max(...activeRows) : 0;
+
+  return (
+    <div className="inline-block">
+      <h3 className="text-lg font-semibold mb-2">{shed.name}</h3>
+      <div 
+        className="relative bg-white border-4 border-gray-400 rounded-lg"
+        style={{ 
+          width: `${shed.width * scale + shedPadding * 2}px`, 
+          height: `${shed.height * scale + shedPadding * 2}px`,
+          padding: `${shedPadding}px`
+        }}
+      >
+        {/* Grid lines */}
+        <div 
+          className="absolute"
+          style={{
+            left: `${shedPadding}px`,
+            top: `${shedPadding}px`,
+            width: `${shed.width * scale}px`,
+            height: `${shed.height * scale}px`,
+            backgroundImage: 'linear-gradient(rgba(0,0,0,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,.1) 1px, transparent 1px)',
+            backgroundSize: `${gridCellSize}px ${gridCellSize}px`
+          }}
+        ></div>
+
+        {/* Zones */}
+        {zones.map((zone) => {
+          const actualCol = Math.floor(zone.x / 2);
+          const actualRow = Math.floor(zone.y / 2);
+          const displayCol = actualCol - minCol;
+          const displayRow = actualRow - minRow;
+          
+          const zoneWidthCells = zone.width / 2;
+          const zoneHeightCells = zone.height / 2;
+          const isEmpty = zone.total_quantity === 0;
+          
+          return (
+            <div
+              key={zone.id}
+              onClick={() => onZoneClick(zone)}
+              className="absolute cursor-pointer hover:shadow-2xl hover:z-10 transition-all rounded border-2 border-gray-700 hover:border-blue-500"
+              style={{
+                left: `${shedPadding + displayCol * gridCellSize + boxPadding}px`,
+                top: `${shedPadding + displayRow * gridCellSize + boxPadding}px`,
+                width: `${zoneWidthCells * gridCellSize - boxPadding * 2}px`,
+                height: `${zoneHeightCells * gridCellSize - boxPadding * 2}px`,
+                backgroundColor: isEmpty ? '#e5e7eb' : '#94a3b8',
+                opacity: isEmpty ? 0.5 : 1
+              }}
+            >
+              <div className="text-xs text-center font-bold text-gray-800 pt-1">{zone.name}</div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
