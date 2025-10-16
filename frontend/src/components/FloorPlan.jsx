@@ -166,22 +166,14 @@ const FloorPlan = () => {
     }
   };
 
-  const handleZoneClick = async (zone, event) => {
-    // Check if Ctrl/Cmd key is pressed for multi-select
-    if (event?.ctrlKey || event?.metaKey) {
-      // Multi-select mode
-      const isAlreadySelected = selectedZones.some(z => z.id === zone.id);
-      if (isAlreadySelected) {
-        setSelectedZones(selectedZones.filter(z => z.id !== zone.id));
-      } else {
-        setSelectedZones([...selectedZones, zone]);
-      }
+  const handleZoneClick = (zone, event) => {
+    // Simple click to toggle selection
+    if (selectedZones.find(z => z.id === zone.id)) {
+      // Deselect if already selected
+      setSelectedZones(selectedZones.filter(z => z.id !== zone.id));
     } else {
-      // Single select mode - show details
-      setSelectedZone(zone);
-      const intakes = await axios.get(`${API}/stock-intakes/zone/${zone.id}`);
-      setSelectedZoneIntakes(intakes.data);
-      setShowZoneDetails(true);
+      // Add to selection
+      setSelectedZones([...selectedZones, zone]);
     }
   };
 
