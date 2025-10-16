@@ -47,6 +47,9 @@ const FloorPlan = () => {
   const [moveQuantity, setMoveQuantity] = useState("");
   const [moveDate, setMoveDate] = useState(new Date().toISOString().split('T')[0]);
   const [targetZone, setTargetZone] = useState(null);
+  const [moveDestinationType, setMoveDestinationType] = useState(""); // "store", "grader", "customer"
+  const [moveDestinationShed, setMoveDestinationShed] = useState("");
+  const [moveQuantities, setMoveQuantities] = useState({}); // {zoneId: quantity}
   const [newZone, setNewZone] = useState({
     name: "",
     x: 10,
