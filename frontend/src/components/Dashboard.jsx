@@ -126,36 +126,28 @@ const Dashboard = () => {
         </div>
 
         {/* Quick Actions */}
-        <Card className="mb-8">
+        <Card className="mb-8 bg-white shadow rounded-xl border border-gray-200">
           <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-            <CardDescription>Manage your stock control system</CardDescription>
+            <CardTitle className="text-gray-900">Quick Actions</CardTitle>
+            <CardDescription className="text-gray-600">Manage your stock control system</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Button 
-                onClick={() => navigate('/fields')} 
-                className="h-24 text-lg bg-emerald-600 hover:bg-emerald-700"
-                data-testid="btn-manage-fields"
-              >
-                <Sprout className="mr-2 w-6 h-6" />
-                Manage Fields
-              </Button>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Button 
                 onClick={() => navigate('/sheds')} 
-                className="h-24 text-lg bg-blue-600 hover:bg-blue-700"
+                className="h-20 text-lg bg-green-600 hover:bg-green-700 rounded-md shadow"
                 data-testid="btn-manage-sheds"
               >
                 <Warehouse className="mr-2 w-6 h-6" />
                 Manage Sheds
               </Button>
               <Button 
-                onClick={() => sheds.length > 0 ? navigate(`/floor-plan/${sheds[0].id}`) : toast.warning("Create a shed first")} 
-                className="h-24 text-lg bg-purple-600 hover:bg-purple-700"
-                data-testid="btn-view-floor-plans"
+                onClick={() => navigate('/overview')} 
+                className="h-20 text-lg bg-green-600 hover:bg-green-700 rounded-md shadow"
+                data-testid="btn-view-overview"
               >
                 <Map className="mr-2 w-6 h-6" />
-                View Floor Plans
+                Stock Overview
               </Button>
             </div>
           </CardContent>
