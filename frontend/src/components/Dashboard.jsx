@@ -67,6 +67,28 @@ const Dashboard = () => {
     }
   };
 
+  const handleAdminClick = () => {
+    setShowPasswordDialog(true);
+  };
+
+  const handlePasswordSubmit = () => {
+    // Simple password check - you can change this password
+    if (password === "admin123") {
+      setShowPasswordDialog(false);
+      setPassword("");
+      navigate('/sheds');
+    } else {
+      toast.error("Incorrect password");
+      setPassword("");
+    }
+  };
+
+  const handlePasswordKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handlePasswordSubmit();
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 py-8">
