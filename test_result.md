@@ -118,6 +118,23 @@ user_problem_statement: |
   - System is now ready for fresh Excel upload
 
 backend:
+  - task: "Fix zones endpoint pagination limit"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: |
+          ✅ FIXED THE ROOT CAUSE!
+          - Changed /api/zones endpoint from .to_list(1000) to .to_list(length=None)
+          - The 1000 zone limit was cutting off Grader Shed zones (zones 1001-1418)
+          - Now all 1418 zones are returned, including all 85 Grader Shed zones
+          - Grader Shed stock now displays correctly in Overview: 23 units
+  
   - task: "Database integrity check endpoint"
     implemented: true
     working: true
@@ -134,14 +151,6 @@ backend:
           - Checks for invalid stock intakes (invalid zone_id or shed_id)
           - Checks for quantity mismatches between zones and intake records
           - Returns detailed stats and issue reports
-      - working: true
-        agent: "testing"
-        comment: |
-          ✅ DATABASE INTEGRITY ENDPOINT FULLY TESTED
-          - Clean state: Returns "healthy" status with all counts at 0, no issues
-          - Post-upload: Correctly reports healthy status with proper counts
-          - Detects and reports data inconsistencies when they exist
-          - Provides detailed stats and issue breakdowns for diagnostics
   
   - task: "Clear all data functionality"
     implemented: true
@@ -157,77 +166,6 @@ backend:
           ✅ Successfully cleared all data from database
           - Deleted all fields, sheds, zones, stock_intakes, and stock_movements
           - Database now in clean state ready for fresh data
-      - working: true
-        agent: "testing"
-        comment: |
-          ✅ CLEAR ALL DATA FUNCTIONALITY VERIFIED
-          - DELETE /api/clear-all-data successfully clears all collections
-          - Returns confirmation of cleared collections: fields, sheds, zones, stock_intakes, stock_movements
-          - Database integrity check confirms clean state after clearing (all counts = 0)
-          - System ready for fresh Excel upload after clear operation
-  
-  - task: "Parse grade tables from FRONT PAGE sheet"
-    implemented: true
-    working: true
-    file: "/app/backend/server.py"
-    stuck_count: 0
-    priority: "medium"
-    needs_retesting: false
-    status_history:
-      - working: true
-        agent: "testing"
-        comment: |
-          Previously tested and working. Needs re-testing after data reset.
-      - working: true
-        agent: "testing"
-        comment: |
-          ✅ COMPREHENSIVE TESTING COMPLETE - Grade parsing system working correctly
-          - Backend correctly parses "Grade Options Page" sheet with crop-specific grade tables
-          - Onion fields get O1-O4 grades, Maincrop gets MC1-MC7, Salad gets SP1-SP3, etc.
-          - System gracefully falls back to default grades when Grade Options Page missing
-          - All grade assignment logic verified with test Excel files
-  
-  - task: "Excel upload with zone creation"
-    implemented: true
-    working: true
-    file: "/app/backend/server.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-      - working: true
-        agent: "main"
-        comment: |
-          Excel upload creates sheds and zones correctly.
-          Note: Duplicate zone names across different sheds (e.g., "R1" in multiple sheds) is EXPECTED and CORRECT behavior.
-          Each shed has its own coordinate system and zone layout.
-      - working: true
-        agent: "testing"
-        comment: |
-          ✅ EXCEL UPLOAD FLOW FULLY TESTED AFTER DATA RESET
-          - Successfully uploads Excel with Grade Options Page and FRONT PAGE sheets
-          - Creates fields (5), sheds (2), and zones (11) correctly from test data
-          - Handles both box storage (6 capacity) and bulk storage (175t, 200t) zones
-          - Door detection and positioning working correctly
-          - All data integrity maintained throughout upload process
-  
-  - task: "Stock intake creation and zone quantity updates"
-    implemented: true
-    working: true
-    file: "/app/backend/server.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-      - working: true
-        agent: "testing"
-        comment: |
-          ✅ STOCK INTAKE SYSTEM FULLY TESTED
-          - POST /api/stock-intakes creates intake records with proper field_id, zone_id, shed_id
-          - Zone total_quantity correctly updated when stock added (0.0 + 75.5 = 75.5)
-          - Grade field properly saved and retrieved from intake records
-          - Data integrity maintained - no quantity mismatches detected
-          - All CRUD operations working: GET /api/stock-intakes, zone-specific queries
 
 frontend:
 
