@@ -210,6 +210,24 @@ backend:
           - Handles both box storage (6 capacity) and bulk storage (175t, 200t) zones
           - Door detection and positioning working correctly
           - All data integrity maintained throughout upload process
+  
+  - task: "Stock intake creation and zone quantity updates"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: |
+          ✅ STOCK INTAKE SYSTEM FULLY TESTED
+          - POST /api/stock-intakes creates intake records with proper field_id, zone_id, shed_id
+          - Zone total_quantity correctly updated when stock added (0.0 + 75.5 = 75.5)
+          - Grade field properly saved and retrieved from intake records
+          - Data integrity maintained - no quantity mismatches detected
+          - All CRUD operations working: GET /api/stock-intakes, zone-specific queries
 
 frontend:
 
