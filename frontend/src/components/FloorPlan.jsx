@@ -1177,21 +1177,40 @@ const FloorPlan = () => {
         <Dialog open={showDestinationPicker} onOpenChange={setShowDestinationPicker}>
           <DialogContent className="max-w-6xl max-h-[90vh]" data-testid="dialog-destination-picker">
             <DialogHeader>
-              <DialogTitle>Select Destination Zone</DialogTitle>
+              <DialogTitle>Select Destination Zones</DialogTitle>
             </DialogHeader>
-            <div className="overflow-auto py-4">
-              <p className="text-sm text-gray-600 mb-4">Click on a zone in the destination store to complete the move</p>
-              {moveDestinationShed && (() => {
-                const destShed = sheds.find(s => s.id === moveDestinationShed);
-                if (!destShed) return null;
-                
-                return (
-                  <DestinationFloorPlan 
-                    shed={destShed} 
-                    onZoneClick={handleDestinationZoneClick}
-                  />
-                );
-              })()}
+            <div className="space-y-4 py-4">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <p className="text-sm font-semibold text-blue-900">
+                  Select {sourceZonesForMove.length} destination zones ({selectedDestinationZones.length} selected)
+                </p>
+                <p className="text-xs text-blue-700 mt-1">
+                  Click on zones in the order you want stock moved. Click again to deselect.
+                </p>
+              </div>
+
+              <div className="overflow-auto max-h-[60vh]">
+                {moveDestinationShed && (() => {
+                  const destShed = sheds.find(s => s.id === moveDestinationShed);
+                  if (!destShed) return null;
+                  
+                  return (
+                    <DestinationFloorPlan 
+                      shed={destShed} 
+                      onZoneClick={handleDestinationZoneClick}
+                      selectedZones={selectedDestinationZones}
+                    />
+                  );
+                })()}
+              </div>
+
+              <Button 
+                onClick={handleConfirmMove} 
+                className="w-full"
+                disabled={selectedDestinationZones.length !== sourceZonesForMove.length}
+              >
+                Confirm Move ({selectedDestinationZones.length}/{sourceZonesForMove.length} zones selected)
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
