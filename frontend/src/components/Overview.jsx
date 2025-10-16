@@ -1,0 +1,210 @@
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { API } from "@/App";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Warehouse, ArrowLeft, Package } from "lucide-react";
+import { toast } from "sonner";
+
+const Overview = () => {
+  const navigate = useNavigate();
+  const [sheds, setSheds] = useState([]);
+  const [zones, setZones] = useState([]);
+  const [stockIntakes, setStockIntakes] = useState([]);
+  const [fields, setFields] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const [shedsRes, zonesRes, intakesRes, fieldsRes] = await Promise.all([
+        axios.get(`${API}/sheds`),
+        axios.get(`${API}/zones`),
+        axios.get(`${API}/stock-intakes`),
+        axios.get(`${API}/fields`)
+      ]);
+
+      setSheds(shedsRes.data);
+      setZones(zonesRes.data);
+      setStockIntakes(intakesRes.data);
+      setFields(fieldsRes.data);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      toast.error("Failed to load overview data");
+      setLoading(false);
+    }
+  };
+
+  const getShedStockDetails = (shedId) => {
+    const shedZones = zones.filter(z => z.shed_id === shedId);
+    const shedIntakes = stockIntakes.filter(i => i.shed_id === shedId);
+    
+    // Group by field
+    const fieldGroups = {};
+    
+    shedIntakes.forEach(intake => {
+      if (!fieldGroups[intake.field_id]) {
+        const field = fields.find(f => f.id === intake.field_id);
+        fieldGroups[intake.field_id] = {
+          fieldName: intake.field_name,
+          cropType: field?.crop_type || 'Unknown',
+          grades: {},
+          totalQuantity: 0
+        };
+      }
+      
+      // Sum quantities from zones (not from intakes)
+      const zonesWithField = shedZones.filter(z => {
+        const zoneIntakes = stockIntakes.filter(i => i.zone_id === z.id && i.field_id === intake.field_id);
+        return zoneIntakes.length > 0 && z.total_quantity > 0;
+      });
+      
+      const fieldQtyInZones = zonesWithField.reduce((sum, z) => sum + (z.total_quantity || 0), 0);
+      
+      if (!fieldGroups[intake.field_id].grades[intake.grade]) {
+        fieldGroups[intake.field_id].grades[intake.grade] = 0;
+      }
+      
+      // Distribute quantity proportionally by grade
+      const totalIntakesForField = shedIntakes.filter(i => i.field_id === intake.field_id);
+      const intakeSum = totalIntakesForField.reduce((sum, i) => sum + i.quantity, 0);
+      const proportion = intake.quantity / intakeSum;
+      fieldGroups[intake.field_id].grades[intake.grade] += fieldQtyInZones * proportion;
+    });
+    
+    // Calculate totals
+    Object.keys(fieldGroups).forEach(fieldId => {
+      fieldGroups[fieldId].totalQuantity = Object.values(fieldGroups[fieldId].grades)
+        .reduce((sum, qty) => sum + qty, 0);
+    });
+    
+    // Filter out fields with 0 quantity
+    return Object.values(fieldGroups).filter(fg => fg.totalQuantity > 0);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-lg text-gray-600">Loading overview...</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="mb-6 flex items-center gap-4">
+          <Button
+            onClick={() => navigate('/')}
+            variant="outline"
+            className="bg-white"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Dashboard
+          </Button>
+        </div>
+
+        <div className="mb-8">
+          <h1 className="text-4xl font-semibold mb-2 text-gray-900">
+            Stock Overview
+          </h1>
+          <p className="text-gray-600">
+            View all stock across your sheds
+          </p>
+        </div>
+
+        {sheds.length === 0 ? (
+          <Card className="bg-white shadow rounded-xl border border-gray-200">
+            <CardContent className="py-12 text-center">
+              <p className="text-gray-600">No sheds found. Upload your Excel file to get started.</p>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="space-y-6">
+            {sheds.map((shed) => {
+              const stockDetails = getShedStockDetails(shed.id);
+              const totalStock = stockDetails.reduce((sum, fd) => sum + fd.totalQuantity, 0);
+              
+              return (
+                <Card 
+                  key={shed.id} 
+                  className="bg-white shadow rounded-xl border border-gray-200 hover:shadow-lg transition-shadow"
+                >
+                  <CardHeader className="border-b border-gray-100">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <Warehouse className="w-6 h-6 text-gray-700" />
+                        <div>
+                          <CardTitle className="text-2xl text-gray-900">{shed.name}</CardTitle>
+                          <p className="text-sm text-gray-600 mt-1">
+                            Total Stock: <span className="font-semibold">{totalStock.toFixed(0)} units</span>
+                          </p>
+                        </div>
+                      </div>
+                      <Button
+                        onClick={() => navigate(`/floor-plan/${shed.id}`)}
+                        className="bg-green-600 hover:bg-green-700"
+                      >
+                        View Floor Plan
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="pt-6">
+                    {stockDetails.length === 0 ? (
+                      <p className="text-gray-500 text-center py-4">No stock in this shed</p>
+                    ) : (
+                      <div className="space-y-4">
+                        {stockDetails.map((detail, idx) => (
+                          <div 
+                            key={idx}
+                            className="p-4 bg-gray-50 rounded-lg border border-gray-200"
+                          >
+                            <div className="flex items-start justify-between mb-3">
+                              <div>
+                                <h3 className="font-semibold text-gray-900">{detail.fieldName}</h3>
+                                <p className="text-sm text-gray-600">{detail.cropType}</p>
+                              </div>
+                              <div className="flex items-center gap-2 bg-white px-3 py-1 rounded-md border border-gray-200">
+                                <Package className="w-4 h-4 text-gray-600" />
+                                <span className="font-semibold text-gray-900">
+                                  {detail.totalQuantity.toFixed(0)} units
+                                </span>
+                              </div>
+                            </div>
+                            
+                            <div className="space-y-1">
+                              <p className="text-xs font-medium text-gray-500 uppercase">Grades:</p>
+                              <div className="flex flex-wrap gap-2">
+                                {Object.entries(detail.grades).map(([grade, qty]) => (
+                                  qty > 0 && (
+                                    <span 
+                                      key={grade}
+                                      className="px-3 py-1 bg-white border border-gray-300 rounded-md text-sm"
+                                    >
+                                      {grade}: <span className="font-semibold">{qty.toFixed(0)}</span>
+                                    </span>
+                                  )
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default Overview;
