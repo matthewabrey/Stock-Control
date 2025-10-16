@@ -554,6 +554,9 @@ async def upload_excel(file: UploadFile = File(...)):
             await db.sheds.insert_one(shed_doc)
             stores_created += 1
             
+            # Track zone names to prevent duplicates within this shed
+            zone_names_in_shed = set()
+            
             # Create zones
             for row_idx, col_idx, capacity in zone_positions:
                 # Calculate position relative to store origin
@@ -563,6 +566,15 @@ async def upload_excel(file: UploadFile = File(...)):
                 # Generate zone name (column letter + row number)
                 col_letter = openpyxl.utils.get_column_letter(col_idx - min_col + 1)
                 zone_name = f"{col_letter}{row_idx - min_row + 1}"
+                
+                # Ensure zone name is unique within this shed
+                base_zone_name = zone_name
+                counter = 1
+                while zone_name in zone_names_in_shed:
+                    zone_name = f"{base_zone_name}_{counter}"
+                    counter += 1
+                
+                zone_names_in_shed.add(zone_name)
                 
                 # Bulk storage (tonnage) gets 4x width
                 zone_width = 8 if capacity > 6 else 2
