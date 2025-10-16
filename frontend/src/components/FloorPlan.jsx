@@ -779,8 +779,9 @@ const FloorPlan = () => {
                             const latestDate = fieldIntakes.length > 0 ? 
                               new Date(Math.max(...fieldIntakes.map(i => new Date(i.date)))).toLocaleDateString() : '';
                             
-                            // Get zones with this field
+                            // Get zones with this field that have stock
                             const fieldZones = zones.filter(zone => {
+                              if (!zone.total_quantity || zone.total_quantity === 0) return false;
                               const zoneIntakes = getZoneIntakes(zone.id);
                               return zoneIntakes.some(intake => intake.field_id === field.id);
                             }).map(zone => {
@@ -788,6 +789,9 @@ const FloorPlan = () => {
                               const row = Math.floor(zone.y / 2);
                               return `${getColumnLetter(col)}${row + 1}`;
                             });
+                            
+                            // Only show field if it has stock in zones
+                            if (fieldZones.length === 0) return null;
                             
                             return (
                               <div key={field.id} className="p-3 bg-gray-50 rounded-lg border border-gray-200">
