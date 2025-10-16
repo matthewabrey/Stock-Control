@@ -161,12 +161,12 @@ const Dashboard = () => {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Button 
-                onClick={() => navigate('/sheds')} 
+                onClick={handleAdminClick}
                 className="h-20 text-lg bg-green-600 hover:bg-green-700 rounded-md shadow"
-                data-testid="btn-manage-sheds"
+                data-testid="btn-admin"
               >
-                <Warehouse className="mr-2 w-6 h-6" />
-                Manage Sheds
+                <Lock className="mr-2 w-6 h-6" />
+                Admin
               </Button>
               <Button 
                 onClick={() => navigate('/overview')} 
@@ -179,6 +179,49 @@ const Dashboard = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Password Dialog */}
+        <Dialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Admin Access</DialogTitle>
+              <DialogDescription>
+                Enter the admin password to access shed management
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="Enter password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  onKeyPress={handlePasswordKeyPress}
+                  autoFocus
+                />
+              </div>
+              <div className="flex gap-3 justify-end">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowPasswordDialog(false);
+                    setPassword("");
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handlePasswordSubmit}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  Submit
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Sheds List */}
         {sheds.length > 0 && (
