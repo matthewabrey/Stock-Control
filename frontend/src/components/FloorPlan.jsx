@@ -213,6 +213,7 @@ const FloorPlan = () => {
       
       toast.success(`Stock added to ${zonesToUpdate.length} zone(s) from ${field.name} (${selectedGrade})`);
       setShowIntakeDialog(false);
+      setSelectedCrop("");
       setSelectedField("");
       setSelectedGrade("");
       setIntakeQuantity("");
