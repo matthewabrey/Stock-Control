@@ -1002,10 +1002,34 @@ const FloorPlan = () => {
                 </div>
               )}
 
-              <Button onClick={handleAddStock} className="w-full" data-testid="btn-add-stock-from-details">
-                <Plus className="mr-2 w-4 h-4" />
-                Add Stock to This Zone
-              </Button>
+              <div className="grid grid-cols-2 gap-3">
+                <Button 
+                  onClick={() => {
+                    setShowZoneDetails(false);
+                    if (!selectedZones.find(z => z.id === selectedZone.id)) {
+                      setSelectedZones([...selectedZones, selectedZone]);
+                    }
+                  }} 
+                  variant="outline"
+                  className="w-full"
+                >
+                  Select Zone
+                </Button>
+                <Button 
+                  onClick={() => {
+                    if (!selectedZones.find(z => z.id === selectedZone.id)) {
+                      setSelectedZones([selectedZone]);
+                    }
+                    setShowZoneDetails(false);
+                    setShowIntakeDialog(true);
+                  }} 
+                  className="w-full bg-green-600 hover:bg-green-700" 
+                  data-testid="btn-add-stock-from-details"
+                >
+                  <Plus className="mr-2 w-4 h-4" />
+                  Add Stock
+                </Button>
+              </div>
             </div>
           </DialogContent>
         </Dialog>
