@@ -919,8 +919,20 @@ const FloorPlan = () => {
                               return zoneIntakes.some(intake => intake.field_id === field.id);
                             });
                             
-                            // Calculate actual total from zone quantities (not intake records)
-                            const totalQty = fieldZonesData.reduce((sum, zone) => sum + (zone.total_quantity || 0), 0);
+                            // Calculate actual total considering mixed zones
+                            let totalQty = 0;
+                            fieldZonesData.forEach(zone => {
+                              const zoneIntakes = getZoneIntakes(zone.id);
+                              const totalIntakeQty = zoneIntakes.reduce((sum, i) => sum + i.quantity, 0);
+                              const fieldIntakesInZone = zoneIntakes.filter(i => i.field_id === field.id);
+                              const fieldIntakeQty = fieldIntakesInZone.reduce((sum, i) => sum + i.quantity, 0);
+                              
+                              if (totalIntakeQty > 0) {
+                                // Calculate this field's proportional share of zone's actual quantity
+                                const proportion = fieldIntakeQty / totalIntakeQty;
+                                totalQty += zone.total_quantity * proportion;
+                              }
+                            });
                             
                             const fieldZones = fieldZonesData.map(zone => {
                               const col = Math.floor(zone.x / 2);
