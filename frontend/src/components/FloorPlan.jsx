@@ -257,31 +257,78 @@ const FloorPlan = () => {
     }
   };
 
-  const handleDestinationZoneClick = async (destZone) => {
+  const handleDestinationZoneClick = (destZone) => {
+    // Check if already selected
+    if (selectedDestinationZones.find(z => z.id === destZone.id)) {
+      // Deselect
+      setSelectedDestinationZones(selectedDestinationZones.filter(z => z.id !== destZone.id));
+    } else {
+      // Add to selection (only if we haven't reached the limit)
+      if (selectedDestinationZones.length < sourceZonesForMove.length) {
+        setSelectedDestinationZones([...selectedDestinationZones, destZone]);
+      } else {
+        toast.warning(`You can only select ${sourceZonesForMove.length} destination zones`);
+      }
+    }
+  };
+
+  const handleConfirmMove = async () => {
+    if (selectedDestinationZones.length !== sourceZonesForMove.length) {
+      toast.warning(`Please select exactly ${sourceZonesForMove.length} destination zones`);
+      return;
+    }
+
     try {
-      // Move stock from each selected zone to the destination zone
-      for (const zone of selectedZones) {
-        const qtyToMove = parseFloat(moveQuantities[zone.id] || 0);
+      // Move stock from each source zone to corresponding destination zone
+      for (let i = 0; i < sourceZonesForMove.length; i++) {
+        const sourceZone = sourceZonesForMove[i];
+        const destZone = selectedDestinationZones[i];
+        const qtyToMove = parseFloat(moveQuantities[sourceZone.id] || 0);
+        
         if (qtyToMove > 0) {
-          // Reduce from source
-          const newSourceQty = zone.total_quantity - qtyToMove;
-          await axios.put(`${API}/zones/${zone.id}`, null, {
+          // Get stock intakes from source zone to know what fields/grades are being moved
+          const sourceIntakes = await axios.get(`${API}/stock-intakes/zone/${sourceZone.id}`);
+          
+          // Reduce from source zone
+          const newSourceQty = sourceZone.total_quantity - qtyToMove;
+          await axios.put(`${API}/zones/${sourceZone.id}`, null, {
             params: { quantity: Math.max(0, newSourceQty) }
           });
           
-          // Add to destination
+          // Add to destination zone
           const newDestQty = destZone.total_quantity + qtyToMove;
           await axios.put(`${API}/zones/${destZone.id}`, null, {
             params: { quantity: newDestQty }
           });
+
+          // Create stock intake records for destination zone (so colors show up)
+          if (sourceIntakes.data.length > 0) {
+            // Use the most recent intake info
+            const latestIntake = sourceIntakes.data.sort((a, b) => 
+              new Date(b.created_at) - new Date(a.created_at)
+            )[0];
+            
+            await axios.post(`${API}/stock-intakes`, {
+              field_id: latestIntake.field_id,
+              field_name: latestIntake.field_name,
+              zone_id: destZone.id,
+              shed_id: moveDestinationShed,
+              quantity: qtyToMove,
+              date: new Date().toISOString().split('T')[0],
+              grade: latestIntake.grade
+            });
+          }
         }
       }
       
-      toast.success(`Moved stock to ${destZone.name}`);
+      const destShed = sheds.find(s => s.id === moveDestinationShed);
+      toast.success(`Moved stock to ${destShed?.name || 'store'}`);
       setShowDestinationPicker(false);
       setShowBulkMoveDialog(false);
       setSelectedZones([]);
+      setSelectedDestinationZones([]);
       fetchZones();
+      fetchStockIntakes();
     } catch (error) {
       console.error("Error moving stock:", error);
       toast.error("Failed to move stock");
