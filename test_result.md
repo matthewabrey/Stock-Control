@@ -118,98 +118,67 @@ user_problem_statement: |
   - System is now ready for fresh Excel upload
 
 backend:
+  - task: "Database integrity check endpoint"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: |
+          ✅ Added /api/database-integrity endpoint to diagnose data issues
+          - Checks for orphaned zones (invalid shed_id)
+          - Checks for invalid stock intakes (invalid zone_id or shed_id)
+          - Checks for quantity mismatches between zones and intake records
+          - Returns detailed stats and issue reports
+  
+  - task: "Clear all data functionality"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: |
+          ✅ Successfully cleared all data from database
+          - Deleted all fields, sheds, zones, stock_intakes, and stock_movements
+          - Database now in clean state ready for fresh data
+  
   - task: "Parse grade tables from FRONT PAGE sheet"
     implemented: true
     working: true
     file: "/app/backend/server.py"
     stuck_count: 0
-    priority: "high"
-    needs_retesting: false
+    priority: "medium"
+    needs_retesting: true
     status_history:
-      - working: "pending_test"
-        agent: "main"
-        comment: |
-          Modified Excel parsing logic to:
-          1. Scan FRONT PAGE sheet for OnionGradeTable, MaincropGradeTable, and SaladPotatoGradeTable
-          2. Extract all grades from each table
-          3. Assign appropriate grades to fields based on crop type
-          Note: Existing fields need to be re-imported for grades to update
       - working: true
         agent: "testing"
         comment: |
-          ✅ VERIFIED: Excel upload with grade parsing working correctly
-          - POST /api/upload-excel successfully parses grade tables from FRONT PAGE sheet
-          - OnionGradeTable: Extracts O1, O2, O3, O4 grades
-          - MaincropGradeTable: Extracts MC1-MC7 grades  
-          - SaladPotatoGradeTable: Extracts SP1, SP2, SP3 grades
-          - Fields get correct grades based on crop_type:
-            * Onion fields: ['Whole Crop', 'O1', 'O2', 'O3', 'O4']
-            * Maincrop Potato fields: ['Whole Crop', 'MC1', 'MC2', 'MC3', 'MC4', 'MC5', 'MC6', 'MC7']
-            * Salad Potato fields: ['Whole Crop', 'SP1', 'SP2', 'SP3']
-
-  - task: "Field creation with correct grades"
+          Previously tested and working. Needs re-testing after data reset.
+  
+  - task: "Excel upload with zone creation"
     implemented: true
     working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
-      - working: "pending_test"
-        agent: "main"
-        comment: "Fields now get grades from parsed grade tables instead of hardcoded values"
       - working: true
-        agent: "testing"
+        agent: "main"
         comment: |
-          ✅ VERIFIED: Field API working correctly
-          - GET /api/fields returns fields with available_grades array
-          - Grade assignment logic working: fields get correct grades based on crop_type
-          - Stock intake API accepts grade field and saves correctly
-          - All CRUD operations (sheds, zones, stock intake) working properly
+          Excel upload creates sheds and zones correctly.
+          Note: Duplicate zone names across different sheds (e.g., "R1" in multiple sheds) is EXPECTED and CORRECT behavior.
+          Each shed has its own coordinate system and zone layout.
 
 frontend:
-  - task: "Grade dropdown display"
-    implemented: true
-    working: true
-    file: "/app/frontend/src/components/FloorPlan.jsx"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-      - working: "pending_test"
-        agent: "main"
-        comment: "Simplified grade dropdown to display all available_grades from backend without frontend filtering"
-      - working: true
-        agent: "main"
-        comment: |
-          ✅ Grade dropdown implementation is correct
-          - Simplified to show all available_grades from field without frontend filtering
-          - Will display correct grades once Excel is re-uploaded with new parsing logic
-          - Current fields still have old incorrect grades (e.g., ["O1", "MC1", "SP1"] for Maincrop)
-
-  - task: "Multi-select functionality (Ctrl+Click)"
-    implemented: true
-    working: true
-    file: "/app/frontend/src/components/FloorPlan.jsx"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-      - working: false
-        agent: "user"
-        comment: "User reported multi-select not working"
-      - working: "pending_test"
-        agent: "main"
-        comment: "Code review shows logic is in place - needs testing to verify if it's working or if there's an issue with event propagation due to draggable zones"
-      - working: true
-        agent: "main"
-        comment: |
-          ✅ VERIFIED: Multi-select IS working correctly!
-          - Tested Ctrl+Click on multiple zones (3 zones selected)
-          - "Add Stock to 3 Selected" button appears correctly in header
-          - Selected zones show blue selection indicators
-          - "Clear Selection" button also appears
-          - User may have been confused about how to use Ctrl+Click or tried on Mac (needs Cmd+Click)
 
 metadata:
   created_by: "main_agent"
