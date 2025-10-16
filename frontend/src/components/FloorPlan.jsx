@@ -421,18 +421,34 @@ const FloorPlan = () => {
               params: { quantity: destZone.total_quantity + qtyToMove }
             });
             
-            // Create intake record for destination (use first field intake as template)
+            // Create or update intake record for destination
             if (fieldIntakes.length > 0) {
               const template = fieldIntakes[0];
-              await axios.post(`${API}/stock-intakes`, {
-                field_id: template.field_id,
-                field_name: template.field_name,
-                zone_id: destZone.id,
-                shed_id: moveDestinationShed,
-                quantity: qtyToMove,
-                date: new Date().toISOString().split('T')[0],
-                grade: template.grade
-              });
+              
+              // Check if destination already has this field
+              const destIntakesRes = await axios.get(`${API}/stock-intakes/zone/${destZone.id}`);
+              const existingIntake = destIntakesRes.data.find(i => 
+                i.field_id === template.field_id && i.grade === template.grade
+              );
+              
+              if (existingIntake) {
+                // Update existing intake
+                await axios.put(`${API}/stock-intakes/${existingIntake.id}`, {
+                  ...existingIntake,
+                  quantity: existingIntake.quantity + qtyToMove
+                });
+              } else {
+                // Create new intake
+                await axios.post(`${API}/stock-intakes`, {
+                  field_id: template.field_id,
+                  field_name: template.field_name,
+                  zone_id: destZone.id,
+                  shed_id: moveDestinationShed,
+                  quantity: qtyToMove,
+                  date: new Date().toISOString().split('T')[0],
+                  grade: template.grade
+                });
+              }
             }
           } else {
             // Moving all stock from zone (not field-specific)
