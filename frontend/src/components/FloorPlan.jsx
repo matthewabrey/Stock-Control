@@ -1052,6 +1052,27 @@ const FloorPlan = () => {
                             const latestDate = fieldIntakes.length > 0 ? 
                               new Date(Math.max(...fieldIntakes.map(i => new Date(i.date)))).toLocaleDateString() : '';
                             
+                            // Calculate grade breakdown
+                            const gradeBreakdown = {};
+                            fieldZonesData.forEach(zone => {
+                              const zoneIntakes = getZoneIntakes(zone.id);
+                              const totalIntakeQty = zoneIntakes.reduce((sum, i) => sum + i.quantity, 0);
+                              const fieldIntakesInZone = zoneIntakes.filter(i => i.field_id === field.id);
+                              
+                              if (totalIntakeQty > 0) {
+                                const proportion = fieldIntakesInZone.reduce((sum, i) => sum + i.quantity, 0) / totalIntakeQty;
+                                const zoneFieldQty = zone.total_quantity * proportion;
+                                
+                                fieldIntakesInZone.forEach(intake => {
+                                  const intakeProportion = intake.quantity / fieldIntakesInZone.reduce((sum, i) => sum + i.quantity, 0);
+                                  if (!gradeBreakdown[intake.grade]) {
+                                    gradeBreakdown[intake.grade] = 0;
+                                  }
+                                  gradeBreakdown[intake.grade] += zoneFieldQty * intakeProportion;
+                                });
+                              }
+                            });
+                            
                             // Only show field if it has stock in zones
                             if (fieldZones.length === 0 || totalQty === 0) return null;
                             
@@ -1078,11 +1099,23 @@ const FloorPlan = () => {
                                       <span className="text-gray-600">{latestDate}</span>
                                     </div>
                                   )}
-                                  {fieldZones.length > 0 && (
-                                    <div className="text-xs text-gray-600 mt-1">
-                                      <span className="font-medium">Locations:</span> {fieldZones.join(', ')}
+                                  {Object.keys(gradeBreakdown).length > 0 && (
+                                    <div className="text-xs">
+                                      <span className="font-medium text-gray-700">Grades: </span>
+                                      <div className="flex flex-wrap gap-1 mt-1">
+                                        {Object.entries(gradeBreakdown).map(([grade, qty]) => (
+                                          qty > 0 && (
+                                            <span key={grade} className="px-2 py-0.5 bg-white border border-gray-300 rounded text-xs">
+                                              {grade}: {qty.toFixed(0)}
+                                            </span>
+                                          )
+                                        ))}
+                                      </div>
                                     </div>
                                   )}
+                                  <div className="text-xs text-gray-500">
+                                    <span className="font-medium">Locations:</span> {fieldZones.join(', ')}
+                                  </div>
                                 </div>
                               </div>
                             );
