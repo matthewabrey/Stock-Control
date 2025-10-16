@@ -469,17 +469,8 @@ const FloorPlan = () => {
               }
             }
             
-            // Get fresh destination zone data to avoid stale quantity
-            const freshDestZoneRes = await axios.get(`${API}/zones?shed_id=${moveDestinationShed}`);
-            const freshDestZone = freshDestZoneRes.data.find(z => z.id === destZone.id);
-            const currentDestQty = freshDestZone ? freshDestZone.total_quantity : destZone.total_quantity;
-            
-            // Add to destination zone
-            await axios.put(`${API}/zones/${destZone.id}`, null, {
-              params: { quantity: currentDestQty + qtyToMove }
-            });
-
             // Group by field
+            // Note: Backend POST /stock-intakes will automatically update zone quantity
             const intakesByField = {};
             sourceIntakes.forEach(intake => {
               if (!intakesByField[intake.field_id]) {
