@@ -436,19 +436,31 @@ const FloorPlan = () => {
             }
           } else {
             // Moving all stock from zone (not field-specific)
+            const totalSourceQty = sourceIntakes.reduce((sum, i) => sum + i.quantity, 0);
+            const moveRatio = qtyToMove / totalSourceQty;
+            
             // Update source zone quantity
             await axios.put(`${API}/zones/${sourceZone.id}`, null, {
               params: { quantity: Math.max(0, sourceZone.total_quantity - qtyToMove) }
             });
             
+            // Reduce or delete source intakes
+            for (const intake of sourceIntakes) {
+              const newIntakeQty = intake.quantity * (1 - moveRatio);
+              if (newIntakeQty < 0.01) {
+                await axios.delete(`${API}/stock-intakes/${intake.id}`);
+              } else {
+                await axios.put(`${API}/stock-intakes/${intake.id}`, {
+                  ...intake,
+                  quantity: newIntakeQty
+                });
+              }
+            }
+            
             // Add to destination zone
             await axios.put(`${API}/zones/${destZone.id}`, null, {
               params: { quantity: destZone.total_quantity + qtyToMove }
             });
-
-            // Calculate proportional quantities to move
-            const totalSourceQty = sourceIntakes.reduce((sum, i) => sum + i.quantity, 0);
-            const moveRatio = qtyToMove / totalSourceQty;
 
             // Group by field
             const intakesByField = {};
