@@ -1619,7 +1619,7 @@ const FloorPlan = () => {
                               <SelectValue placeholder="Select field" />
                             </SelectTrigger>
                             <SelectContent>
-                              {fields.map((field) => (
+                              {fieldsList.map((field) => (
                                 <SelectItem key={field.fieldId} value={field.fieldId}>
                                   {field.fieldName} ({field.quantity.toFixed(0)} units)
                                 </SelectItem>
