@@ -1364,7 +1364,7 @@ const FloorPlan = () => {
               
               <div>
                 <Label htmlFor="crop">Select Crop Type</Label>
-                <Select value={selectedCrop} onValueChange={(value) => { setSelectedCrop(value); setSelectedField(""); setSelectedGrade(""); }}>
+                <Select value={selectedCrop} onValueChange={(value) => { setSelectedCrop(value); setSelectedYear(""); setSelectedField(""); setSelectedGrade(""); }}>
                   <SelectTrigger id="crop" data-testid="select-crop">
                     <SelectValue placeholder="Choose a crop type" />
                   </SelectTrigger>
@@ -1380,21 +1380,34 @@ const FloorPlan = () => {
               
               {selectedCrop && (
                 <div>
+                  <Label htmlFor="year">Select Harvest Year</Label>
+                  <Select value={selectedYear} onValueChange={(value) => { setSelectedYear(value); setSelectedField(""); setSelectedGrade(""); }}>
+                    <SelectTrigger id="year" data-testid="select-year">
+                      <SelectValue placeholder="Choose a year" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {getAvailableYears().filter(year => fields.some(f => f.crop_type === selectedCrop && f.harvest_year === year)).map((year) => (
+                        <SelectItem key={year} value={year} data-testid={`year-option-${year}`}>
+                          {year}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+              
+              {selectedCrop && selectedYear && (
+                <div>
                   <Label htmlFor="field">Select Field</Label>
                   <Select value={selectedField} onValueChange={(value) => { setSelectedField(value); setSelectedGrade(""); }}>
                     <SelectTrigger id="field" data-testid="select-field">
                       <SelectValue placeholder="Choose a field" />
                     </SelectTrigger>
                     <SelectContent>
-                      {fields.filter(f => f.crop_type === selectedCrop).map((field) => (
+                      {fields.filter(f => f.crop_type === selectedCrop && f.harvest_year === selectedYear).map((field) => (
                         <SelectItem key={field.id} value={field.id} data-testid={`field-option-${field.id}`}>
                           <div className="flex flex-col">
-                            <span className="font-semibold">
-                              {field.name} 
-                              <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded">
-                                H{field.harvest_year}
-                              </span>
-                            </span>
+                            <span className="font-semibold">{field.name}</span>
                             <span className="text-xs text-gray-600">
                               {field.variety} - {field.area}
                             </span>
