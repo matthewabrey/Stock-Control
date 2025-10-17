@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Warehouse, Sprout, Map, Package, Lock } from "lucide-react";
 import { toast } from "sonner";
 
@@ -22,10 +23,37 @@ const Dashboard = () => {
   const [shedDetails, setShedDetails] = useState({});
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
   const [password, setPassword] = useState("");
+  const [harvestYears, setHarvestYears] = useState([]);
+  const [selectedHarvestYear, setSelectedHarvestYear] = useState(
+    localStorage.getItem("selectedHarvestYear") || "2025"
+  );
 
   useEffect(() => {
+    fetchHarvestYears();
     fetchStats();
-  }, []);
+  }, [selectedHarvestYear]);
+
+  const fetchHarvestYears = async () => {
+    try {
+      const res = await axios.get(`${API}/harvest-years`);
+      setHarvestYears(res.data.harvest_years);
+      
+      // If no harvest year selected yet and we have years, select the first one
+      if (!selectedHarvestYear && res.data.harvest_years.length > 0) {
+        const firstYear = res.data.harvest_years[0];
+        setSelectedHarvestYear(firstYear);
+        localStorage.setItem("selectedHarvestYear", firstYear);
+      }
+    } catch (error) {
+      console.error("Error fetching harvest years:", error);
+    }
+  };
+
+  const handleHarvestYearChange = (year) => {
+    setSelectedHarvestYear(year);
+    localStorage.setItem("selectedHarvestYear", year);
+    toast.success(`Switched to Harvest ${year}`);
+  };
 
   const fetchStats = async () => {
     try {
