@@ -23,40 +23,10 @@ const Dashboard = () => {
   const [shedDetails, setShedDetails] = useState({});
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
   const [password, setPassword] = useState("");
-  const [harvestYears, setHarvestYears] = useState([]);
-  const [selectedHarvestYear, setSelectedHarvestYear] = useState(
-    localStorage.getItem("selectedHarvestYear") || "all"
-  );
 
   useEffect(() => {
-    fetchHarvestYears();
     fetchStats();
-  }, [selectedHarvestYear]);
-
-  const fetchHarvestYears = async () => {
-    try {
-      const res = await axios.get(`${API}/harvest-years`);
-      setHarvestYears(res.data.harvest_years);
-      
-      // If no harvest year selected yet, default to "all"
-      if (!selectedHarvestYear) {
-        setSelectedHarvestYear("all");
-        localStorage.setItem("selectedHarvestYear", "all");
-      }
-    } catch (error) {
-      console.error("Error fetching harvest years:", error);
-    }
-  };
-
-  const handleHarvestYearChange = (year) => {
-    setSelectedHarvestYear(year);
-    localStorage.setItem("selectedHarvestYear", year);
-    if (year === "all") {
-      toast.success("Showing all harvest years combined");
-    } else {
-      toast.success(`Switched to Harvest ${year}`);
-    }
-  };
+  }, []);
 
   const fetchStats = async () => {
     try {
