@@ -584,6 +584,12 @@ const FloorPlan = () => {
   };
 
   const handleStockIntake = async () => {
+    // Prevent double submission
+    if (isSubmitting) {
+      console.log("Already submitting, ignoring duplicate call");
+      return;
+    }
+
     if (!selectedField || !intakeQuantity || !selectedGrade) {
       toast.warning("Please fill all required fields including grade");
       return;
@@ -613,6 +619,9 @@ const FloorPlan = () => {
     }
 
     try {
+      // Set submitting flag
+      setIsSubmitting(true);
+      console.log("Starting stock intake submission...");
       
       // Distribute quantity across selected zones
       const qtyPerZone = qty / zonesToUpdate.length;
@@ -632,6 +641,7 @@ const FloorPlan = () => {
       toast.success(`Stock added to ${zonesToUpdate.length} zone(s) from ${field.name} (${selectedGrade})`);
       setShowIntakeDialog(false);
       setSelectedCrop("");
+      setSelectedYear("");
       setSelectedField("");
       setSelectedGrade("");
       setIntakeQuantity("");
@@ -641,6 +651,10 @@ const FloorPlan = () => {
     } catch (error) {
       console.error("Error adding stock:", error);
       toast.error("Failed to add stock");
+    } finally {
+      // Always reset the submitting flag
+      setIsSubmitting(false);
+      console.log("Stock intake submission complete");
     }
   };
 
