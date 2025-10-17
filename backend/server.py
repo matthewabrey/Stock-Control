@@ -575,7 +575,7 @@ async def upload_excel(file: UploadFile = File(...)):
             print(f"Store {store_name}: Found {len(zone_positions)} zones")
             print(f"  Bounds: rows {min_row}-{max_row}, cols {min_col}-{max_col}")
             
-            # Calculate store dimensions accounting for zone widths
+            # Calculate column positions (used for both zones and doors)
             # Group zones by column to get proper widths
             zones_by_col_temp = {}
             for row_idx, col_idx, capacity in zone_positions:
@@ -583,15 +583,20 @@ async def upload_excel(file: UploadFile = File(...)):
                     zones_by_col_temp[col_idx] = []
                 zones_by_col_temp[col_idx].append((row_idx, capacity))
             
-            # Calculate total width by summing column widths
+            # Calculate x positions for each column
             sorted_cols_temp = sorted(zones_by_col_temp.keys())
-            total_width = 0
+            col_x_positions = {}
+            current_x = 0
+            
             for col_idx in sorted_cols_temp:
+                col_x_positions[col_idx] = current_x
+                # Determine column width based on max capacity in this column
                 max_capacity_in_col = max(cap for _, cap in zones_by_col_temp[col_idx])
                 col_width = 8 if max_capacity_in_col > 6 else 2
-                total_width += col_width
+                current_x += col_width
             
-            store_width = total_width
+            # Calculate total store dimensions
+            store_width = current_x
             store_height = (max_row - min_row + 1) * 2
             
             # Detect doors - look for cells containing "DOOR" text
