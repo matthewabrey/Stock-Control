@@ -4,7 +4,7 @@ import axios from "axios";
 import { API } from "@/App";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Warehouse, ArrowLeft, Package } from "lucide-react";
+import { Warehouse, ArrowLeft, Package, Printer } from "lucide-react";
 import { toast } from "sonner";
 
 const Overview = () => {
