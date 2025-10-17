@@ -261,6 +261,115 @@ const Overview = () => {
                         </div>
                       </>
                     )}
+                    
+                    {/* Floor Plan - Hidden on screen, shown when printing */}
+                    <div className="print-only mt-8 pt-8 border-t-2 border-gray-300">
+                      <h3 className="text-xl font-bold mb-4 text-gray-900">Floor Plan</h3>
+                      <div className="bg-white border border-gray-300 p-4 rounded">
+                        <svg 
+                          width="100%" 
+                          height="400" 
+                          viewBox={`0 0 ${shed.width * 20} ${shed.height * 20}`}
+                          className="border border-gray-200"
+                          style={{ maxWidth: '100%' }}
+                        >
+                          {/* Draw zones */}
+                          {zones.filter(z => z.shed_id === shed.id).map((zone) => {
+                            const zoneIntakes = stockIntakes.filter(i => i.zone_id === zone.id);
+                            const isEmpty = zone.total_quantity === 0;
+                            
+                            // Determine color
+                            let fillColor = '#e5e7eb'; // gray for empty
+                            if (!isEmpty && zoneIntakes.length > 0) {
+                              // Use first field's color (simplified)
+                              const fieldId = zoneIntakes[0].field_id;
+                              const colorIndex = fields.findIndex(f => f.id === fieldId);
+                              const colors = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316'];
+                              fillColor = colors[colorIndex % colors.length];
+                            }
+                            
+                            return (
+                              <g key={zone.id}>
+                                <rect
+                                  x={zone.x * 20}
+                                  y={zone.y * 20}
+                                  width={zone.width * 20}
+                                  height={zone.height * 20}
+                                  fill={fillColor}
+                                  stroke="#374151"
+                                  strokeWidth="2"
+                                />
+                                <text
+                                  x={zone.x * 20 + (zone.width * 20) / 2}
+                                  y={zone.y * 20 + (zone.height * 20) / 2}
+                                  textAnchor="middle"
+                                  dominantBaseline="middle"
+                                  fill="white"
+                                  fontSize="14"
+                                  fontWeight="bold"
+                                  style={{ textShadow: '0 2px 4px rgba(0,0,0,0.8)' }}
+                                >
+                                  {zone.name}
+                                </text>
+                                {!isEmpty && (
+                                  <text
+                                    x={zone.x * 20 + (zone.width * 20) / 2}
+                                    y={zone.y * 20 + (zone.height * 20) / 2 + 18}
+                                    textAnchor="middle"
+                                    dominantBaseline="middle"
+                                    fill="white"
+                                    fontSize="12"
+                                    fontWeight="bold"
+                                  >
+                                    {zone.total_quantity % 1 === 0 ? zone.total_quantity.toFixed(0) : zone.total_quantity.toFixed(1)}
+                                  </text>
+                                )}
+                              </g>
+                            );
+                          })}
+                          
+                          {/* Draw doors */}
+                          {shed.doors && shed.doors.map((door, idx) => {
+                            let x1, y1, x2, y2;
+                            const doorWidth = 4;
+                            
+                            if (door.side === 'top') {
+                              x1 = door.position * 20;
+                              y1 = 0;
+                              x2 = x1 + doorWidth;
+                              y2 = 0;
+                            } else if (door.side === 'bottom') {
+                              x1 = door.position * 20;
+                              y1 = shed.height * 20;
+                              x2 = x1 + doorWidth;
+                              y2 = y1;
+                            } else if (door.side === 'left') {
+                              x1 = 0;
+                              y1 = door.position * 20;
+                              x2 = 0;
+                              y2 = y1 + doorWidth;
+                            } else {
+                              x1 = shed.width * 20;
+                              y1 = door.position * 20;
+                              x2 = x1;
+                              y2 = y1 + doorWidth;
+                            }
+                            
+                            return (
+                              <line
+                                key={idx}
+                                x1={x1}
+                                y1={y1}
+                                x2={x2}
+                                y2={y2}
+                                stroke="#ef4444"
+                                strokeWidth="8"
+                              />
+                            );
+                          })}
+                        </svg>
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
               );
