@@ -797,18 +797,21 @@ async def clear_all_data():
 
 @api_router.delete("/clear-stores")
 async def clear_stores():
-    """Clear all sheds and zones, but preserve fields and stock intakes"""
+    """Clear all stock from sheds/zones, but keep the shed and zone structure intact"""
     try:
-        # Delete sheds and zones only
-        await db.sheds.delete_many({})
-        await db.zones.delete_many({})
+        # Delete all stock intakes and movements
+        await db.stock_intakes.delete_many({})
+        await db.stock_movements.delete_many({})
+        
+        # Reset all zone quantities to 0
+        await db.zones.update_many({}, {"$set": {"total_quantity": 0}})
         
         return {
-            "message": "All stores cleared successfully",
-            "collections_cleared": ["sheds", "zones"]
+            "message": "All stock cleared successfully. Sheds and zones preserved.",
+            "actions": ["stock_intakes cleared", "stock_movements cleared", "zone quantities reset to 0"]
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error clearing stores: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error clearing stock: {str(e)}")
 
 
 @api_router.get("/export-excel")
