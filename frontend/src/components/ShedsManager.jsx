@@ -93,25 +93,12 @@ const ShedsManager = () => {
 
   const handleClearAllStores = async () => {
     try {
-      const confirmed1 = window.confirm("Are you sure you want to clear ALL stock from all sheds? This will empty all zones but keep the shed structure intact.");
-      console.log("First confirmation:", confirmed1);
-      
-      if (!confirmed1) {
-        return;
-      }
-      
-      const confirmed2 = window.confirm("This action cannot be undone. All stock records will be permanently deleted. Continue?");
-      console.log("Second confirmation:", confirmed2);
-      
-      if (!confirmed2) {
-        return;
-      }
-
       console.log("Calling API to clear stores...");
       const response = await axios.delete(`${API}/clear-stores`);
       console.log("Response:", response.data);
       
       toast.success("All stock cleared successfully. Sheds and zones preserved.");
+      setShowClearConfirm(false);
       fetchSheds();
     } catch (error) {
       console.error("Error clearing stock:", error);
