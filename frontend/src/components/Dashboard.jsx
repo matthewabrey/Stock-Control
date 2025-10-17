@@ -140,10 +140,11 @@ const Dashboard = () => {
                 Harvest Year:
               </Label>
               <Select value={selectedHarvestYear} onValueChange={handleHarvestYearChange}>
-                <SelectTrigger className="w-32 bg-white border-gray-300">
+                <SelectTrigger className="w-40 bg-white border-gray-300">
                   <SelectValue placeholder="Select year" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="all">All Years</SelectItem>
                   {harvestYears.map(year => (
                     <SelectItem key={year} value={year}>
                       {year}
