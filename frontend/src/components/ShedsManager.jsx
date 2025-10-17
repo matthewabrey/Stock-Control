@@ -67,6 +67,48 @@ const ShedsManager = () => {
     }
   };
 
+  const handleExportToExcel = async () => {
+    try {
+      toast.info("Preparing Excel export...");
+      const response = await axios.get(`${API}/export-excel`, {
+        responseType: 'blob'
+      });
+      
+      // Create a download link
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `stock-control-export-${new Date().toISOString().split('T')[0]}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      
+      toast.success("Excel file downloaded successfully");
+    } catch (error) {
+      console.error("Error exporting to Excel:", error);
+      toast.error("Failed to export to Excel");
+    }
+  };
+
+  const handleClearAllStores = async () => {
+    if (!window.confirm("Are you sure you want to clear ALL stores/sheds? This will delete all sheds and their zones. Stock intake records will be preserved.")) {
+      return;
+    }
+    
+    if (!window.confirm("This action cannot be undone. Are you absolutely sure?")) {
+      return;
+    }
+
+    try {
+      await axios.delete(`${API}/clear-stores`);
+      toast.success("All stores cleared successfully");
+      fetchSheds();
+    } catch (error) {
+      console.error("Error clearing stores:", error);
+      toast.error("Failed to clear stores");
+    }
+  };
+
   return (
     <div className="min-h-screen p-8">
       <div className="max-w-7xl mx-auto">
