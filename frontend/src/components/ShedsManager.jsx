@@ -196,6 +196,52 @@ const ShedsManager = () => {
           <ManualStoreCreator onStoreCreated={fetchSheds} />
         </div>
 
+        {/* Admin Actions */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <Card className="border-blue-200 bg-blue-50">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-blue-900">
+                <Download className="w-5 h-5" />
+                Export to Excel
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-blue-700 mb-4">
+                Download all your data (fields, sheds, zones, stock) to an Excel file
+              </p>
+              <Button 
+                onClick={handleExportToExcel}
+                className="w-full bg-blue-600 hover:bg-blue-700"
+              >
+                <Download className="mr-2 w-4 h-4" />
+                Download Excel
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="border-red-200 bg-red-50">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-red-900">
+                <AlertTriangle className="w-5 h-5" />
+                Clear All Stores
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-red-700 mb-4">
+                Delete all sheds and zones. Stock intake records will be preserved.
+              </p>
+              <Button 
+                onClick={handleClearAllStores}
+                variant="destructive"
+                className="w-full bg-red-600 hover:bg-red-700"
+              >
+                <Trash2 className="mr-2 w-4 h-4" />
+                Clear All Stores
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {sheds.map((shed) => (
             <Card key={shed.id} className="hover:shadow-lg transition-shadow" data-testid={`shed-card-${shed.id}`}>
