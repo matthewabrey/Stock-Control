@@ -1542,17 +1542,20 @@ const FloorPlan = () => {
                   const fieldGroups = {};
                   zoneIntakes.forEach(intake => {
                     if (!fieldGroups[intake.field_id]) {
+                      const field = fields.find(f => f.id === intake.field_id);
+                      const fieldNameWithYear = field ? `${intake.field_name} - ${field.harvest_year}` : intake.field_name;
+                      
                       fieldGroups[intake.field_id] = {
                         fieldId: intake.field_id,
-                        fieldName: intake.field_name,
+                        fieldName: fieldNameWithYear,
                         quantity: 0
                       };
                     }
                     fieldGroups[intake.field_id].quantity += intake.quantity;
                   });
                   
-                  const fields = Object.values(fieldGroups);
-                  const isMixed = fields.length > 1;
+                  const fieldsList = Object.values(fieldGroups);
+                  const isMixed = fieldsList.length > 1;
                   const selectedFieldId = moveFieldSelections[zone.id];
                   const maxQty = selectedFieldId && fieldGroups[selectedFieldId] 
                     ? fieldGroups[selectedFieldId].quantity 
