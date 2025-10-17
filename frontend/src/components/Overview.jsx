@@ -111,9 +111,15 @@ const Overview = () => {
             display: none !important;
           }
           
+          /* Show print-only elements */
+          .print-only {
+            display: block !important;
+          }
+          
           /* Reset page margins */
           @page {
             margin: 1cm;
+            size: A4 portrait;
           }
           
           /* Each shed on new page */
@@ -138,6 +144,13 @@ const Overview = () => {
           /* Hide body background */
           body {
             background: white !important;
+          }
+        }
+        
+        @media screen {
+          /* Hide floor plan on screen */
+          .print-only {
+            display: none !important;
           }
         }
       `}</style>
