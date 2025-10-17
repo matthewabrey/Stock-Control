@@ -99,8 +99,7 @@ const FloorPlan = () => {
 
   const fetchFields = async () => {
     try {
-      // Always fetch ALL fields to ensure we can show harvest year badges for all stock
-      // The year filter only affects the dropdown when adding NEW stock
+      // Fetch all fields - no filtering needed
       const response = await axios.get(`${API}/fields`);
       setFields(response.data);
     } catch (error) {
@@ -124,15 +123,6 @@ const FloorPlan = () => {
     } catch (error) {
       console.error("Error fetching stock intakes:", error);
     }
-  };
-
-  // Get fields filtered by selected harvest year (for dropdown only)
-  const getFilteredFields = () => {
-    const selectedHarvestYear = localStorage.getItem("selectedHarvestYear") || "all";
-    if (selectedHarvestYear === "all") {
-      return fields;
-    }
-    return fields.filter(f => f.harvest_year === selectedHarvestYear);
   };
 
   const getZoneIntakes = (zoneId) => {
