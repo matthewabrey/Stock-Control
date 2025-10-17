@@ -120,13 +120,36 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-semibold mb-2 text-gray-900">
-            Stock Control System
-          </h1>
-          <p className="text-gray-600">
-            Manage your crop inventory across fields and sheds
-          </p>
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-4xl font-semibold mb-2 text-gray-900">
+              Stock Control System
+            </h1>
+            <p className="text-gray-600">
+              Manage your crop inventory across fields and sheds
+            </p>
+          </div>
+          
+          {/* Harvest Year Selector */}
+          {harvestYears.length > 0 && (
+            <div className="flex items-center gap-3">
+              <Label htmlFor="harvest-year" className="text-sm font-medium text-gray-700">
+                Harvest Year:
+              </Label>
+              <Select value={selectedHarvestYear} onValueChange={handleHarvestYearChange}>
+                <SelectTrigger className="w-32 bg-white border-gray-300">
+                  <SelectValue placeholder="Select year" />
+                </SelectTrigger>
+                <SelectContent>
+                  {harvestYears.map(year => (
+                    <SelectItem key={year} value={year}>
+                      {year}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
         </div>
 
         {/* Stats Cards */}
