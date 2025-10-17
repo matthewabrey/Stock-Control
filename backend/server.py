@@ -381,14 +381,15 @@ async def upload_excel(file: UploadFile = File(...)):
         # Parse harvest year sheets for fields
         harvest_sheets = []
         
-        # Check for Master Harvest sheets
+        # Check for field data sheets (various possible names)
         for sheet_name in wb.sheetnames:
-            if "Master Harvest" in sheet_name or "Master Harevst" in sheet_name:  # Handle typo too
+            sheet_lower = sheet_name.lower()
+            if any(keyword in sheet_lower for keyword in ["master harvest", "master harevst", "master cropping", "front page", "fields"]):
                 harvest_sheets.append(sheet_name)
         
-        # Fallback to FRONT PAGE if no Master Harvest sheets found
-        if not harvest_sheets and "FRONT PAGE" in wb.sheetnames:
-            harvest_sheets.append("FRONT PAGE")
+        # If no recognized sheets, skip field import
+        if not harvest_sheets:
+            print("Warning: No field sheets found (looking for 'Master Harvest', 'Master Cropping', 'FRONT PAGE', etc.)")
         
         # Clear existing fields
         await db.fields.delete_many({})
