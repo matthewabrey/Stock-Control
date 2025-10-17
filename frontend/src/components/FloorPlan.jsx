@@ -857,7 +857,7 @@ const FloorPlan = () => {
 
         <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
           <p className="text-sm text-blue-800">
-            <strong>How to use:</strong> Click zones to select/deselect them. Use "Add Stock" or "Move Stock" buttons for selected zones. Drag zones to move stock.
+            <strong>How to use:</strong> Click zones to select/deselect. <strong>Ctrl+Click</strong> on a second zone to select all zones between them (left to right). Use "Add Stock" or "Move Stock" buttons for selected zones.
           </p>
         </div>
 
