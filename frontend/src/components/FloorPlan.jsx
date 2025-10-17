@@ -171,9 +171,12 @@ const FloorPlan = () => {
     
     zoneIntakes.forEach(intake => {
       if (!fieldGroups[intake.field_id]) {
+        const field = fields.find(f => f.id === intake.field_id);
+        const fieldNameWithYear = field ? `${intake.field_name} - ${field.harvest_year}` : intake.field_name;
+        
         fieldGroups[intake.field_id] = {
           fieldId: intake.field_id,
-          fieldName: intake.field_name,
+          fieldName: fieldNameWithYear,
           color: fieldColorMap[intake.field_id] || "#94a3b8",
           quantity: 0
         };
