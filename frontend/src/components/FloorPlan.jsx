@@ -1383,7 +1383,12 @@ const FloorPlan = () => {
                       {fields.filter(f => f.crop_type === selectedCrop).map((field) => (
                         <SelectItem key={field.id} value={field.id} data-testid={`field-option-${field.id}`}>
                           <div className="flex flex-col">
-                            <span className="font-semibold">{field.name}</span>
+                            <span className="font-semibold">
+                              {field.name} 
+                              <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded">
+                                H{field.harvest_year}
+                              </span>
+                            </span>
                             <span className="text-xs text-gray-600">
                               {field.variety} - {field.area}
                             </span>
