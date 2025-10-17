@@ -607,11 +607,19 @@ async def upload_excel(file: UploadFile = File(...)):
                         # Top: row is above zone area
                         if row_idx < min_row and col_idx >= min_col and col_idx <= max_col:
                             door_side = 'top'
-                            door_position = (col_idx - min_col) * 2
+                            # Use the column x position we calculated earlier
+                            if col_idx in col_x_positions:
+                                door_position = col_x_positions[col_idx]
+                            else:
+                                door_position = (col_idx - min_col) * 2
                         # Bottom: row is below zone area
                         elif row_idx > max_row and col_idx >= min_col and col_idx <= max_col:
                             door_side = 'bottom'
-                            door_position = (col_idx - min_col) * 2
+                            # Use the column x position we calculated earlier
+                            if col_idx in col_x_positions:
+                                door_position = col_x_positions[col_idx]
+                            else:
+                                door_position = (col_idx - min_col) * 2
                         # Left: column is left of zone area
                         elif col_idx < min_col and row_idx >= min_row and row_idx <= max_row:
                             door_side = 'left'
