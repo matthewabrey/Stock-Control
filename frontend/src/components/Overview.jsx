@@ -22,13 +22,18 @@ const Overview = () => {
   const fetchData = async () => {
     try {
       // Get selected harvest year from localStorage
-      const selectedHarvestYear = localStorage.getItem("selectedHarvestYear") || "2025";
+      const selectedHarvestYear = localStorage.getItem("selectedHarvestYear") || "all";
+      
+      // If "all", fetch all fields without filter
+      const fieldsUrl = selectedHarvestYear === "all"
+        ? `${API}/fields`
+        : `${API}/fields?harvest_year=${selectedHarvestYear}`;
       
       const [shedsRes, zonesRes, intakesRes, fieldsRes] = await Promise.all([
         axios.get(`${API}/sheds`),
         axios.get(`${API}/zones`),
         axios.get(`${API}/stock-intakes`),
-        axios.get(`${API}/fields?harvest_year=${selectedHarvestYear}`)
+        axios.get(fieldsUrl)
       ]);
 
       setSheds(shedsRes.data);
