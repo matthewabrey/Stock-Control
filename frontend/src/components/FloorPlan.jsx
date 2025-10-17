@@ -126,6 +126,15 @@ const FloorPlan = () => {
     }
   };
 
+  // Get fields filtered by selected harvest year (for dropdown only)
+  const getFilteredFields = () => {
+    const selectedHarvestYear = localStorage.getItem("selectedHarvestYear") || "all";
+    if (selectedHarvestYear === "all") {
+      return fields;
+    }
+    return fields.filter(f => f.harvest_year === selectedHarvestYear);
+  };
+
   const getZoneIntakes = (zoneId) => {
     return stockIntakes.filter(intake => intake.zone_id === zoneId);
   };
