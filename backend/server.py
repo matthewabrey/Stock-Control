@@ -795,6 +795,112 @@ async def clear_all_data():
         raise HTTPException(status_code=500, detail=f"Error clearing data: {str(e)}")
 
 
+@api_router.delete("/clear-stores")
+async def clear_stores():
+    """Clear all sheds and zones, but preserve fields and stock intakes"""
+    try:
+        # Delete sheds and zones only
+        await db.sheds.delete_many({})
+        await db.zones.delete_many({})
+        
+        return {
+            "message": "All stores cleared successfully",
+            "collections_cleared": ["sheds", "zones"]
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error clearing stores: {str(e)}")
+
+
+@api_router.get("/export-excel")
+async def export_excel():
+    """Export all data to Excel file"""
+    try:
+        # Create a new workbook
+        wb = openpyxl.Workbook()
+        
+        # Remove default sheet
+        wb.remove(wb.active)
+        
+        # Export Fields
+        ws_fields = wb.create_sheet("Fields")
+        ws_fields.append(["ID", "Name", "Area", "Crop Type", "Variety", "Harvest Year", "Available Grades"])
+        
+        fields = await db.fields.find({}).to_list(length=None)
+        for field in fields:
+            ws_fields.append([
+                field.get('id', ''),
+                field.get('name', ''),
+                field.get('area', ''),
+                field.get('crop_type', ''),
+                field.get('variety', ''),
+                field.get('harvest_year', ''),
+                ', '.join(field.get('available_grades', []))
+            ])
+        
+        # Export Sheds
+        ws_sheds = wb.create_sheet("Sheds")
+        ws_sheds.append(["ID", "Name", "Width", "Height", "Description"])
+        
+        sheds = await db.sheds.find({}).to_list(length=None)
+        for shed in sheds:
+            ws_sheds.append([
+                shed.get('id', ''),
+                shed.get('name', ''),
+                shed.get('width', 0),
+                shed.get('height', 0),
+                shed.get('description', '')
+            ])
+        
+        # Export Zones
+        ws_zones = wb.create_sheet("Zones")
+        ws_zones.append(["ID", "Shed ID", "Name", "X", "Y", "Width", "Height", "Total Quantity", "Max Capacity"])
+        
+        zones = await db.zones.find({}).to_list(length=None)
+        for zone in zones:
+            ws_zones.append([
+                zone.get('id', ''),
+                zone.get('shed_id', ''),
+                zone.get('name', ''),
+                zone.get('x', 0),
+                zone.get('y', 0),
+                zone.get('width', 0),
+                zone.get('height', 0),
+                zone.get('total_quantity', 0),
+                zone.get('max_capacity', 6)
+            ])
+        
+        # Export Stock Intakes
+        ws_intakes = wb.create_sheet("Stock Intakes")
+        ws_intakes.append(["ID", "Field ID", "Field Name", "Zone ID", "Shed ID", "Quantity", "Grade", "Date"])
+        
+        intakes = await db.stock_intakes.find({}).to_list(length=None)
+        for intake in intakes:
+            ws_intakes.append([
+                intake.get('id', ''),
+                intake.get('field_id', ''),
+                intake.get('field_name', ''),
+                intake.get('zone_id', ''),
+                intake.get('shed_id', ''),
+                intake.get('quantity', 0),
+                intake.get('grade', ''),
+                intake.get('date', '')
+            ])
+        
+        # Save to bytes
+        output = io.BytesIO()
+        wb.save(output)
+        output.seek(0)
+        
+        # Return as downloadable file
+        return StreamingResponse(
+            output,
+            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            headers={"Content-Disposition": f"attachment; filename=stock-control-export.xlsx"}
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error exporting to Excel: {str(e)}")
+
+
 # Root route
 @api_router.get("/")
 async def root():
