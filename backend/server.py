@@ -639,9 +639,30 @@ async def upload_excel(file: UploadFile = File(...)):
             stores_created += 1
             
             # Create zones
+            # We need to place zones column by column to avoid overlaps
+            # Group zones by column first
+            zones_by_col = {}
+            for row_idx, col_idx, capacity in zone_positions:
+                if col_idx not in zones_by_col:
+                    zones_by_col[col_idx] = []
+                zones_by_col[col_idx].append((row_idx, capacity))
+            
+            # Calculate x positions for each column
+            sorted_cols = sorted(zones_by_col.keys())
+            col_x_positions = {}
+            current_x = 0
+            
+            for col_idx in sorted_cols:
+                col_x_positions[col_idx] = current_x
+                # Determine column width based on max capacity in this column
+                max_capacity_in_col = max(cap for _, cap in zones_by_col[col_idx])
+                col_width = 8 if max_capacity_in_col > 6 else 2
+                current_x += col_width
+            
+            # Now create zones with correct positions
             for row_idx, col_idx, capacity in zone_positions:
                 # Calculate position relative to store origin
-                zone_x = (col_idx - min_col) * 2
+                zone_x = col_x_positions[col_idx]
                 zone_y = (row_idx - min_row) * 2
                 
                 # Generate zone name (column letter + row number)
