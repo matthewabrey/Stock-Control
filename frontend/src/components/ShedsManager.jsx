@@ -289,6 +289,60 @@ const ShedsManager = () => {
           </div>
         )}
       </div>
+
+      {/* Clear Stock Confirmation Dialog */}
+      <Dialog open={showClearConfirm} onOpenChange={setShowClearConfirm}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-red-600">
+              <AlertTriangle className="w-5 h-5" />
+              Clear All Stock?
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <p className="text-gray-700">
+              Are you sure you want to clear <strong>ALL stock</strong> from all sheds?
+            </p>
+            <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3">
+              <p className="text-sm text-yellow-800">
+                <strong>This will:</strong>
+              </p>
+              <ul className="text-sm text-yellow-800 list-disc ml-5 mt-2">
+                <li>Empty all zones (reset quantities to 0)</li>
+                <li>Delete all stock intake records</li>
+                <li>Delete all stock movement history</li>
+              </ul>
+            </div>
+            <div className="bg-green-50 border border-green-200 rounded-md p-3">
+              <p className="text-sm text-green-800">
+                <strong>This will NOT affect:</strong>
+              </p>
+              <ul className="text-sm text-green-800 list-disc ml-5 mt-2">
+                <li>Your sheds and zones (infrastructure preserved)</li>
+                <li>Your field data</li>
+              </ul>
+            </div>
+            <p className="text-red-600 font-semibold text-sm">
+              ⚠️ This action cannot be undone!
+            </p>
+          </div>
+          <div className="flex gap-3 justify-end">
+            <Button
+              variant="outline"
+              onClick={() => setShowClearConfirm(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleClearAllStores}
+              variant="destructive"
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Yes, Clear All Stock
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
