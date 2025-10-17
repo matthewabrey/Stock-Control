@@ -1372,7 +1372,7 @@ const FloorPlan = () => {
                     <SelectValue placeholder="Choose a crop type" />
                   </SelectTrigger>
                   <SelectContent>
-                    {[...new Set(fields.map(f => f.crop_type))].sort().map((cropType) => (
+                    {[...new Set(getFilteredFields().map(f => f.crop_type))].sort().map((cropType) => (
                       <SelectItem key={cropType} value={cropType} data-testid={`crop-option-${cropType}`}>
                         {cropType}
                       </SelectItem>
@@ -1389,7 +1389,7 @@ const FloorPlan = () => {
                       <SelectValue placeholder="Choose a field" />
                     </SelectTrigger>
                     <SelectContent>
-                      {fields.filter(f => f.crop_type === selectedCrop).map((field) => (
+                      {getFilteredFields().filter(f => f.crop_type === selectedCrop).map((field) => (
                         <SelectItem key={field.id} value={field.id} data-testid={`field-option-${field.id}`}>
                           <div className="flex flex-col">
                             <span className="font-semibold">
