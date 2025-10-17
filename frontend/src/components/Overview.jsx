@@ -183,7 +183,12 @@ const Overview = () => {
                           >
                             <div className="flex items-start justify-between mb-3">
                               <div>
-                                <h3 className="font-semibold text-gray-900">{detail.fieldName}</h3>
+                                <div className="flex items-center gap-2">
+                                  <h3 className="font-semibold text-gray-900">{detail.fieldName}</h3>
+                                  <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded font-medium">
+                                    H{detail.harvestYear}
+                                  </span>
+                                </div>
                                 <p className="text-sm text-gray-600">{detail.cropType}</p>
                               </div>
                               <div className="flex items-center gap-2 bg-white px-3 py-1 rounded-md border border-gray-200">
