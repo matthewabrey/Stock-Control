@@ -223,12 +223,12 @@ const ShedsManager = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-red-900">
                 <AlertTriangle className="w-5 h-5" />
-                Clear All Stores
+                Clear All Stock
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-red-700 mb-4">
-                Delete all sheds and zones. Stock intake records will be preserved.
+                Remove all stock from sheds. Keeps sheds and zones intact, only clears the stock.
               </p>
               <Button 
                 onClick={handleClearAllStores}
@@ -236,7 +236,7 @@ const ShedsManager = () => {
                 className="w-full bg-red-600 hover:bg-red-700"
               >
                 <Trash2 className="mr-2 w-4 h-4" />
-                Clear All Stores
+                Clear All Stock
               </Button>
             </CardContent>
           </Card>
