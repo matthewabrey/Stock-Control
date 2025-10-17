@@ -405,13 +405,38 @@ async def upload_excel(file: UploadFile = File(...)):
             
             print(f"\n=== Processing {sheet_name} (Harvest Year: {harvest_year}) ===")
             
-            # Parse fields from row 4 onwards (row 3 is header)
-            for row_idx in range(4, ws.max_row + 1):
-                farm = ws.cell(row_idx, 3).value  # Column C
-                field_name = ws.cell(row_idx, 4).value  # Column D
-                area = ws.cell(row_idx, 5).value  # Column E
-                crop = ws.cell(row_idx, 6).value  # Column F
-                variety = ws.cell(row_idx, 7).value  # Column G
+            # Detect column layout by checking row 3 or row 4 for headers
+            # Master Harvest 25: Row 3 has headers, data starts row 4, columns C-G
+            # Master Harvest 26: Row 4 has headers, data starts row 5, columns D-H
+            
+            farm_col = 3  # Default: Column C
+            field_col = 4  # Default: Column D
+            area_col = 5  # Default: Column E
+            crop_col = 6  # Default: Column F
+            variety_col = 7  # Default: Column G
+            start_row = 4  # Default data start row
+            
+            # Check if row 4 has header values (indicates Master Harvest 26 format)
+            row4_field = ws.cell(4, 5).value  # Check column E in row 4
+            if row4_field and str(row4_field).lower() in ['field', 'farm']:
+                # Master Harvest 26 format: columns shifted right, headers in row 4
+                farm_col = 4  # Column D
+                field_col = 5  # Column E
+                area_col = 6  # Column F
+                crop_col = 7  # Column G
+                variety_col = 8  # Column H
+                start_row = 5  # Data starts row 5
+                print(f"Detected Harvest 26 format: columns D-H, starting row 5")
+            else:
+                print(f"Detected Harvest 25 format: columns C-G, starting row 4")
+            
+            # Parse fields from data start row onwards
+            for row_idx in range(start_row, ws.max_row + 1):
+                farm = ws.cell(row_idx, farm_col).value
+                field_name = ws.cell(row_idx, field_col).value
+                area = ws.cell(row_idx, area_col).value
+                crop = ws.cell(row_idx, crop_col).value
+                variety = ws.cell(row_idx, variety_col).value
                 
                 if not farm or not field_name:
                     continue
@@ -428,7 +453,7 @@ async def upload_excel(file: UploadFile = File(...)):
                         grades = grade_tables.get('onion_special', grade_tables.get('onion', []))
                     else:
                         grades = grade_tables.get('onion', [])
-                elif 'maincrop' in crop_str or 'main crop' in crop_str:
+                elif 'maincrop' in crop_str or 'main crop' in crop_str or 'potato' in crop_str:
                     grades = grade_tables.get('maincrop', [])
                 elif 'salad' in crop_str:
                     grades = grade_tables.get('salad', [])
