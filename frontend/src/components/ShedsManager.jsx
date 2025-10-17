@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { ArrowLeft, Plus, Trash2, Map } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, Map, Download, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import ExcelUpload from "@/components/ExcelUpload";
 import ManualStoreCreator from "@/components/ManualStoreCreator";
