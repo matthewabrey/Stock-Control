@@ -37,6 +37,7 @@ class Field(BaseModel):
     crop_type: str
     variety: str
     available_grades: List[str] = []
+    harvest_year: str = "2025"  # Default harvest year
 
 class FieldCreate(BaseModel):
     name: str
@@ -44,6 +45,7 @@ class FieldCreate(BaseModel):
     crop_type: str
     variety: str
     available_grades: List[str] = []
+    harvest_year: str = "2025"
 
 class DoorPosition(BaseModel):
     side: str  # "top", "bottom", "left", "right"
