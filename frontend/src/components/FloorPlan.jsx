@@ -210,6 +210,36 @@ const FloorPlan = () => {
   };
 
   const handleZoneClick = (zone, event) => {
+    // Ctrl+Click for range selection
+    if (event.ctrlKey || event.metaKey) {
+      if (selectedZones.length === 1) {
+        // If one zone is already selected, select all zones between them
+        const firstZone = selectedZones[0];
+        const secondZone = zone;
+        
+        // Get all zones sorted by row, then column (left to right)
+        const sortedZones = [...zones].sort((a, b) => {
+          if (a.y !== b.y) return a.y - b.y; // Sort by row first
+          return a.x - b.x; // Then by column
+        });
+        
+        // Find indices of the two zones
+        const firstIndex = sortedZones.findIndex(z => z.id === firstZone.id);
+        const secondIndex = sortedZones.findIndex(z => z.id === secondZone.id);
+        
+        if (firstIndex !== -1 && secondIndex !== -1) {
+          // Select all zones between them (inclusive)
+          const startIndex = Math.min(firstIndex, secondIndex);
+          const endIndex = Math.max(firstIndex, secondIndex);
+          const rangeZones = sortedZones.slice(startIndex, endIndex + 1);
+          
+          setSelectedZones(rangeZones);
+          toast.success(`Selected ${rangeZones.length} zones in range`);
+          return;
+        }
+      }
+    }
+    
     // Simple click to toggle selection
     if (selectedZones.find(z => z.id === zone.id)) {
       // Deselect if already selected
