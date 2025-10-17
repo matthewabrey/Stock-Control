@@ -91,21 +91,21 @@ const ShedsManager = () => {
   };
 
   const handleClearAllStores = async () => {
-    if (!window.confirm("Are you sure you want to clear ALL stores/sheds? This will delete all sheds and their zones. Stock intake records will be preserved.")) {
+    if (!window.confirm("Are you sure you want to clear ALL stock from all sheds? This will empty all zones but keep the shed structure intact.")) {
       return;
     }
     
-    if (!window.confirm("This action cannot be undone. Are you absolutely sure?")) {
+    if (!window.confirm("This action cannot be undone. All stock records will be permanently deleted. Continue?")) {
       return;
     }
 
     try {
       await axios.delete(`${API}/clear-stores`);
-      toast.success("All stores cleared successfully");
+      toast.success("All stock cleared successfully. Sheds and zones preserved.");
       fetchSheds();
     } catch (error) {
-      console.error("Error clearing stores:", error);
-      toast.error("Failed to clear stores");
+      console.error("Error clearing stock:", error);
+      toast.error("Failed to clear stock");
     }
   };
 
