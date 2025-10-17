@@ -103,26 +103,65 @@ const Overview = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="mb-6 flex items-center justify-between">
-          <Button
-            onClick={() => navigate('/')}
-            variant="outline"
-            className="bg-white"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Dashboard
-          </Button>
+    <>
+      <style>{`
+        @media print {
+          /* Hide UI elements */
+          .no-print {
+            display: none !important;
+          }
           
-          <Button
-            onClick={handlePrint}
-            className="bg-blue-600 hover:bg-blue-700 no-print"
-          >
-            <Printer className="w-4 h-4 mr-2" />
-            Print All Stores
-          </Button>
-        </div>
+          /* Reset page margins */
+          @page {
+            margin: 1cm;
+          }
+          
+          /* Each shed on new page */
+          .print-page-break {
+            page-break-after: always;
+            page-break-inside: avoid;
+          }
+          
+          /* Last shed no page break */
+          .print-page-break:last-child {
+            page-break-after: auto;
+          }
+          
+          /* Ensure cards print nicely */
+          .print-card {
+            border: 1px solid #ddd;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: white;
+          }
+          
+          /* Hide body background */
+          body {
+            background: white !important;
+          }
+        }
+      `}</style>
+      
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <div className="mb-6 flex items-center justify-between">
+            <Button
+              onClick={() => navigate('/')}
+              variant="outline"
+              className="bg-white no-print"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Dashboard
+            </Button>
+            
+            <Button
+              onClick={handlePrint}
+              className="bg-blue-600 hover:bg-blue-700 no-print"
+            >
+              <Printer className="w-4 h-4 mr-2" />
+              Print All Stores
+            </Button>
+          </div>
 
         <div className="mb-8">
           <h1 className="text-4xl font-semibold mb-2 text-gray-900">
