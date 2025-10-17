@@ -21,11 +21,14 @@ const Overview = () => {
 
   const fetchData = async () => {
     try {
+      // Get selected harvest year from localStorage
+      const selectedHarvestYear = localStorage.getItem("selectedHarvestYear") || "2025";
+      
       const [shedsRes, zonesRes, intakesRes, fieldsRes] = await Promise.all([
         axios.get(`${API}/sheds`),
         axios.get(`${API}/zones`),
         axios.get(`${API}/stock-intakes`),
-        axios.get(`${API}/fields`)
+        axios.get(`${API}/fields?harvest_year=${selectedHarvestYear}`)
       ]);
 
       setSheds(shedsRes.data);
