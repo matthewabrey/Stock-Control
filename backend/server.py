@@ -138,9 +138,20 @@ async def create_field(input: FieldCreate):
     return field_obj
 
 @api_router.get("/fields", response_model=List[Field])
-async def get_fields():
-    fields = await db.fields.find({}, {"_id": 0}).to_list(1000)
+async def get_fields(harvest_year: Optional[str] = None):
+    query = {}
+    if harvest_year:
+        query["harvest_year"] = harvest_year
+    fields = await db.fields.find(query, {"_id": 0}).to_list(length=None)
     return fields
+
+@api_router.get("/harvest-years")
+async def get_harvest_years():
+    """Get list of available harvest years from fields"""
+    fields = await db.fields.find({}, {"_id": 0, "harvest_year": 1}).to_list(length=None)
+    years = list(set([f.get("harvest_year", "2025") for f in fields]))
+    years.sort()
+    return {"harvest_years": years}
 
 @api_router.delete("/fields/{field_id}")
 async def delete_field(field_id: str):
