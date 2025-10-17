@@ -17,6 +17,7 @@ const ShedsManager = () => {
   const navigate = useNavigate();
   const [sheds, setSheds] = useState([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [newShed, setNewShed] = useState({
     name: "",
     width: 50,
