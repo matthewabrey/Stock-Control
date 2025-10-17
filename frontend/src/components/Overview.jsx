@@ -90,6 +90,10 @@ const Overview = () => {
     return Object.values(fieldGroups).filter(fg => fg.totalQuantity > 0);
   };
 
+  const handlePrint = () => {
+    window.print();
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
