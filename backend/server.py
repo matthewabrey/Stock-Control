@@ -396,24 +396,18 @@ async def upload_excel(file: UploadFile = File(...)):
         for sheet_name in harvest_sheets:
             ws = wb[sheet_name]
             
-            # Extract harvest year from sheet name
-            harvest_year = "2025"  # Default
-            if "25" in sheet_name:
-                harvest_year = "2025"
-            elif "26" in sheet_name:
-                harvest_year = "2026"
-            
-            print(f"\n=== Processing {sheet_name} (Harvest Year: {harvest_year}) ===")
+            print(f"\n=== Processing {sheet_name} ===")
             
             # Detect column layout by checking row 3 or row 4 for headers
             # Master Harvest 25: Row 3 has headers, data starts row 4, columns C-G
-            # Master Harvest 26: Row 4 has headers, data starts row 5, columns D-H
+            # Master Harvest 26: Row 4 has headers, data starts row 5, columns D-H (or more if Year column exists)
             
             farm_col = 3  # Default: Column C
             field_col = 4  # Default: Column D
             area_col = 5  # Default: Column E
             crop_col = 6  # Default: Column F
             variety_col = 7  # Default: Column G
+            year_col = None  # Will be detected if exists
             start_row = 4  # Default data start row
             
             # Check if row 4 has header values (indicates Master Harvest 26 format)
@@ -426,9 +420,24 @@ async def upload_excel(file: UploadFile = File(...)):
                 crop_col = 7  # Column G
                 variety_col = 8  # Column H
                 start_row = 5  # Data starts row 5
-                print(f"Detected Harvest 26 format: columns D-H, starting row 5")
+                
+                # Check for Year column (could be column I or beyond)
+                for col_idx in range(9, ws.max_column + 1):
+                    header_val = ws.cell(4, col_idx).value
+                    if header_val and 'year' in str(header_val).lower():
+                        year_col = col_idx
+                        break
+                
+                print(f"Detected Harvest 26 format: columns D-H, starting row 5, year_col={year_col}")
             else:
-                print(f"Detected Harvest 25 format: columns C-G, starting row 4")
+                # Check for Year column in row 3 (Master Harvest 25 format)
+                for col_idx in range(8, ws.max_column + 1):
+                    header_val = ws.cell(3, col_idx).value
+                    if header_val and 'year' in str(header_val).lower():
+                        year_col = col_idx
+                        break
+                
+                print(f"Detected Harvest 25 format: columns C-G, starting row 4, year_col={year_col}")
             
             # Parse fields from data start row onwards
             for row_idx in range(start_row, ws.max_row + 1):
@@ -437,6 +446,19 @@ async def upload_excel(file: UploadFile = File(...)):
                 area = ws.cell(row_idx, area_col).value
                 crop = ws.cell(row_idx, crop_col).value
                 variety = ws.cell(row_idx, variety_col).value
+                
+                # Read year from column if it exists, otherwise use sheet name
+                if year_col:
+                    year_value = ws.cell(row_idx, year_col).value
+                    harvest_year = str(year_value) if year_value else "2025"
+                else:
+                    # Fallback: extract from sheet name
+                    if "25" in sheet_name:
+                        harvest_year = "2025"
+                    elif "26" in sheet_name:
+                        harvest_year = "2026"
+                    else:
+                        harvest_year = "2025"
                 
                 if not farm or not field_name:
                     continue
