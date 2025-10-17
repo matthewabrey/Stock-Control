@@ -367,12 +367,32 @@ async def upload_excel(file: UploadFile = File(...)):
         else:
             print("Warning: 'Grade Options Page' sheet not found")
         
-        # Parse FRONT PAGE for fields
-        if "FRONT PAGE" in wb.sheetnames:
-            ws = wb["FRONT PAGE"]
+        # Parse harvest year sheets for fields
+        harvest_sheets = []
+        
+        # Check for Master Harvest sheets
+        for sheet_name in wb.sheetnames:
+            if "Master Harvest" in sheet_name or "Master Harevst" in sheet_name:  # Handle typo too
+                harvest_sheets.append(sheet_name)
+        
+        # Fallback to FRONT PAGE if no Master Harvest sheets found
+        if not harvest_sheets and "FRONT PAGE" in wb.sheetnames:
+            harvest_sheets.append("FRONT PAGE")
+        
+        # Clear existing fields
+        await db.fields.delete_many({})
+        
+        for sheet_name in harvest_sheets:
+            ws = wb[sheet_name]
             
-            # Clear existing fields
-            await db.fields.delete_many({})
+            # Extract harvest year from sheet name
+            harvest_year = "2025"  # Default
+            if "25" in sheet_name:
+                harvest_year = "2025"
+            elif "26" in sheet_name:
+                harvest_year = "2026"
+            
+            print(f"\n=== Processing {sheet_name} (Harvest Year: {harvest_year}) ===")
             
             # Parse fields from row 4 onwards (row 3 is header)
             for row_idx in range(4, ws.max_row + 1):
@@ -417,10 +437,12 @@ async def upload_excel(file: UploadFile = File(...)):
                     "area": area_str,
                     "crop_type": str(crop) if crop else "Unknown",
                     "variety": str(variety) if variety else "Unknown",
-                    "available_grades": grades
+                    "available_grades": grades,
+                    "harvest_year": harvest_year
                 }
                 await db.fields.insert_one(field_doc)
                 fields_created += 1
+                print(f"  Created field: {full_field_name} (Harvest {harvest_year})")
         
         # Parse Store Sheets (each sheet = one store)
         # Skip FRONT PAGE, Grade Options Page, and other non-store sheets
