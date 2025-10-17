@@ -717,6 +717,13 @@ const FloorPlan = () => {
     return letter;
   };
 
+  // Calculate total quantity for a column
+  const getColumnTotal = (colIndex) => {
+    return zones
+      .filter(z => Math.floor(z.x / 2) === colIndex)
+      .reduce((sum, z) => sum + (z.total_quantity || 0), 0);
+  };
+
   // Helper to get zone at position
   const getZoneAt = (col, row) => {
     const x = col * 2;
