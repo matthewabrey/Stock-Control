@@ -978,7 +978,7 @@ const FloorPlan = () => {
                               {!isEmpty && (
                                 <div className="absolute inset-0 flex items-center justify-center">
                                   <span className="text-white font-bold text-lg drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
-                                    {zone.total_quantity.toFixed(0)}
+                                    {zone.total_quantity % 1 === 0 ? zone.total_quantity.toFixed(0) : zone.total_quantity.toFixed(1)}
                                   </span>
                                 </div>
                               )}
