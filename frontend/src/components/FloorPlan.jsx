@@ -130,6 +130,12 @@ const FloorPlan = () => {
     return stockIntakes.filter(intake => intake.zone_id === zoneId);
   };
 
+  // Get unique years from fields
+  const getAvailableYears = () => {
+    const years = [...new Set(fields.map(f => f.harvest_year))].filter(y => y);
+    return years.sort();
+  };
+
   const getZoneColor = (zone) => {
     // If zone has no quantity, it's empty regardless of intake records
     if (!zone.total_quantity || zone.total_quantity === 0) {
