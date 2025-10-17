@@ -974,6 +974,15 @@ const FloorPlan = () => {
                                 </div>
                               )}
                               
+                              {/* Quantity display */}
+                              {!isEmpty && (
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                  <span className="text-white font-bold text-lg drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
+                                    {zone.total_quantity.toFixed(0)}
+                                  </span>
+                                </div>
+                              )}
+                              
                               {isSelected && (
                                 <div className="absolute top-1 right-1 w-4 h-4 bg-blue-600 rounded-full border-2 border-white"></div>
                               )}
