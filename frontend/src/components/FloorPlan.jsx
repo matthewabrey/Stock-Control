@@ -1379,7 +1379,7 @@ const FloorPlan = () => {
                       <SelectValue placeholder="Choose a field" />
                     </SelectTrigger>
                     <SelectContent>
-                      {getFilteredFields().filter(f => f.crop_type === selectedCrop).map((field) => (
+                      {fields.filter(f => f.crop_type === selectedCrop).map((field) => (
                         <SelectItem key={field.id} value={field.id} data-testid={`field-option-${field.id}`}>
                           <div className="flex flex-col">
                             <span className="font-semibold">
