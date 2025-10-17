@@ -504,8 +504,8 @@ async def upload_excel(file: UploadFile = File(...)):
                 print(f"  Created field: {full_field_name} (Harvest {harvest_year})")
         
         # Parse Store Sheets (each sheet = one store)
-        # Skip harvest year sheets, Grade Options Page, and other non-store sheets
-        skip_sheets = ["FRONT PAGE", "Master Harvest 25", "Master Harevst 26", "Master Harvest 26", "Grade Options Page", "Sheet1", "Sheet2", "Sheet3"]
+        # Skip field sheets, Grade Options Page, and other non-store sheets
+        skip_sheets = ["FRONT PAGE", "Master Harvest 25", "Master Harevst 26", "Master Harvest 26", "Master Cropping", "Grade Options Page", "Sheet1", "Sheet2", "Sheet3"]
         
         print(f"=== Processing Store Sheets ===")
         print(f"All sheets in workbook: {wb.sheetnames}")
