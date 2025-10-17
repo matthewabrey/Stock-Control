@@ -187,7 +187,7 @@ const Overview = () => {
               return (
                 <Card 
                   key={shed.id} 
-                  className="bg-white shadow rounded-xl border border-gray-200 hover:shadow-lg transition-shadow"
+                  className="bg-white shadow rounded-xl border border-gray-200 hover:shadow-lg transition-shadow print-page-break print-card"
                 >
                   <CardHeader className="border-b border-gray-100">
                     <div className="flex items-center justify-between">
@@ -206,7 +206,7 @@ const Overview = () => {
                       </div>
                       <Button
                         onClick={() => navigate(`/floor-plan/${shed.id}`)}
-                        className="bg-green-600 hover:bg-green-700"
+                        className="bg-green-600 hover:bg-green-700 no-print"
                       >
                         View Floor Plan
                       </Button>
