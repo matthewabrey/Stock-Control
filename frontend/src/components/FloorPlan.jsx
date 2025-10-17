@@ -1213,12 +1213,9 @@ const FloorPlan = () => {
                           <div key={idx} className="p-4 bg-gray-50 rounded-lg border-l-4" style={{ borderColor: group.color }}>
                             <div className="flex items-start justify-between mb-2">
                               <div>
-                                <div className="flex items-center gap-2">
-                                  <p className="font-semibold text-gray-900">{group.fieldName}</p>
-                                  <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded font-medium">
-                                    H{group.harvestYear}
-                                  </span>
-                                </div>
+                                <p className="font-semibold text-gray-900">
+                                  {group.fieldName} - {group.harvestYear}
+                                </p>
                                 <p className="text-xs text-gray-600">{group.variety} - {group.cropType}</p>
                               </div>
                               <div className="text-right">
