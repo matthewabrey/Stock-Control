@@ -99,7 +99,9 @@ const FloorPlan = () => {
 
   const fetchFields = async () => {
     try {
-      const response = await axios.get(`${API}/fields`);
+      // Get selected harvest year from localStorage
+      const selectedHarvestYear = localStorage.getItem("selectedHarvestYear") || "2025";
+      const response = await axios.get(`${API}/fields?harvest_year=${selectedHarvestYear}`);
       setFields(response.data);
     } catch (error) {
       console.error("Error fetching fields:", error);
