@@ -99,15 +99,9 @@ const FloorPlan = () => {
 
   const fetchFields = async () => {
     try {
-      // Get selected harvest year from localStorage
-      const selectedHarvestYear = localStorage.getItem("selectedHarvestYear") || "all";
-      
-      // If "all", fetch all fields without filter
-      const url = selectedHarvestYear === "all" 
-        ? `${API}/fields`
-        : `${API}/fields?harvest_year=${selectedHarvestYear}`;
-      
-      const response = await axios.get(url);
+      // Always fetch ALL fields to ensure we can show harvest year badges for all stock
+      // The year filter only affects the dropdown when adding NEW stock
+      const response = await axios.get(`${API}/fields`);
       setFields(response.data);
     } catch (error) {
       console.error("Error fetching fields:", error);
