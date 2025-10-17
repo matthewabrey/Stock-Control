@@ -228,7 +228,7 @@ const ShedsManager = () => {
                 Remove all stock from sheds. Keeps sheds and zones intact, only clears the stock.
               </p>
               <Button 
-                onClick={handleClearAllStores}
+                onClick={() => setShowClearConfirm(true)}
                 variant="destructive"
                 className="w-full bg-red-600 hover:bg-red-700"
               >
