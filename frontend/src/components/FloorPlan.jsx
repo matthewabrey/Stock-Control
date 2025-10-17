@@ -985,15 +985,23 @@ const FloorPlan = () => {
                       
                       {/* Column headers on BOTTOM */}
                       <div className="flex mt-2" style={{ paddingLeft: `${shedPadding}px` }}>
-                        {allColumns.map((col, i) => (
-                          <div 
-                            key={col} 
-                            className="text-center font-bold text-sm text-gray-700 flex-shrink-0"
-                            style={{ width: `${gridCellSize}px` }}
-                          >
-                            {getColumnLetter(col)}
-                          </div>
-                        ))}
+                        {allColumns.map((col, i) => {
+                          const columnTotal = getColumnTotal(col);
+                          return (
+                            <div 
+                              key={col} 
+                              className="text-center flex-shrink-0"
+                              style={{ width: `${gridCellSize}px` }}
+                            >
+                              <div className="font-bold text-sm text-gray-700">
+                                {getColumnLetter(col)}
+                              </div>
+                              <div className="text-xs text-gray-600 font-medium">
+                                {columnTotal > 0 ? `${columnTotal.toFixed(0)}` : '0'}
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   </div>
