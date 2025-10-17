@@ -45,6 +45,7 @@ const FloorPlan = () => {
   const [selectedGrade, setSelectedGrade] = useState("");
   const [intakeQuantity, setIntakeQuantity] = useState("");
   const [intakeDate, setIntakeDate] = useState(new Date().toISOString().split('T')[0]);
+  const [isSubmitting, setIsSubmitting] = useState(false); // Prevent double submissions
   const [moveQuantity, setMoveQuantity] = useState("");
   const [moveDate, setMoveDate] = useState(new Date().toISOString().split('T')[0]);
   const [targetZone, setTargetZone] = useState(null);
