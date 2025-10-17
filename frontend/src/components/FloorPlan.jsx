@@ -1018,7 +1018,9 @@ const FloorPlan = () => {
                               className="w-5 h-5 rounded border-2 border-gray-800 flex-shrink-0" 
                               style={{ backgroundColor: fieldColorMap[field.id] }}
                             ></div>
-                            <span className="text-xs text-gray-900 font-medium truncate">{field.name}</span>
+                            <span className="text-xs text-gray-900 font-medium truncate">
+                              {field.name} - {field.harvest_year}
+                            </span>
                           </div>
                         ))}
                       </div>
