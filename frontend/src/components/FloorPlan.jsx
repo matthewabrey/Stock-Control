@@ -1362,7 +1362,7 @@ const FloorPlan = () => {
                     <SelectValue placeholder="Choose a crop type" />
                   </SelectTrigger>
                   <SelectContent>
-                    {[...new Set(getFilteredFields().map(f => f.crop_type))].sort().map((cropType) => (
+                    {[...new Set(fields.map(f => f.crop_type))].sort().map((cropType) => (
                       <SelectItem key={cropType} value={cropType} data-testid={`crop-option-${cropType}`}>
                         {cropType}
                       </SelectItem>
