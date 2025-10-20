@@ -653,19 +653,39 @@ const FloorPlan = () => {
       setIsSubmitting(true);
       console.log("Starting stock intake submission...");
       
-      // Distribute quantity across selected zones
-      const qtyPerZone = qty / zonesToUpdate.length;
+      // Distribute quantity: fill each zone to capacity, put remainder in last zone
+      let remainingQty = qty;
+      const distributions = [];
       
-      for (const zone of zonesToUpdate) {
-        await axios.post(`${API}/stock-intakes`, {
-          field_id: field.id,
-          field_name: field.name,
-          zone_id: zone.id,
-          shed_id: shedId,
-          quantity: qtyPerZone,
-          date: intakeDate,
-          grade: selectedGrade
-        });
+      for (let i = 0; i < zonesToUpdate.length; i++) {
+        const zone = zonesToUpdate[i];
+        const available = (zone.max_capacity || 6) - (zone.total_quantity || 0);
+        
+        if (i === zonesToUpdate.length - 1) {
+          // Last zone: put all remaining quantity here
+          distributions.push({ zone, quantity: remainingQty });
+          remainingQty = 0;
+        } else {
+          // Fill to capacity or take what's needed
+          const qtyForThisZone = Math.min(available, remainingQty);
+          distributions.push({ zone, quantity: qtyForThisZone });
+          remainingQty -= qtyForThisZone;
+        }
+      }
+      
+      // Create stock intake records
+      for (const { zone, quantity } of distributions) {
+        if (quantity > 0) {
+          await axios.post(`${API}/stock-intakes`, {
+            field_id: field.id,
+            field_name: field.name,
+            zone_id: zone.id,
+            shed_id: shedId,
+            quantity: quantity,
+            date: intakeDate,
+            grade: selectedGrade
+          });
+        }
       }
       
       toast.success(`Stock added to ${zonesToUpdate.length} zone(s) from ${field.name} (${selectedGrade})`);
