@@ -159,6 +159,32 @@ backend:
           - Database now in clean state ready for fresh data
 
 frontend:
+  - task: "Onion Summary by Grade on Overview page"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/components/Overview.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: |
+          ✅ Implemented Onion Summary by Grade feature
+          - Added getOnionSummary() function to calculate onion quantities by variety and grade
+          - Filters for onion crops (checking crop_type and variety fields)
+          - Separates into red onions (red seed/red variety) and brown onions (brown seed/brown variety)
+          - Groups quantities by grade across all sheds
+          - Calculates actual quantities proportionally from zones (same logic as getShedStockDetails)
+          - UI displays in two-column grid layout:
+            * Red Onions (left): red theme with red-50 background and red borders
+            * Brown Onions (right): amber theme with amber-50 background and amber borders
+          - Each section shows grades sorted alphabetically with quantities
+          - Total row at bottom of each section
+          - Only displays if onions are present in stock
+          - Positioned at top of Overview page, above sheds list
+          - Matches "checklist app" styling with clean cards and borders
+          - Screenshot verified: Working correctly with real data showing multiple grades
 
 metadata:
   created_by: "main_agent"
