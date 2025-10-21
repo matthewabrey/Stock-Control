@@ -1457,10 +1457,18 @@ const FloorPlan = () => {
               )}
               
               <div>
-                <Label htmlFor="field">Search and Select Field</Label>
+                <Label htmlFor="field-search">Search Field</Label>
+                <Input
+                  id="field-search"
+                  placeholder="Type to search fields..."
+                  value={fieldSearchTerm}
+                  onChange={(e) => setFieldSearchTerm(e.target.value)}
+                  className="mb-2"
+                />
                 <Select value={selectedField} onValueChange={(value) => { 
                   setSelectedField(value); 
                   setSelectedGrade(""); 
+                  setFieldSearchTerm(""); // Clear search after selection
                   // Auto-populate crop and year from selected field
                   const field = fields.find(f => f.id === value);
                   if (field) {
@@ -1469,10 +1477,18 @@ const FloorPlan = () => {
                   }
                 }}>
                   <SelectTrigger id="field" data-testid="select-field">
-                    <SelectValue placeholder="Start typing field name..." />
+                    <SelectValue placeholder="Select from filtered list..." />
                   </SelectTrigger>
-                  <SelectContent>
-                    {fields.map((field) => (
+                  <SelectContent className="max-h-[300px]">
+                    {fields
+                      .filter(field => 
+                        fieldSearchTerm === "" || 
+                        field.name.toLowerCase().includes(fieldSearchTerm.toLowerCase()) ||
+                        field.crop_type.toLowerCase().includes(fieldSearchTerm.toLowerCase()) ||
+                        field.variety.toLowerCase().includes(fieldSearchTerm.toLowerCase()) ||
+                        field.harvest_year.includes(fieldSearchTerm)
+                      )
+                      .map((field) => (
                       <SelectItem key={field.id} value={field.id} data-testid={`field-option-${field.id}`}>
                         <div className="flex flex-col py-1">
                           <span className="font-semibold">{field.name}</span>
