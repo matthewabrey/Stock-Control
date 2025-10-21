@@ -103,19 +103,10 @@
 #====================================================================================================
 
 user_problem_statement: |
-  User reported data integrity issues:
-  1. Stock added to "Grader Shed" was not displaying correctly in Overview
-  2. Duplicate zone names across multiple sheds (e.g., "R1" exists in D1, Grader Shed, etc.)
-  
-  Investigation revealed:
-  - Zone name duplication across sheds is EXPECTED and NORMAL behavior (each shed has its own layout)
-  - The actual issue was 1 orphaned stock intake record with invalid zone_id
-  - All data was cleared and system reset to fresh state as per user request
-  
-  Resolution:
-  - Added database integrity check endpoint to diagnose issues
-  - Cleared all data (fields, sheds, zones, stock intakes, movements)
-  - System is now ready for fresh Excel upload
+  User requested a new feature:
+  - Add a summary of "red onions by grade" and "brown onions by grade" above the stock overview
+  - This should display total quantities grouped by variety (red/brown) and grade
+  - Help users quickly see onion inventory without scrolling through all sheds
 
 backend:
   - task: "Fix zones endpoint pagination limit"
