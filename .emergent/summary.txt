@@ -1,61 +1,100 @@
 <analysis>
-This trajectory chronicles the iterative development of a stock control application, moving from initial concept to a feature-rich visual system, driven heavily by user feedback and data. The AI engineer successfully built a full-stack React/FastAPI/MongoDB app, integrating Excel for data and layout management. Key challenges involved robust Excel parsing for diverse data structures (fields, shed layouts, grades, bulk capacities, door markers), continuous UI/UX refinement for visual clarity and interaction, and backend data modeling to support these features. The development process involved cycles of feature implementation, user review, bug fixing, and further enhancements, demonstrating adaptive problem-solving and responsiveness to evolving requirements for a dynamic, visually-driven stock management system. A critical issue of duplicate zone names across sheds and incorrect stock assignment was identified at the end.
+The AI engineer successfully developed a comprehensive stock control application, addressing numerous user requests and bugs throughout the trajectory. Key achievements include building a full-stack React/FastAPI/MongoDB app, integrating dynamic Excel parsing for fields, sheds, and grades (including handling multi-year harvest data and variations in Excel structure), and implementing extensive UI/UX features for visual stock tracking. Challenges involved resolving data discrepancies, debugging quantity doubling (attributed to React StrictMode and multiple API calls), correcting shed layout overlaps due to incorrect Excel parsing, and refining frontend interactions like range selection and streamlined stock intake. The development was iterative, with the engineer demonstrating strong debugging skills and responsiveness to evolving product requirements for a visually-driven stock management system.
 </analysis>
 
 <product_requirements>
-The user requested a simple yet effective stock control application for managing crops, focusing on visually tracking crop movement between fields, sheds, graders, and customers.
-Key features developed include:
-*   **Visual Stock Movement**: Input crops into shed zones from selected Fields, with 2D floor plans. Implemented Move Stock feature allowing selection of zones, specifying quantities, and choosing destinations (other stores, Grader, Customer).
-*   **Excel Integration**: Initial  and  upload. Evolved to handle dynamic Grade information from a dedicated Grade Options Page sheet, parsing grades vertically, and supporting Bulk (tonnage) and box storage (numerical capacities like 5, 175t). The system adds new stores and skips existing ones during upload.
-*   **UI/UX Enhancements**: Zones are color-coded by field of origin, with grid labels and Door markers. Text removed from inside zone boxes. The application was styled to match a checklist app aesthetic. Single-click selection replaced Ctrl+Click. Mixed stock in a single zone is visualized with split patterns and MIX badges.
-*   **Interaction Enhancements**: Multi-select functionality for adding/moving stock. A Quick Store Creator was designed. Capacity limits are enforced on stock quantity inputs. Field-specific moves are implemented for mixed zones.
-*   **Backend Logic**: Prevents duplicate sheds, ensures accurate grade filtering, handles varied storage types, and allows clearing all database data.
+The core problem the user is solving is visually tracking crop movement and stock levels within various sheds, fields, graders, and customers. The application provides a visual interface for managing agricultural inventory.
+
+Key features and enhancements implemented:
+*   **Visual Stock Movement**: Users can input crops into shed zones, view 2D floor plans, and utilize Add Stock and Move Stock functionalities. Stock can be moved between zones, to a grader, or to a customer. Zones are color-coded by field origin, with Door markers and grid labels.
+*   **Excel Integration**: Initial upload of  and . This evolved to support dynamic Grade information, flexible capacity detection (e.g., Bulk vs. Box), and handling multiple harvest year sheets (e.g., Master Harvest 25, Master Harvest 26) with varying column structures. The system now parses a dedicated Year column from Excel.
+*   **UI/UX Enhancements**: The application was styled to match a checklist app aesthetic. Single-click zone selection was implemented, later enhanced with Ctrl+Click for range selection. Mixed stock in a zone is visualized with split patterns and MIX badges. Zone details dialogs provide comprehensive stock information.
+*   **Interaction Enhancements**: Capacity limits are enforced. The Manage Sheds button was renamed to Admin and password-protected (). A Harvest Year selector was implemented, initially global, then simplified to a Year dropdown within the stock intake dialog. Field selection for stock intake was streamlined to a single, searchable dropdown displaying full field details (name, year, variety, crop, area).
+*   **Data Management**: Backend logic prevents duplicate sheds, ensures accurate grade filtering, and supports clearing all database data or just stock data while preserving shed/zone infrastructure. Export all data to Excel and Clear All Stock buttons were added to the Admin page.
+*   **Issue Resolutions**: Fixed quantity doubling bugs (due to React StrictMode and multiple submissions), incorrect Grader Shed stock display (due to API pagination limit), overlapping shed zones and doors (due to Excel parsing errors), and frontend display discrepancies (e.g., incorrect rounding of quantities).
+*   **Print Functionality**: Added a Print All Stores button to the Overview page to generate a print-friendly view of all sheds, including their floor plans and stock overviews, each on a separate page.
 </product_requirements>
 
 <key_technical_concepts>
 -   **FastAPI**: Python web framework for backend APIs.
--   **React**: JavaScript library for frontend UI development.
--   **MongoDB**: NoSQL database for flexible data storage.
--   **Pydantic**: Data validation and serialization for Python models.
--   **openpyxl**: Python library for robust Excel file parsing.
--   **Shadcn UI**: Component library for modern UI elements.
--   **State Management**: React's ,  for UI reactivity.
+-   **React**: JavaScript library for frontend UI development and state management.
+-   **MongoDB**: NoSQL database for flexible data storage using UUIDs for IDs.
+-   **Pydantic**: Data validation and serialization for Python models, ensuring data integrity.
+-   **openpyxl**: Python library for robust Excel file parsing and data extraction.
+-   **Shadcn UI**: Component library for modern, accessible UI elements in React.
+-   **Debouncing**: Implemented on frontend to prevent duplicate API submissions.
 </key_technical_concepts>
 
 <code_architecture>
 
 -   ****:
-    -   **Summary**: Core FastAPI application, defines MongoDB models (Field, Shed, Zone, StockIntake, StockMovement), provides CRUD operations, and manages Excel file uploads.
-    -   **Changes**: Extensive modifications for Excel parsing (grades from FRONT PAGE then Grade Options Page, dynamic grade options, flexible capacity detection for zones). Added  and  endpoints for . Implemented a  endpoint and improved logging for Excel processing.
+    -   **Summary**: The core FastAPI application, handling all backend logic. It defines MongoDB models (Field, Shed, Zone, StockIntake, StockMovement) and provides comprehensive CRUD operations. It also manages Excel file uploads, database cleaning, and data export.
+    -   **Changes**:
+        -   Extensive modifications for Excel parsing to handle dynamic grades, flexible capacity detection, multiple harvest year sheets, and variable column layouts (e.g., for Master Harvest 26).
+        -   Updated  model to include  and parse it from an Year column in Excel.
+        -   Implemented , , , , and  (though this was later removed).
+        -   Fixed  endpoint's pagination limit ( increased to remove truncation).
+        -   Corrected Excel parsing logic for  positioning and door placement to prevent overlaps in shed layouts by using cumulative x-offsets and .
+        -   Reorganized Excel parsing to calculate column positions before door detection.
 -   ****:
-    -   **Summary**: Main React component managing application routing and layout.
-    -   **Changes**: Added a new route for the  page.
+    -   **Summary**: Manages overall application routing.
+    -   **Changes**: Added routes, specifically for .
+-   ****:
+    -   **Summary**: Entry point for the React application.
+    -   **Changes**: Removed  to resolve issues with duplicate API calls and  dialogs.
 -   ****:
     -   **Summary**: Displays high-level information and main navigation.
-    -   **Changes**: Reworked to match checklist app styling, removed Manage Fields button, and renamed View Floor Plans to Stock Overview linking to .
+    -   **Changes**:
+        -   Reworked to match checklist app styling.
+        -   Manage Sheds button renamed to Admin with a lock icon and password protection () for access to .
+        -   Initially included a global harvest year selector, which was later removed.
 -   ****:
-    -   **Summary**: Renders shed floor plans, handles stock visualization, and user interactions.
-    -   **Changes**: Implemented zone color-coding, adjusted box sizes, added grid labels, and removed text inside boxes. Initially multi-select, later simplified to single-click. Rendered Door markers. Added Add Stock and Move Stock buttons with related dialogs. Refined stock display (gray for empty zones). Implemented visual split patterns for mixed stock and a zone details dialog. Integrated capacity limits. Removed frontend-side zone quantity updates to fix doubling bug.
+    -   **Summary**: Admin interface for managing sheds, including Excel uploads and manual store creation.
+    -   **Changes**:
+        -   Added Export to Excel and Clear All Stock buttons.
+        -   Implemented a custom Shadcn  for Clear All Stock confirmation (replacing ) to resolve StrictMode conflicts.
+        -   Updated confirmation messages to clarify that sheds and zones are preserved when clearing stock.
 -   ****:
-    -   **Summary**: Component for handling Excel file uploads.
-    -   **Changes**: Updated descriptions and logic to align with backend's unified parsing for fields, grades, and store data.
+    -   **Summary**: Renders shed floor plans, handles stock visualization, and user interactions (add/move stock).
+    -   **Changes**:
+        -   Implemented zone color-coding, grid labels, Door markers.
+        -   Added Add Stock and Move Stock buttons with related dialogs.
+        -   Refined stock display (gray for empty zones, split patterns for mixed stock).
+        -   Implemented a custom stock distribution logic to fill zones to capacity and put remainder in the last selected zone.
+        -   Added Ctrl+Click range selection for zones.
+        -   Streamlined stock intake: Replaced multi-step crop/year selection with a single, searchable field dropdown displaying full field details (name, year, variety, crop, area).
+        -   Added a debounce/lock mechanism () to the  function to prevent duplicate submissions.
+        -   Fixed zone quantity display from rounding to showing exact decimal values inside the boxes.
+        -   Updated field name display in Stock Details and Color Key panels to include harvest year by looking up the full field object.
+        -   Added column totals display below column labels.
 -   ****:
-    -   **Summary**: Allows manual creation of new stores.
-    -   **Changes**: Redesigned to specify Box/Unit size in m and number of boxes for this shed.
--   ** (NEW)**:
-    -   **Summary**: New component providing a summary of all sheds, including total stock and estimated field/crop/grade breakdowns.
-    -   **Changes**: Initial creation, styled to match the checklist app. Implemented  to calculate stock summaries and added a disclaimer for estimated field quantities in mixed zones, along with grade information.
+    -   **Summary**: Provides a summary of all sheds, including total stock and field/crop/grade breakdowns.
+    -   **Changes**:
+        -   Initial creation, styled to match checklist app.
+        -   Implemented  to calculate stock summaries.
+        -   Updated to always fetch all fields/intakes, showing all physically present stock regardless of year filter, with harvest year badges (H2025).
+        -   Added Print All Stores button that generates a print-friendly view including floor plan visualizations with CSS for page breaks and print media.
+        -   Updated field name display to include harvest year.
 </code_architecture>
 
 <pending_tasks>
--   **Grader Shed Stock Not Showing**: Stock added to Grader Shed is incorrectly associated with D1 shed ID, resulting in the Grader Shed showing zero stock in the Overview.
--   **Duplicate Zone Names**: Multiple sheds contain zones with identical names (e.g., R1 in both D1 and Grader Shed), leading to data inconsistencies and incorrect stock assignments.
+-   **Summarize Onions by Grade**: The user requested a summary of red onions by size and brown onion by size above the stock overview, grouped by grade.
 </pending_tasks>
 
 <current_work>
-Immediately before this summary, the AI engineer was debugging why stock entered into the Grader Shed was not reflecting in the application's Stock Overview. Investigation revealed that despite selecting Grader Shed for stock intake, the stock records were being linked to D1's . Further analysis uncovered a deeper structural issue: the database contains zones with identical names (e.g., R1, R2, R3, R4, R5) that are associated with *multiple* different sheds. This duplication and incorrect association of  during stock operations is causing data discrepancies. The AI engineer identified this as a huge problem and was reviewing previous  insights on quantity doubling to understand if there's a related root cause in the backend's handling of zone and stock intake creation/updates.
+Immediately before this summary request, the AI engineer was tasked with providing a summary of red and brown onions by grade, to be displayed above the stock overview. The last action performed was acknowledging this request and stating the intention to implement an onion summary section at the top of the Overview page.
+
+The system is currently in a state where:
+-   The Harvest Year is now an integral part of field data (parsed from an Excel Year column) and displayed with field names across the application.
+-   Stock intake has a simplified, searchable field dropdown.
+-   Shed layouts are correctly parsed, resolving zone and door overlapping issues.
+-   Quantity doubling bugs have been addressed with StrictMode removal and a submission debounce.
+-   Zone quantities are accurately displayed (including decimals).
+-   Admin page includes Export to Excel and Clear All Stock (stock only) buttons with a working custom confirmation dialog.
+-   The Overview page has a Print All Stores feature that includes floor plans.
+-   The FloorPlan page supports Ctrl+Click range selection and a new stock distribution logic.
 </current_work>
 
 <optional_next_step>
-Investigate the root cause of duplicate zone names and the incorrect  assignment during stock intake.
+Implement the onion summary section at the top of the Overview page, grouping onions by variety (red seed, brown seed) and showing quantities by grade.
 </optional_next_step>
