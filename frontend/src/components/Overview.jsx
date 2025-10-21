@@ -90,6 +90,57 @@ const Overview = () => {
     return Object.values(fieldGroups).filter(fg => fg.totalQuantity > 0);
   };
 
+  const getOnionSummary = () => {
+    // Calculate onion summary by variety and grade
+    const onionSummary = {
+      red: {},
+      brown: {}
+    };
+
+    // Process all zones with stock
+    zones.filter(z => z.total_quantity > 0).forEach(zone => {
+      const zoneIntakes = stockIntakes.filter(i => i.zone_id === zone.id);
+      
+      // Calculate total intake quantity for this zone
+      const totalIntakeQty = zoneIntakes.reduce((sum, i) => sum + i.quantity, 0);
+      if (totalIntakeQty === 0) return;
+      
+      // Process each intake in the zone
+      zoneIntakes.forEach(intake => {
+        const field = fields.find(f => f.id === intake.field_id);
+        if (!field) return;
+        
+        // Check if it's an onion crop
+        const cropTypeLower = field.crop_type.toLowerCase();
+        const varietyLower = field.variety ? field.variety.toLowerCase() : '';
+        
+        if (cropTypeLower.includes('onion')) {
+          // Calculate this intake's share of the zone's actual quantity
+          const proportion = intake.quantity / totalIntakeQty;
+          const actualQty = zone.total_quantity * proportion;
+          
+          // Determine if it's red or brown onion
+          let onionType = null;
+          if (varietyLower.includes('red seed') || varietyLower.includes('red') || cropTypeLower.includes('red')) {
+            onionType = 'red';
+          } else if (varietyLower.includes('brown seed') || varietyLower.includes('brown') || cropTypeLower.includes('brown')) {
+            onionType = 'brown';
+          }
+          
+          // Add to summary
+          if (onionType) {
+            if (!onionSummary[onionType][intake.grade]) {
+              onionSummary[onionType][intake.grade] = 0;
+            }
+            onionSummary[onionType][intake.grade] += actualQty;
+          }
+        }
+      });
+    });
+
+    return onionSummary;
+  };
+
   const handlePrint = () => {
     window.print();
   };
