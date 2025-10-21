@@ -46,6 +46,7 @@ const FloorPlan = () => {
   const [intakeQuantity, setIntakeQuantity] = useState("");
   const [intakeDate, setIntakeDate] = useState(new Date().toISOString().split('T')[0]);
   const [isSubmitting, setIsSubmitting] = useState(false); // Prevent double submissions
+  const [fieldSearchTerm, setFieldSearchTerm] = useState(""); // For filtering fields
   const [moveQuantity, setMoveQuantity] = useState("");
   const [moveDate, setMoveDate] = useState(new Date().toISOString().split('T')[0]);
   const [targetZone, setTargetZone] = useState(null);
