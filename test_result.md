@@ -298,8 +298,7 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus:
-    - "Shed selector dropdown and onion summary on FloorPlan page"
+  current_focus: []
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
