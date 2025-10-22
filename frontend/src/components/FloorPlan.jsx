@@ -861,37 +861,38 @@ const FloorPlan = () => {
   return (
     <div className="min-h-screen p-8">
       <div className="max-w-full mx-auto">
-        <div className="mb-8 flex items-center justify-between">
-          <div>
-            <div className="flex items-center gap-4 mb-4">
-              <Button 
-                variant="ghost" 
-                onClick={() => navigate('/')}
-                data-testid="btn-back-dashboard"
-              >
-                <ArrowLeft className="mr-2 w-4 h-4" />
-                Back to Dashboard
-              </Button>
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600">Change Store:</span>
-                <Select value={shedId} onValueChange={(value) => navigate(`/floor-plan/${value}`)}>
-                  <SelectTrigger className="w-[200px]" data-testid="select-shed-top">
-                    <SelectValue placeholder="Select a shed" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {sheds.map((s) => (
-                      <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+        <div className="mb-8">
+          <div className="flex items-center gap-4 mb-4">
+            <Button 
+              variant="ghost" 
+              onClick={() => navigate('/')}
+              data-testid="btn-back-dashboard"
+            >
+              <ArrowLeft className="mr-2 w-4 h-4" />
+              Back to Dashboard
+            </Button>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600">Change Store:</span>
+              <Select value={shedId} onValueChange={(value) => navigate(`/floor-plan/${value}`)}>
+                <SelectTrigger className="w-[200px]" data-testid="select-shed-top">
+                  <SelectValue placeholder="Select a shed" />
+                </SelectTrigger>
+                <SelectContent>
+                  {sheds.map((s) => (
+                    <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-            <h1 className="text-4xl font-bold" style={{ fontFamily: 'Playfair Display, serif' }}>
-              {shed.name} - Floor Plan
-            </h1>
-            <p className="text-gray-600 mt-2">Dimensions: {shed.width}m × {shed.height}m</p>
           </div>
-          <div className="flex gap-2">
+          
+          <h1 className="text-4xl font-bold" style={{ fontFamily: 'Playfair Display, serif' }}>
+            {shed.name} - Floor Plan
+          </h1>
+          <p className="text-gray-600 mt-2">Dimensions: {shed.width}m × {shed.height}m</p>
+          
+          {/* Action buttons - below shed name on mobile, on right on desktop */}
+          <div className="flex flex-wrap gap-2 mt-4">
             {selectedZones.length > 0 && (
               <>
                 <div className="text-sm text-gray-700 bg-blue-50 px-4 py-2 rounded-md border border-blue-200">
