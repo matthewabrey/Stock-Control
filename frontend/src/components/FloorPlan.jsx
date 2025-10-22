@@ -901,43 +901,33 @@ const FloorPlan = () => {
           )}
           
           {/* Action buttons - all in one line */}
-          <div className="flex flex-wrap gap-2 mt-3">
-            {selectedZones.length > 0 && (
-              <>
-                <Button 
-                  onClick={handleBulkAddStock} 
-                  className="bg-green-600 hover:bg-green-700"
-                  data-testid="btn-bulk-add-stock"
-                >
-                  <Package className="mr-2 w-4 h-4" />
-                  Add Stock
-                </Button>
-                <Button 
-                  onClick={handleBulkMoveStock} 
-                  className="bg-blue-600 hover:bg-blue-700"
-                  data-testid="btn-bulk-move-stock"
-                >
-                  <ArrowLeft className="mr-2 w-4 h-4" />
-                  Move Stock
-                </Button>
-                <Button 
-                  onClick={() => setSelectedZones([])} 
-                  variant="outline"
-                  data-testid="btn-clear-selection"
-                >
-                  Clear Selection
-                </Button>
-              </>
-            )}
-            <Button 
-              onClick={() => setShowZoneDialog(true)} 
-              className="bg-purple-600 hover:bg-purple-700"
-              data-testid="btn-add-zone"
-            >
-              <Plus className="mr-2 w-4 h-4" />
-              Add Storage Zone
-            </Button>
-          </div>
+          {selectedZones.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-3">
+              <Button 
+                onClick={handleBulkAddStock} 
+                className="bg-green-600 hover:bg-green-700"
+                data-testid="btn-bulk-add-stock"
+              >
+                <Package className="mr-2 w-4 h-4" />
+                Add Stock
+              </Button>
+              <Button 
+                onClick={handleBulkMoveStock} 
+                className="bg-blue-600 hover:bg-blue-700"
+                data-testid="btn-bulk-move-stock"
+              >
+                <ArrowLeft className="mr-2 w-4 h-4" />
+                Move Stock
+              </Button>
+              <Button 
+                onClick={() => setSelectedZones([])} 
+                variant="outline"
+                data-testid="btn-clear-selection"
+              >
+                Clear Selection
+              </Button>
+            </div>
+          )}
         </div>
 
         <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
