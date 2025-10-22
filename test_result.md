@@ -262,7 +262,8 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus: []
+  current_focus:
+    - "Shed selector dropdown and onion summary on FloorPlan page"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
@@ -270,68 +271,39 @@ test_plan:
 agent_communication:
   - agent: "main"
     message: |
-      ✅ ONION SUMMARY FEATURE IMPLEMENTED
+      ✅ FLOORPLAN ENHANCEMENTS IMPLEMENTED
       
-      Completed the requested feature to display onion summary by grade on the Overview page.
+      Completed two new features for the FloorPlan page:
       
-      Implementation details:
-      1. Added getOnionSummary() function in Overview.jsx
-         - Processes all zones with stock
-         - Filters for onion crops (checks crop_type and variety)
-         - Separates by variety: red onions vs brown onions
-         - Groups quantities by grade
-         - Uses proportional calculation from zones (same as getShedStockDetails)
+      1. SHED SELECTOR DROPDOWN (Top Navigation):
+         - Integrated with "Back to Dashboard" button
+         - Label: "Change Store:"
+         - Shows current shed name (e.g., "D1", "Grader Shed")
+         - Lists all available sheds in dropdown
+         - Clicking a shed navigates to that shed's floor plan
+         - Removed duplicate "Switch Shed" card from bottom
       
-      2. UI Implementation:
-         - Two-column grid layout (responsive: 1 column on mobile, 2 on desktop)
-         - Red Onions: red theme (red-50 bg, red borders, red text)
-         - Brown Onions: amber theme (amber-50 bg, amber borders, amber text)
-         - Grades sorted alphabetically
+      2. SHED-SPECIFIC ONION SUMMARY PANEL (Right Sidebar):
+         - Added getShedOnionSummary() function
+         - Filters onions only for CURRENT shed (not all sheds)
+         - Positioned ABOVE "Color Key" section
+         - Compact sidebar design
+         - Red onions: red theme (red-50 bg, red borders)
+         - Brown onions: amber theme (amber-50 bg, amber borders)
+         - Grades sorted alphabetically with quantities
          - Total row at bottom of each section
-         - Only shows if onions are present
-         - Positioned at top of Overview page
+         - Only displays when onions present in shed
       
-      3. Screenshot verified:
-         - Red Onions: 3 grades (50/60, 70/80, O Whole Crop) - Total: 994 units
-         - Brown Onions: 8 grades (40/50, 50/60, 50/70p, 70/80, 70/80p, 80+, O Whole Crop, Onions Size 10) - Total: 2771+ units
-         - Clean, professional UI matching checklist app style
+      Screenshot verified on Grader Shed:
+      - Shed selector: ✅ Working, switches between sheds
+      - Onion summary: ✅ Displaying shed-specific data
+      - Red Onions: 50/60 (75), 70/80 (23) = Total: 98 units
+      - Brown Onions: 6 grades = Total: 152 units
+      - UI: ✅ Clean, compact, matches sidebar style
       
       NEXT STEPS:
-      Backend testing not needed (no backend changes).
       Frontend testing recommended to verify:
-      1. Onion summary displays correctly
-      2. Calculations are accurate
-      3. UI renders properly with and without onion data
-      4. Responsive layout works on different screen sizes
-  - agent: "testing"
-    message: |
-      ✅ ONION SUMMARY FEATURE TESTING COMPLETED SUCCESSFULLY
-      
-      🎯 COMPREHENSIVE TESTING RESULTS:
-      
-      ✅ ALL REQUIREMENTS VERIFIED:
-      1. ✅ Onion Summary displays correctly at top of Overview page
-      2. ✅ Red and brown onions properly separated with correct theming
-      3. ✅ Quantities by grade calculated accurately using proportional zone logic
-      4. ✅ Totals for each variety are accurate (Red: 994 units, Brown: 2711 units)
-      5. ✅ UI is responsive and renders correctly on desktop and mobile
-      6. ✅ Section only appears when onion data exists (conditional rendering working)
-      7. ✅ Positioned correctly above sheds list
-      8. ✅ Professional styling with red/amber themes matching requirements
-      
-      📊 VERIFIED DATA MATCHES EXPECTATIONS:
-      - Red Onions: 3 grades with 994 total units (matches expected ~994)
-      - Brown Onions: 8 grades with 2711 total units (matches expected ~2771+)
-      - Grades displayed alphabetically sorted
-      - Package icon in header displays correctly
-      
-      🎨 UI/UX EXCELLENCE:
-      - Clean card-based layout with proper spacing
-      - Red theme (bg-red-50) for red onions section
-      - Amber theme (bg-amber-50) for brown onions section  
-      - Responsive grid: 1 column mobile, 2 columns desktop
-      - Professional typography and visual hierarchy
-      
-      🚀 FEATURE IS PRODUCTION READY - NO ISSUES FOUND
-      
-      The Onion Summary by Grade feature is working perfectly and meets all specified requirements. Ready for user acceptance.
+      1. Shed selector dropdown functionality
+      2. Navigation between sheds
+      3. Onion summary calculations for different sheds
+      4. UI responsiveness and layout
