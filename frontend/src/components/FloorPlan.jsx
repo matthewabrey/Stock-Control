@@ -1161,29 +1161,29 @@ const FloorPlan = () => {
                       
                       if (hasRedOnions || hasBrownOnions) {
                         return (
-                          <div className="pb-4 border-b">
-                            <h3 className="font-semibold text-sm mb-3 text-gray-700">Onion Summary</h3>
-                            <div className="space-y-3">
+                          <div className="pb-3 border-b">
+                            <h3 className="font-semibold text-xs mb-2 text-gray-700">Onion Summary</h3>
+                            <div className="space-y-2">
                               {/* Red Onions */}
                               {hasRedOnions && (
-                                <div className="p-3 bg-red-50 rounded-lg border border-red-200">
-                                  <div className="flex items-center gap-2 mb-2">
-                                    <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                                    <span className="text-xs font-semibold text-red-900">Red Onions</span>
+                                <div className="p-2 bg-red-50 rounded border border-red-200">
+                                  <div className="flex items-center gap-1 mb-1">
+                                    <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                                    <span className="text-xs font-semibold text-red-900">Red</span>
                                   </div>
-                                  <div className="space-y-1">
+                                  <div className="space-y-0.5">
                                     {Object.entries(onionSummary.red)
                                       .sort(([a], [b]) => a.localeCompare(b))
                                       .map(([grade, qty]) => (
                                         <div 
                                           key={grade}
-                                          className="flex items-center justify-between text-xs bg-white px-2 py-1 rounded border border-red-300"
+                                          className="flex items-center justify-between text-xs bg-white px-1.5 py-0.5 rounded"
                                         >
                                           <span className="font-medium text-gray-900">{grade}</span>
                                           <span className="font-semibold text-red-700">{qty.toFixed(0)}</span>
                                         </div>
                                       ))}
-                                    <div className="flex items-center justify-between text-xs bg-red-100 px-2 py-1 rounded border-2 border-red-400 mt-1">
+                                    <div className="flex items-center justify-between text-xs bg-red-100 px-1.5 py-0.5 rounded border border-red-400">
                                       <span className="font-bold text-gray-900">Total</span>
                                       <span className="font-bold text-red-800">
                                         {Object.values(onionSummary.red).reduce((sum, qty) => sum + qty, 0).toFixed(0)}
@@ -1195,24 +1195,24 @@ const FloorPlan = () => {
 
                               {/* Brown Onions */}
                               {hasBrownOnions && (
-                                <div className="p-3 bg-amber-50 rounded-lg border border-amber-200">
-                                  <div className="flex items-center gap-2 mb-2">
-                                    <div className="w-3 h-3 bg-amber-600 rounded-full"></div>
-                                    <span className="text-xs font-semibold text-amber-900">Brown Onions</span>
+                                <div className="p-2 bg-amber-50 rounded border border-amber-200">
+                                  <div className="flex items-center gap-1 mb-1">
+                                    <div className="w-2 h-2 bg-amber-600 rounded-full"></div>
+                                    <span className="text-xs font-semibold text-amber-900">Brown</span>
                                   </div>
-                                  <div className="space-y-1">
+                                  <div className="space-y-0.5">
                                     {Object.entries(onionSummary.brown)
                                       .sort(([a], [b]) => a.localeCompare(b))
                                       .map(([grade, qty]) => (
                                         <div 
                                           key={grade}
-                                          className="flex items-center justify-between text-xs bg-white px-2 py-1 rounded border border-amber-300"
+                                          className="flex items-center justify-between text-xs bg-white px-1.5 py-0.5 rounded"
                                         >
                                           <span className="font-medium text-gray-900">{grade}</span>
                                           <span className="font-semibold text-amber-700">{qty.toFixed(0)}</span>
                                         </div>
                                       ))}
-                                    <div className="flex items-center justify-between text-xs bg-amber-100 px-2 py-1 rounded border-2 border-amber-400 mt-1">
+                                    <div className="flex items-center justify-between text-xs bg-amber-100 px-1.5 py-0.5 rounded border border-amber-400">
                                       <span className="font-bold text-gray-900">Total</span>
                                       <span className="font-bold text-amber-800">
                                         {Object.values(onionSummary.brown).reduce((sum, qty) => sum + qty, 0).toFixed(0)}
