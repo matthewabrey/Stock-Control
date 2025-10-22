@@ -1370,27 +1370,6 @@ const FloorPlan = () => {
                 </ScrollArea>
               </CardContent>
             </Card>
-
-            {/* Shed Selector */}
-            <Card className="mt-4">
-              <CardHeader>
-                <CardTitle className="text-lg">Switch Shed</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Select value={shedId} onValueChange={(value) => navigate(`/floor-plan/${value}`)}>
-                  <SelectTrigger data-testid="select-shed">
-                    <SelectValue placeholder="Select a shed" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {sheds.map((s) => (
-                      <SelectItem key={s.id} value={s.id} data-testid={`shed-option-${s.id}`}>
-                        {s.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </CardContent>
-            </Card>
           </div>
         </div>
 
