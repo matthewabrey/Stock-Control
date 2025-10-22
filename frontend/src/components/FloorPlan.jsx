@@ -1314,20 +1314,20 @@ const FloorPlan = () => {
                             if (fieldZones.length === 0 || totalQty === 0) return null;
                             
                             return (
-                              <div key={field.id} className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-                                <div className="flex items-start gap-2 mb-2">
+                              <div key={field.id} className="p-2 bg-gray-50 rounded border border-gray-200">
+                                <div className="flex items-start gap-1.5 mb-1.5">
                                   <div 
-                                    className="w-4 h-4 rounded border-2 border-gray-800 flex-shrink-0 mt-0.5" 
+                                    className="w-3 h-3 rounded border-2 border-gray-800 flex-shrink-0 mt-0.5" 
                                     style={{ backgroundColor: fieldColorMap[field.id] }}
                                   ></div>
                                   <div className="flex-1 min-w-0">
-                                    <div className="font-bold text-sm text-gray-900 truncate">
+                                    <div className="font-bold text-xs text-gray-900 truncate">
                                       {field.name} - {field.harvest_year}
                                     </div>
                                     <div className="text-xs text-gray-600 truncate">{field.crop_type}</div>
                                   </div>
                                 </div>
-                                <div className="ml-6 space-y-1">
+                                <div className="ml-4 space-y-0.5">
                                   <div className="flex items-center gap-1 text-xs">
                                     <Package className="w-3 h-3 text-gray-600" />
                                     <span className="font-semibold text-gray-900">{totalQty.toFixed(0)} units</span>
@@ -1341,10 +1341,10 @@ const FloorPlan = () => {
                                   {Object.keys(gradeBreakdown).length > 0 && (
                                     <div className="text-xs">
                                       <span className="font-medium text-gray-700">Grades: </span>
-                                      <div className="flex flex-wrap gap-1 mt-1">
+                                      <div className="flex flex-wrap gap-1 mt-0.5">
                                         {Object.entries(gradeBreakdown).map(([grade, qty]) => (
                                           qty > 0 && (
-                                            <span key={grade} className="px-2 py-0.5 bg-white border border-gray-300 rounded text-xs">
+                                            <span key={grade} className="px-1.5 py-0.5 bg-white border border-gray-300 rounded text-xs">
                                               {grade}: {qty.toFixed(0)}
                                             </span>
                                           )
