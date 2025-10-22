@@ -216,6 +216,45 @@ frontend:
           
           🚀 FEATURE FULLY FUNCTIONAL - NO ISSUES FOUND
 
+  - task: "Shed selector dropdown and onion summary on FloorPlan page"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/components/FloorPlan.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: |
+          ✅ Implemented two new features on FloorPlan page
+          
+          1. SHED SELECTOR DROPDOWN:
+          - Added dropdown at top of page, integrated with "Back to Dashboard" button
+          - Label: "Change Store:"
+          - Shows current shed name in dropdown
+          - Lists all available sheds for quick switching
+          - Uses same Select component for consistency
+          - On change, navigates to selected shed's floor plan
+          - Removed old "Switch Shed" card from bottom of right panel
+          
+          2. SHED-SPECIFIC ONION SUMMARY PANEL:
+          - Added getShedOnionSummary() function (filters to current shed only)
+          - Positioned on right sidebar, ABOVE "Color Key" section
+          - Same red/amber theming as Overview page
+          - Compact design suitable for sidebar
+          - Shows red onions and brown onions separately
+          - Grades sorted alphabetically with quantities
+          - Total row at bottom of each section
+          - Only displays if onions present in current shed
+          - Uses proportional zone calculation (consistent with rest of app)
+          
+          Screenshot verified on Grader Shed:
+          - Shed selector working: switches from D1 to Grader Shed
+          - Red Onions: 2 grades (50/60: 75, 70/80: 23) = Total: 98 units
+          - Brown Onions: 6 grades (40/50: 23, 50/60: 104, 50/70p: 4, 70/80: 6, 70/80p: 6, 80+: 9) = Total: 152 units
+          - Clean, compact UI matching sidebar style
+
 metadata:
   created_by: "main_agent"
   version: "1.0"
