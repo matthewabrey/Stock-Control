@@ -1252,9 +1252,9 @@ const FloorPlan = () => {
 
                     {/* Stock Details */}
                     {fieldsInShed.length > 0 && (
-                      <div className="pt-3 border-t">
-                        <h3 className="font-semibold text-sm mb-3 text-gray-700">Stock Details</h3>
-                        <div className="space-y-3">
+                      <div className="pt-2 border-t">
+                        <h3 className="font-semibold text-xs mb-2 text-gray-700">Stock Details</h3>
+                        <div className="space-y-2">
                           {fieldsInShed.map((field) => {
                             const fieldIntakes = stockIntakes.filter(i => i.field_id === field.id && i.shed_id === shedId);
                             
