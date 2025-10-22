@@ -862,11 +862,12 @@ const FloorPlan = () => {
     <div className="min-h-screen p-8">
       <div className="max-w-full mx-auto">
         <div className="mb-8">
-          <div className="flex items-center gap-4 mb-4">
+          <div className="flex flex-col gap-3 mb-4">
             <Button 
               variant="ghost" 
               onClick={() => navigate('/')}
               data-testid="btn-back-dashboard"
+              className="w-fit"
             >
               <ArrowLeft className="mr-2 w-4 h-4" />
               Back to Dashboard
