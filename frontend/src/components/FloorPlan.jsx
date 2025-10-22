@@ -768,6 +768,51 @@ const FloorPlan = () => {
     .map(fieldId => fields.find(f => f.id === fieldId))
     .filter(f => f);
 
+  // Get onion summary for this shed only
+  const getShedOnionSummary = () => {
+    const onionSummary = {
+      red: {},
+      brown: {}
+    };
+
+    // Process only zones in THIS shed
+    zones.filter(z => z.total_quantity > 0).forEach(zone => {
+      const zoneIntakes = stockIntakes.filter(i => i.zone_id === zone.id && i.shed_id === shedId);
+      
+      const totalIntakeQty = zoneIntakes.reduce((sum, i) => sum + i.quantity, 0);
+      if (totalIntakeQty === 0) return;
+      
+      zoneIntakes.forEach(intake => {
+        const field = fields.find(f => f.id === intake.field_id);
+        if (!field) return;
+        
+        const cropTypeLower = field.crop_type.toLowerCase();
+        const varietyLower = field.variety ? field.variety.toLowerCase() : '';
+        
+        if (cropTypeLower.includes('onion')) {
+          const proportion = intake.quantity / totalIntakeQty;
+          const actualQty = zone.total_quantity * proportion;
+          
+          let onionType = null;
+          if (varietyLower.includes('red seed') || varietyLower.includes('red') || cropTypeLower.includes('red')) {
+            onionType = 'red';
+          } else if (varietyLower.includes('brown seed') || varietyLower.includes('brown') || cropTypeLower.includes('brown')) {
+            onionType = 'brown';
+          }
+          
+          if (onionType) {
+            if (!onionSummary[onionType][intake.grade]) {
+              onionSummary[onionType][intake.grade] = 0;
+            }
+            onionSummary[onionType][intake.grade] += actualQty;
+          }
+        }
+      });
+    });
+
+    return onionSummary;
+  };
+
   // Calculate grid dimensions
   const cols = Math.ceil(shed.width / 2);
   const rows = Math.ceil(shed.height / 2);
