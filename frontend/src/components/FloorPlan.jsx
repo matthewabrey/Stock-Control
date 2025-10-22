@@ -891,13 +891,19 @@ const FloorPlan = () => {
           </h1>
           <p className="text-gray-600 mt-2">Dimensions: {shed.width}m × {shed.height}m</p>
           
-          {/* Action buttons - below shed name on mobile, on right on desktop */}
-          <div className="flex flex-wrap gap-2 mt-4">
+          {/* Selection badge - on its own line */}
+          {selectedZones.length > 0 && (
+            <div className="mt-3">
+              <div className="inline-block text-sm text-gray-700 bg-blue-50 px-4 py-2 rounded-md border border-blue-200">
+                {selectedZones.length} zone{selectedZones.length > 1 ? 's' : ''} selected
+              </div>
+            </div>
+          )}
+          
+          {/* Action buttons - all in one line */}
+          <div className="flex flex-wrap gap-2 mt-3">
             {selectedZones.length > 0 && (
               <>
-                <div className="text-sm text-gray-700 bg-blue-50 px-4 py-2 rounded-md border border-blue-200">
-                  {selectedZones.length} zone{selectedZones.length > 1 ? 's' : ''} selected
-                </div>
                 <Button 
                   onClick={handleBulkAddStock} 
                   className="bg-green-600 hover:bg-green-700"
@@ -914,16 +920,14 @@ const FloorPlan = () => {
                   <ArrowLeft className="mr-2 w-4 h-4" />
                   Move Stock
                 </Button>
+                <Button 
+                  onClick={() => setSelectedZones([])} 
+                  variant="outline"
+                  data-testid="btn-clear-selection"
+                >
+                  Clear Selection
+                </Button>
               </>
-            )}
-            {selectedZones.length > 0 && (
-              <Button 
-                onClick={() => setSelectedZones([])} 
-                variant="outline"
-                data-testid="btn-clear-selection"
-              >
-                Clear Selection
-              </Button>
             )}
             <Button 
               onClick={() => setShowZoneDialog(true)} 
