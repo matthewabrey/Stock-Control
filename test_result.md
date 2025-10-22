@@ -222,7 +222,7 @@ frontend:
     file: "/app/frontend/src/components/FloorPlan.jsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
@@ -254,6 +254,42 @@ frontend:
           - Red Onions: 2 grades (50/60: 75, 70/80: 23) = Total: 98 units
           - Brown Onions: 6 grades (40/50: 23, 50/60: 104, 50/70p: 4, 70/80: 6, 70/80p: 6, 80+: 9) = Total: 152 units
           - Clean, compact UI matching sidebar style
+      - working: true
+        agent: "testing"
+        comment: |
+          ✅ COMPREHENSIVE TESTING COMPLETED - BOTH FEATURES WORKING PERFECTLY
+          
+          🔍 SHED SELECTOR DROPDOWN TESTING:
+          ✅ Dropdown found at top of page with "Change Store:" label
+          ✅ Properly integrated with "Back to Dashboard" button on same line
+          ✅ Shows current shed name (D1, Grader Shed) correctly
+          ✅ Navigation between sheds works flawlessly
+          ✅ URL updates correctly when switching sheds
+          ✅ Page title updates to reflect current shed
+          
+          🔍 ONION SUMMARY PANEL TESTING:
+          ✅ Panel positioned correctly in right sidebar ABOVE Color Key
+          ✅ Shows shed-specific data only (not all sheds combined)
+          ✅ Red Onions section with proper red theme (bg-red-50, red borders)
+          ✅ Brown Onions section with proper amber theme (bg-amber-50, amber borders)
+          ✅ Grades displayed alphabetically with correct quantities
+          ✅ Total calculations accurate for each onion type
+          ✅ Compact design perfectly suited for sidebar
+          
+          📊 VERIFIED DATA ACCURACY:
+          D1 Shed: Brown Onions - O Whole Crop: 15 units, Total: 15 units
+          Grader Shed: 
+          - Red Onions: 50/60 (75), 70/80 (23) = Total: 98 units ✅
+          - Brown Onions: 40/50 (23), 50/60 (104), 50/70p (4), 70/80 (6), 70/80p (6), 80+ (9) = Total: 152 units ✅
+          
+          🎨 UI/UX VERIFICATION:
+          ✅ Proper theming: Red sections use red-50 background, Brown sections use amber-50
+          ✅ Clean, professional layout matching app design
+          ✅ Responsive design works correctly
+          ✅ Calculations update dynamically when switching sheds
+          ✅ No layout issues or overlapping elements
+          
+          🚀 BOTH FEATURES FULLY FUNCTIONAL - NO ISSUES FOUND
 
 metadata:
   created_by: "main_agent"
