@@ -1230,8 +1230,8 @@ const FloorPlan = () => {
 
                     {/* Color Legend */}
                     <div>
-                      <h3 className="font-semibold text-sm mb-3 text-gray-700">Color Key</h3>
-                      <div className="space-y-2">
+                      <h3 className="font-semibold text-xs mb-2 text-gray-700">Color Key</h3>
+                      <div className="space-y-1">
                         <div className="flex items-center gap-2">
                           <div className="w-5 h-5 rounded border-2 border-gray-400" style={{ backgroundColor: "#e5e7eb", opacity: 0.5 }}></div>
                           <span className="text-xs text-gray-600">Empty</span>
