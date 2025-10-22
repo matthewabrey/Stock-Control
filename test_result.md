@@ -103,10 +103,9 @@
 #====================================================================================================
 
 user_problem_statement: |
-  User requested a new feature:
-  - Add a summary of "red onions by grade" and "brown onions by grade" above the stock overview
-  - This should display total quantities grouped by variety (red/brown) and grade
-  - Help users quickly see onion inventory without scrolling through all sheds
+  User requested two new features for the FloorPlan page:
+  1. Add a shed selector dropdown at the top (integrated with "Back to Dashboard" button) to switch between stores easily
+  2. Add an onion summary panel on the right side (above the existing "Stock Details" panel) showing red and brown onions by grade for the current shed only
 
 backend:
   - task: "Fix zones endpoint pagination limit"
