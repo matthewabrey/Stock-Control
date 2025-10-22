@@ -863,15 +863,29 @@ const FloorPlan = () => {
       <div className="max-w-full mx-auto">
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <Button 
-              variant="ghost" 
-              onClick={() => navigate('/')}
-              className="mb-4"
-              data-testid="btn-back-dashboard"
-            >
-              <ArrowLeft className="mr-2 w-4 h-4" />
-              Back to Dashboard
-            </Button>
+            <div className="flex items-center gap-4 mb-4">
+              <Button 
+                variant="ghost" 
+                onClick={() => navigate('/')}
+                data-testid="btn-back-dashboard"
+              >
+                <ArrowLeft className="mr-2 w-4 h-4" />
+                Back to Dashboard
+              </Button>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-600">Change Store:</span>
+                <Select value={shedId} onValueChange={(value) => navigate(`/floor-plan/${value}`)}>
+                  <SelectTrigger className="w-[200px]" data-testid="select-shed-top">
+                    <SelectValue placeholder="Select a shed" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {sheds.map((s) => (
+                      <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
             <h1 className="text-4xl font-bold" style={{ fontFamily: 'Playfair Display, serif' }}>
               {shed.name} - Floor Plan
             </h1>
