@@ -73,7 +73,7 @@ const Dashboard = () => {
 
   const handlePasswordSubmit = () => {
     // Simple password check - you can change this password
-    if (password === "admin123") {
+    if (password === "4444") {
       setShowPasswordDialog(false);
       setPassword("");
       navigate('/sheds');
