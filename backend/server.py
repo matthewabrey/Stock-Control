@@ -529,6 +529,25 @@ async def upload_excel(file: UploadFile = File(...)):
             
             ws = wb[sheet_name]
             
+            # First, scan for storage type indicator (Box or Bulk)
+            # Look for cells containing "Box" or "Bulk" keywords
+            storage_type = "box"  # Default to box storage
+            for row_idx in range(1, min(20, ws.max_row + 1)):  # Check first 20 rows
+                for col_idx in range(1, ws.max_column + 1):
+                    cell = ws.cell(row_idx, col_idx)
+                    if cell.value:
+                        cell_str = str(cell.value).lower()
+                        if 'bulk' in cell_str:
+                            storage_type = "bulk"
+                            print(f"  Detected BULK storage type")
+                            break
+                        elif 'box' in cell_str:
+                            storage_type = "box"
+                            print(f"  Detected BOX storage type")
+                            break
+                if storage_type == "bulk":
+                    break
+            
             # Find all zones - either boxes ("6") or bulk storage (e.g., "175t")
             zone_positions = []  # Will store (row, col, capacity)
             max_col = 0
@@ -554,7 +573,7 @@ async def upload_excel(file: UploadFile = File(...)):
                                 min_row = min(min_row, row_idx)
                             except ValueError:
                                 pass  # Not a valid tonnage format
-                        # Check for numeric capacity (box storage like "5", "6", "7", etc.)
+                        # Check for numeric capacity (box storage like "5", "6", "7", "8", etc.)
                         else:
                             try:
                                 capacity = int(cell_str)
@@ -590,9 +609,13 @@ async def upload_excel(file: UploadFile = File(...)):
             
             for col_idx in sorted_cols_temp:
                 col_x_positions[col_idx] = current_x
-                # Determine column width based on max capacity in this column
-                max_capacity_in_col = max(cap for _, cap in zones_by_col_temp[col_idx])
-                col_width = 8 if max_capacity_in_col > 6 else 2
+                # Determine column width based on storage type
+                if storage_type == "bulk":
+                    # Bulk storage gets 8m width (elongated)
+                    col_width = 8
+                else:
+                    # Box storage gets 2m width (square)
+                    col_width = 2
                 current_x += col_width
             
             # Calculate total store dimensions
