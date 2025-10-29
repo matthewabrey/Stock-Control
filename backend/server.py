@@ -733,7 +733,8 @@ async def upload_excel(file: UploadFile = File(...)):
                 "width": store_width,
                 "height": store_height,
                 "description": f"Imported from Excel - {len(zone_positions)} zones",
-                "doors": doors
+                "doors": doors,
+                "order": sheet_order  # Preserve Excel sheet order
             }
             await db.sheds.insert_one(shed_doc)
             stores_created += 1
