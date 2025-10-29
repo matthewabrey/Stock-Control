@@ -381,7 +381,9 @@ const Overview = () => {
                                 <h3 className="font-semibold text-gray-900">
                                   {detail.fieldName} - {detail.harvestYear}
                                 </h3>
-                                <p className="text-sm text-gray-600">{detail.cropType}</p>
+                                <p className="text-sm text-gray-600">
+                                  {detail.variety ? `${detail.cropType} - ${detail.variety}` : detail.cropType}
+                                </p>
                               </div>
                               <div className="flex items-center gap-2 bg-white px-3 py-1 rounded-md border border-gray-200">
                                 <Package className="w-4 h-4 text-gray-600" />
