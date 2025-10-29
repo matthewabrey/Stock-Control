@@ -602,27 +602,33 @@ async def upload_excel(file: UploadFile = File(...)):
             print(f"  Bounds: rows {min_row}-{max_row}, cols {min_col}-{max_col}")
             
             # Calculate column positions (used for both zones and doors)
-            # Group zones by column to get proper widths
+            # IMPORTANT: Include empty columns as gaps to preserve layout
             zones_by_col_temp = {}
             for row_idx, col_idx, capacity in zone_positions:
                 if col_idx not in zones_by_col_temp:
                     zones_by_col_temp[col_idx] = []
                 zones_by_col_temp[col_idx].append((row_idx, capacity))
             
-            # Calculate x positions for each column
-            sorted_cols_temp = sorted(zones_by_col_temp.keys())
+            # Calculate x positions for ALL columns (including empty ones for gaps)
             col_x_positions = {}
             current_x = 0
             
-            for col_idx in sorted_cols_temp:
+            # Iterate through ALL columns from min to max (including empty ones)
+            for col_idx in range(min_col, max_col + 1):
                 col_x_positions[col_idx] = current_x
-                # Determine column width based on storage type
-                if storage_type == "bulk":
-                    # Bulk storage gets 8m width (elongated)
-                    col_width = 8
+                
+                # Check if this column has zones
+                if col_idx in zones_by_col_temp:
+                    # Column has zones - use storage type width
+                    if storage_type == "bulk":
+                        col_width = 8  # Bulk storage gets 8m width (elongated)
+                    else:
+                        col_width = 2  # Box storage gets 2m width (square)
                 else:
-                    # Box storage gets 2m width (square)
+                    # Empty column - create a gap/walkway (2m wide)
                     col_width = 2
+                    print(f"  Empty column {openpyxl.utils.get_column_letter(col_idx)} - creating 2m gap")
+                
                 current_x += col_width
             
             # Calculate total store dimensions
