@@ -173,6 +173,8 @@ async def create_shed(input: ShedCreate):
 @api_router.get("/sheds", response_model=List[Shed])
 async def get_sheds():
     sheds = await db.sheds.find({}, {"_id": 0}).to_list(1000)
+    # Sort by order field (Excel sheet order), fallback to name if order doesn't exist
+    sheds.sort(key=lambda x: (x.get('order', 9999), x.get('name', '')))
     return sheds
 
 @api_router.get("/sheds/{shed_id}", response_model=Shed)
