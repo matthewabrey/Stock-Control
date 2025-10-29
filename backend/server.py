@@ -629,12 +629,59 @@ async def upload_excel(file: UploadFile = File(...)):
             store_width = current_x
             store_height = (max_row - min_row + 1) * 2
             
-            # Detect doors - look for cells containing "DOOR" text
+            # Detect doors - look for cells containing "DOOR" text (both inside and outside grid)
             doors = []
+            
+            # Process doors that were found inside the grid
+            for door_row, door_col in door_positions:
+                door_side = None
+                door_position = 0
+                
+                # Determine which edge this door is closest to
+                # Check if it's on the boundary of the zone grid
+                if door_col == min_col:
+                    # Left edge
+                    door_side = 'left'
+                    door_position = (door_row - min_row) * 2
+                elif door_col == max_col:
+                    # Right edge
+                    door_side = 'right'
+                    door_position = (door_row - min_row) * 2
+                elif door_row == min_row:
+                    # Top edge
+                    door_side = 'top'
+                    if door_col in col_x_positions:
+                        door_position = col_x_positions[door_col]
+                    else:
+                        door_position = (door_col - min_col) * 2
+                elif door_row == max_row:
+                    # Bottom edge
+                    door_side = 'bottom'
+                    if door_col in col_x_positions:
+                        door_position = col_x_positions[door_col]
+                    else:
+                        door_position = (door_col - min_col) * 2
+                else:
+                    # Door is in the middle of grid, use closest edge
+                    # For now, default to right side
+                    door_side = 'right'
+                    door_position = (door_row - min_row) * 2
+                
+                if door_side:
+                    door_dict = {"side": door_side, "position": door_position}
+                    if door_dict not in doors:
+                        doors.append(door_dict)
+                        print(f"  Added door: {door_side} at {door_position}m (from grid cell {openpyxl.utils.get_column_letter(door_col)}{door_row})")
+            
+            # Also check for doors OUTSIDE the grid (original logic)
             for row_idx in range(1, ws.max_row + 1):
                 for col_idx in range(1, ws.max_column + 1):
                     cell = ws.cell(row_idx, col_idx)
                     if cell.value and 'door' in str(cell.value).lower():
+                        # Skip if already processed (was in door_positions)
+                        if (row_idx, col_idx) in door_positions:
+                            continue
+                        
                         # Determine which side this door is on relative to the zone area
                         door_side = None
                         door_position = 0
