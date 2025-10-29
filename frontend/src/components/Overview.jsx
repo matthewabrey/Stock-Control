@@ -67,6 +67,7 @@ const Overview = () => {
             fieldId: intake.field_id,
             fieldName: intake.field_name,
             cropType: field?.crop_type || 'Unknown',
+            variety: field?.variety || '',
             harvestYear: field?.harvest_year || '2025',
             grades: {},
             totalQuantity: 0
