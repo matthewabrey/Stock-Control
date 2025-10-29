@@ -1320,7 +1320,9 @@ const FloorPlan = () => {
                                     <div className="font-bold text-xs text-gray-900 truncate">
                                       {field.name} - {field.harvest_year}
                                     </div>
-                                    <div className="text-xs text-gray-600 truncate">{field.crop_type}</div>
+                                    <div className="text-xs text-gray-600 truncate">
+                                      {field.variety ? `${field.crop_type} - ${field.variety}` : field.crop_type}
+                                    </div>
                                   </div>
                                 </div>
                                 <div className="ml-4 space-y-0.5">
