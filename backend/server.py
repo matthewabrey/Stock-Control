@@ -548,8 +548,9 @@ async def upload_excel(file: UploadFile = File(...)):
                 if storage_type == "bulk":
                     break
             
-            # Find all zones - either boxes ("6") or bulk storage (e.g., "175t")
+            # Find all zones and doors - scan the entire sheet
             zone_positions = []  # Will store (row, col, capacity)
+            door_positions = []  # Will store (row, col) for doors inside grid
             max_col = 0
             max_row = 0
             min_col = float('inf')
@@ -560,6 +561,12 @@ async def upload_excel(file: UploadFile = File(...)):
                     cell = ws.cell(row_idx, col_idx)
                     if cell.value is not None:
                         cell_str = str(cell.value).strip()
+                        
+                        # Check for DOOR markers (skip these cells, don't create zones)
+                        if 'door' in cell_str.lower():
+                            door_positions.append((row_idx, col_idx))
+                            print(f"  Found door inside grid at {openpyxl.utils.get_column_letter(col_idx)}{row_idx}")
+                            continue
                         
                         # Check for bulk storage (tonnage like "175t", "200t", etc.)
                         if cell_str.lower().endswith('t') and len(cell_str) > 1:
