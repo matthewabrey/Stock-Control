@@ -60,6 +60,7 @@ class Shed(BaseModel):
     height: float
     description: Optional[str] = None
     doors: List[DoorPosition] = []
+    order: Optional[int] = 9999  # Order from Excel, default to end if not set
 
 class ShedCreate(BaseModel):
     name: str
