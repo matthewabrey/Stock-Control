@@ -687,8 +687,11 @@ async def upload_excel(file: UploadFile = File(...)):
                 col_letter = openpyxl.utils.get_column_letter(col_idx - min_col + 1)
                 zone_name = f"{col_letter}{row_idx - min_row + 1}"
                 
-                # Bulk storage (tonnage) gets 4x width
-                zone_width = 8 if capacity > 6 else 2
+                # Use storage_type to determine zone width (not capacity)
+                if storage_type == "bulk":
+                    zone_width = 8  # Bulk storage gets 8m width (elongated)
+                else:
+                    zone_width = 2  # Box storage gets 2m width (square)
                 zone_height = 2
                 
                 zone_doc = {
