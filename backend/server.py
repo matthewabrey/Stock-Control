@@ -512,6 +512,7 @@ async def upload_excel(file: UploadFile = File(...)):
         print(f"All sheets in workbook: {wb.sheetnames}")
         print(f"Skip list: {skip_sheets}")
         
+        sheet_order = 0  # Track order of sheets
         for sheet_name in wb.sheetnames:
             if sheet_name in skip_sheets:
                 print(f"Skipping sheet: '{sheet_name}' (in skip list)")
@@ -526,6 +527,7 @@ async def upload_excel(file: UploadFile = File(...)):
                 continue
             
             print(f"Processing new store: '{store_name}'")
+            sheet_order += 1  # Increment order for each processed sheet
             
             ws = wb[sheet_name]
             
