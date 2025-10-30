@@ -648,6 +648,7 @@ const FloorPlan = () => {
     }
 
     const zonesToUpdate = selectedZones;
+    console.log(`DEBUG: zonesToUpdate has ${zonesToUpdate.length} zones:`, zonesToUpdate.map(z => z.name));
 
     // Check available capacity
     const totalAvailable = zonesToUpdate.reduce((sum, z) => {
