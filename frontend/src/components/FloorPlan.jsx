@@ -697,6 +697,7 @@ const FloorPlan = () => {
       for (const { zone, quantity } of distributions) {
         if (quantity > 0) {
           console.log(`DEBUG: Creating intake for zone ${zone.name} with ${quantity} units`);
+          console.log(`DEBUG: Using shed_id: ${shedId}, zone.shed_id: ${zone.shed_id}`);
           await axios.post(`${API}/stock-intakes`, {
             field_id: field.id,
             field_name: field.name,
