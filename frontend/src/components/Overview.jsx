@@ -324,12 +324,12 @@ const Overview = () => {
                       </div>
                     )}
 
-                    {/* Specialty Onions */}
+                    {/* Specials Onions */}
                     {hasSpecialtyOnions && (
                       <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
                         <h3 className="text-lg font-semibold text-purple-900 mb-4 flex items-center gap-2">
                           <div className="w-4 h-4 bg-purple-600 rounded-full"></div>
-                          Specialty Onions
+                          Specials
                         </h3>
                         <div className="space-y-2">
                           {Object.entries(onionSummary.specialty)
