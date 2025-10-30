@@ -102,11 +102,11 @@ const Overview = () => {
         if (varietyLower.includes('red') || cropTypeLower.includes('red')) {
           onionType = 'red';
         } 
-        // Specialty onions: ONLY if explicitly labeled as "specialty" (not "specials")
-        else if (cropTypeLower.includes('specialty') || varietyLower.includes('specialty')) {
+        // Specials onions: if crop type is "Onions - Specials" or contains "specials"
+        else if (cropTypeLower.includes('specials') || cropTypeLower === 'onions - specials') {
           onionType = 'specialty';
         }
-        // Everything else is brown (including "Onions - Specials" which is a category, not specialty variety)
+        // Everything else is brown
         
         // Add to summary
         if (!onionSummary[onionType][intake.grade]) {
