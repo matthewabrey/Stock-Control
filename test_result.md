@@ -113,6 +113,37 @@ user_problem_statement: |
   3. Maintain fallback to old logic if Type field is missing for backward compatibility
 
 backend:
+  - task: "Parse Type column from Excel and store in Field model"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: |
+          ✅ IMPLEMENTED Type column parsing
+          - Added "type" field to Field model (Optional[str])
+          - Added "type" field to FieldCreate model
+          - Updated Excel parsing logic to detect and read Type column:
+            * Column H (8) for Master Harvest 25 format
+            * Column I (9) for Master Harvest 26 format
+          - Type value is stored in field document as string (or None if empty)
+          - Updated column detection logs to show Type column location
+          - Fixed linting issues (f-strings without placeholders)
+          
+          CHANGES:
+          - Line 33-41: Updated Field model to include type field
+          - Line 44-49: Updated FieldCreate model to include type field
+          - Line 408-449: Updated column detection to include type_col
+          - Line 451-509: Added type_value reading and storage in field_doc
+          
+          NEEDS TESTING:
+          - Upload Excel file with Type column and verify Type values are stored
+          - Check /api/fields endpoint to confirm type field is returned
+  
   - task: "Fix zones endpoint pagination limit"
     implemented: true
     working: true
