@@ -1574,25 +1574,43 @@ const FloorPlan = () => {
               )}
               
               <div>
-                <Label htmlFor="field-search">Search Field</Label>
+                <Label htmlFor="field-search">Search & Select Field</Label>
                 <Input
                   id="field-search"
-                  placeholder="Type to search fields..."
+                  placeholder="Type to search and select field..."
                   value={fieldSearchTerm}
                   onChange={(e) => setFieldSearchTerm(e.target.value)}
                   className="mb-2"
+                  onFocus={() => {
+                    // Auto-open the dropdown when focused
+                    const selectTrigger = document.querySelector('[data-testid="select-field"]');
+                    if (selectTrigger) selectTrigger.click();
+                  }}
                 />
-                <Select value={selectedField} onValueChange={(value) => { 
-                  setSelectedField(value); 
-                  setSelectedGrade(""); 
-                  setFieldSearchTerm(""); // Clear search after selection
-                  // Auto-populate crop and year from selected field
-                  const field = fields.find(f => f.id === value);
-                  if (field) {
-                    setSelectedCrop(field.crop_type);
-                    setSelectedYear(field.harvest_year);
-                  }
-                }}>
+                <Select 
+                  open={fieldSearchTerm.length > 0 || selectedField === ""}
+                  value={selectedField} 
+                  onValueChange={(value) => { 
+                    setSelectedField(value); 
+                    setSelectedGrade(""); 
+                    setFieldSearchTerm(""); // Clear search after selection
+                    // Auto-populate crop and year from selected field
+                    const field = fields.find(f => f.id === value);
+                    if (field) {
+                      setSelectedCrop(field.crop_type);
+                      setSelectedYear(field.harvest_year);
+                    }
+                  }}
+                  onOpenChange={(open) => {
+                    // Keep dropdown open when typing
+                    if (!open && fieldSearchTerm.length > 0) {
+                      setTimeout(() => {
+                        const selectTrigger = document.querySelector('[data-testid="select-field"]');
+                        if (selectTrigger) selectTrigger.click();
+                      }, 0);
+                    }
+                  }}
+                >
                   <SelectTrigger id="field" data-testid="select-field">
                     <SelectValue placeholder="Select from filtered list..." />
                   </SelectTrigger>
