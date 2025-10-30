@@ -1625,44 +1625,6 @@ const FloorPlan = () => {
                     </div>
                   )}
                 </div>
-                {/* Hidden Select for backwards compatibility */}
-                <Select 
-                  value={selectedField} 
-                  onValueChange={(value) => { 
-                    setSelectedField(value); 
-                    setSelectedGrade(""); 
-                    // Auto-populate crop and year from selected field
-                    const field = fields.find(f => f.id === value);
-                    if (field) {
-                      setSelectedCrop(field.crop_type);
-                      setSelectedYear(field.harvest_year);
-                    }
-                  }}
-                >
-                  <SelectTrigger id="field" data-testid="select-field">
-                    <SelectValue placeholder="Select from filtered list..." />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-[300px]">
-                    {fields
-                      .filter(field => 
-                        fieldSearchTerm === "" || 
-                        field.name.toLowerCase().includes(fieldSearchTerm.toLowerCase()) ||
-                        field.crop_type.toLowerCase().includes(fieldSearchTerm.toLowerCase()) ||
-                        field.variety.toLowerCase().includes(fieldSearchTerm.toLowerCase()) ||
-                        field.harvest_year.includes(fieldSearchTerm)
-                      )
-                      .map((field) => (
-                      <SelectItem key={field.id} value={field.id} data-testid={`field-option-${field.id}`}>
-                        <div className="flex flex-col py-1">
-                          <span className="font-semibold">{field.name}</span>
-                          <span className="text-xs text-gray-600">
-                            {field.harvest_year} • {field.crop_type} • {field.variety}
-                          </span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
                 {selectedField && fields.find(f => f.id === selectedField) && (
                   <div className="mt-2 p-2 bg-gray-50 rounded text-xs space-y-1">
                     <p><strong>Year:</strong> {fields.find(f => f.id === selectedField).harvest_year}</p>
