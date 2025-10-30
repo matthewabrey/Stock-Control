@@ -398,73 +398,34 @@ test_plan:
 agent_communication:
   - agent: "main"
     message: |
-      ✅ FLOORPLAN ENHANCEMENTS IMPLEMENTED
+      ✅ TYPE COLUMN INTEGRATION IMPLEMENTED
       
-      Completed two new features for the FloorPlan page:
+      Implemented the new "Type" column from the Excel file for improved onion/potato classification:
       
-      1. SHED SELECTOR DROPDOWN (Top Navigation):
-         - Integrated with "Back to Dashboard" button
-         - Label: "Change Store:"
-         - Shows current shed name (e.g., "D1", "Grader Shed")
-         - Lists all available sheds in dropdown
-         - Clicking a shed navigates to that shed's floor plan
-         - Removed duplicate "Switch Shed" card from bottom
+      BACKEND CHANGES (/app/backend/server.py):
+      1. Added "type" field to Field model and FieldCreate model (Optional[str])
+      2. Updated Excel parsing logic to detect and read Type column:
+         - Column H (8) for Master Harvest 25 format
+         - Column I (9) for Master Harvest 26 format
+      3. Type value is stored in field document (string or None if empty)
+      4. Fixed linting issues (4 f-string warnings)
       
-      2. SHED-SPECIFIC ONION SUMMARY PANEL (Right Sidebar):
-         - Added getShedOnionSummary() function
-         - Filters onions only for CURRENT shed (not all sheds)
-         - Positioned ABOVE "Color Key" section
-         - Compact sidebar design
-         - Red onions: red theme (red-50 bg, red borders)
-         - Brown onions: amber theme (amber-50 bg, amber borders)
-         - Grades sorted alphabetically with quantities
-         - Total row at bottom of each section
-         - Only displays when onions present in shed
+      FRONTEND CHANGES:
+      1. Updated getOnionSummary() in Overview.jsx (lines 80-120):
+         - Checks field.type first for classification
+         - Maps: "Red" → red, "Special" → specialty, "Brown" → brown
+         - Fallback to old keyword matching if Type missing
       
-      Screenshot verified on Grader Shed:
-      - Shed selector: ✅ Working, switches between sheds
-      - Onion summary: ✅ Displaying shed-specific data
-      - Red Onions: 50/60 (75), 70/80 (23) = Total: 98 units
-      - Brown Onions: 6 grades = Total: 152 units
-      - UI: ✅ Clean, compact, matches sidebar style
+      2. Updated getShedOnionSummary() in FloorPlan.jsx (lines 795-836):
+         - Checks field.type first for classification
+         - Maps: "Red" → red, "Brown" → brown (no specialty in FloorPlan)
+         - Fallback to old keyword matching if Type missing
       
-      NEXT STEPS:
-      Frontend testing recommended to verify:
-      1. Shed selector dropdown functionality
-      2. Navigation between sheds
-      3. Onion summary calculations for different sheds
-      4. UI responsiveness and layout
-  - agent: "testing"
-    message: |
-      ✅ TESTING COMPLETED SUCCESSFULLY - ALL FEATURES WORKING PERFECTLY
+      TESTING REQUIREMENTS:
+      1. Backend: Upload Excel file with Type column, verify Type values stored
+      2. Backend: Check /api/fields endpoint to confirm type field is returned
+      3. Frontend: Verify Overview onion summary reflects correct Red/Brown/Special categories
+      4. Frontend: Verify FloorPlan shed onion summary reflects correct Red/Brown categories
+      5. Ensure backward compatibility with old data (fields without Type)
       
-      🎯 COMPREHENSIVE TESTING RESULTS:
-      
-      1. SHED SELECTOR DROPDOWN:
-         ✅ Found at top of page with proper "Change Store:" label
-         ✅ Perfectly integrated with "Back to Dashboard" button
-         ✅ Shows current shed name correctly (D1, Grader Shed)
-         ✅ Navigation between sheds works flawlessly
-         ✅ URL and page title update correctly
-      
-      2. ONION SUMMARY PANEL:
-         ✅ Positioned correctly in right sidebar ABOVE Color Key
-         ✅ Shows shed-specific data only (not combined data)
-         ✅ Red Onions: proper red theme (bg-red-50)
-         ✅ Brown Onions: proper amber theme (bg-amber-50)
-         ✅ Grades sorted alphabetically with accurate quantities
-         ✅ Totals calculated correctly
-         ✅ Compact design perfect for sidebar
-      
-      📊 DATA VERIFICATION:
-      - D1 Shed: Brown Onions (15 units) ✅
-      - Grader Shed: Red Onions (98 units), Brown Onions (152 units) ✅
-      - Calculations update dynamically when switching sheds ✅
-      
-      🎨 UI/UX VERIFICATION:
-      - Professional, clean design matching app style ✅
-      - Responsive layout works correctly ✅
-      - No layout issues or overlapping elements ✅
-      - Proper color theming throughout ✅
-      
-      🚀 RECOMMENDATION: Both features are production-ready and working as specified.
+      READY FOR BACKEND TESTING FIRST, THEN FRONTEND E2E TESTING.
