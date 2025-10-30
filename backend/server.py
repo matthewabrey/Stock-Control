@@ -455,6 +455,7 @@ async def upload_excel(file: UploadFile = File(...)):
                 area = ws.cell(row_idx, area_col).value
                 crop = ws.cell(row_idx, crop_col).value
                 variety = ws.cell(row_idx, variety_col).value
+                type_value = ws.cell(row_idx, type_col).value  # Read Type column
                 
                 # Read year from column if it exists, otherwise use sheet name
                 if year_col:
@@ -505,7 +506,8 @@ async def upload_excel(file: UploadFile = File(...)):
                     "crop_type": str(crop) if crop else "Unknown",
                     "variety": str(variety) if variety else "Unknown",
                     "available_grades": grades,
-                    "harvest_year": harvest_year
+                    "harvest_year": harvest_year,
+                    "type": str(type_value) if type_value else None  # Store Type value
                 }
                 await db.fields.insert_one(field_doc)
                 fields_created += 1
