@@ -641,8 +641,13 @@ const FloorPlan = () => {
     const field = fields.find(f => f.id === selectedField);
     if (!field) return;
 
-    // If multiple zones selected, add to all
-    const zonesToUpdate = selectedZones.length > 0 ? selectedZones : [selectedZone];
+    // Use selected zones (must have at least one)
+    if (selectedZones.length === 0) {
+      toast.warning("Please select zones first by clicking on them");
+      return;
+    }
+
+    const zonesToUpdate = selectedZones;
 
     // Check available capacity
     const totalAvailable = zonesToUpdate.reduce((sum, z) => {
