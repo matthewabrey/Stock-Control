@@ -514,7 +514,7 @@ class StockControlTester:
         # Test sequence
         tests = [
             ("API Health Check", self.test_api_health),
-            ("Excel Upload with Grade Parsing", self.test_excel_upload_grade_parsing),
+            ("Type Column Integration", self.test_type_column_integration),
             ("Fields API and Grade Assignment", self.test_fields_api_grades),
             ("Shed CRUD Operations", self.test_shed_crud),
             ("Zone CRUD Operations", self.test_zone_crud),
