@@ -787,6 +787,8 @@ const FloorPlan = () => {
     .map(fieldId => fields.find(f => f.id === fieldId))
     .filter(f => f);
 
+  console.log(`DEBUG fieldsInShed: Total stockIntakes: ${stockIntakes.length}, Current shed: ${shedId}, Intakes in this shed: ${stockIntakes.filter(i => i.shed_id === shedId).length}, Fields found: ${fieldsInShed.length}`);
+
   // Get onion summary for this shed only
   const getShedOnionSummary = () => {
     const onionSummary = {
