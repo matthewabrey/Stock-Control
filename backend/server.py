@@ -476,12 +476,14 @@ async def upload_excel(file: UploadFile = File(...)):
                 # Assign grades based on crop type from parsed tables
                 grades = []
                 crop_str = str(crop).lower() if crop else ""
-                variety_str = str(variety).lower() if variety else ""
+                
+                # For grade matching, use the classification from variety_excel (Column 7)
+                classification_str = str(variety_excel).lower() if variety_excel else ""
                 
                 # Match crop type to grade table
                 if 'onion' in crop_str:
                     # Check if it's a special onion variety
-                    if 'special' in variety_str or 'shallot' in variety_str:
+                    if 'special' in classification_str or 'shallot' in classification_str or 'special' in crop_str.lower():
                         grades = grade_tables.get('onion_special', grade_tables.get('onion', []))
                     else:
                         grades = grade_tables.get('onion', [])
@@ -499,15 +501,20 @@ async def upload_excel(file: UploadFile = File(...)):
                 full_field_name = f"{farm} - {field_name}"
                 area_str = f"{area} Acres" if area else "N/A"
                 
+                # IMPORTANT: Excel columns are:
+                # - Column 7 (variety_excel) = Classification (Red, Brown, Special)
+                # - Column 8 (type_excel) = Actual variety name (Figaro, Hybound, etc.)
+                # So we store: variety = type_excel (actual variety name)
+                #              type = variety_excel (classification)
                 field_doc = {
                     "id": str(uuid.uuid4()),
                     "name": full_field_name,
                     "area": area_str,
                     "crop_type": str(crop) if crop else "Unknown",
-                    "variety": str(variety) if variety else "Unknown",
+                    "variety": str(type_excel) if type_excel else "Unknown",  # Column 8 = variety name
                     "available_grades": grades,
                     "harvest_year": harvest_year,
-                    "type": str(type_value) if type_value else None  # Store Type value
+                    "type": str(variety_excel) if variety_excel else None  # Column 7 = classification (Red/Brown/Special)
                 }
                 await db.fields.insert_one(field_doc)
                 fields_created += 1
