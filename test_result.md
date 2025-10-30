@@ -103,9 +103,14 @@
 #====================================================================================================
 
 user_problem_statement: |
-  User requested two new features for the FloorPlan page:
-  1. Add a shed selector dropdown at the top (integrated with "Back to Dashboard" button) to switch between stores easily
-  2. Add an onion summary panel on the right side (above the existing "Stock Details" panel) showing red and brown onions by grade for the current shed only
+  User requested implementation of a new "Type" column from the Excel file to improve classification of onions (Red, Brown, Specials) and potatoes.
+  Previously, classification relied on keyword matching within crop and variety names, which was insufficient for accurate differentiation.
+  The Type column (column 7 in Master Cropping sheet) provides explicit classification values like "Brown", "Red", "Special".
+  
+  IMPLEMENTATION:
+  1. Backend: Parse Type column from Excel and store in Field model
+  2. Frontend: Update classification logic in Overview.jsx and FloorPlan.jsx to use the new Type field instead of keyword matching
+  3. Maintain fallback to old logic if Type field is missing for backward compatibility
 
 backend:
   - task: "Fix zones endpoint pagination limit"
