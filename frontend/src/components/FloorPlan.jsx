@@ -1287,8 +1287,6 @@ const FloorPlan = () => {
                               }
                               gradeBreakdown[intake.grade] += intake.quantity;
                             });
-                              }
-                            });
                             
                             // Only show field if it has stock in zones
                             if (fieldZones.length === 0 || totalQty === 0) return null;
