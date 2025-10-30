@@ -810,18 +810,29 @@ const FloorPlan = () => {
         if (!field) return;
         
         const cropTypeLower = field.crop_type.toLowerCase();
-        const varietyLower = field.variety ? field.variety.toLowerCase() : '';
         
         if (cropTypeLower.includes('onion')) {
           const proportion = intake.quantity / totalIntakeQty;
           const actualQty = zone.total_quantity * proportion;
           
-          // Determine if it's red or brown onion
-          // Red onions have "red" in variety or crop type
-          // All other onions default to brown (since most storage onions are brown)
+          // Use the Type field from Excel for classification
           let onionType = 'brown'; // Default to brown
-          if (varietyLower.includes('red') || cropTypeLower.includes('red')) {
-            onionType = 'red';
+          
+          if (field.type) {
+            const typeLower = field.type.toLowerCase();
+            if (typeLower.includes('red')) {
+              onionType = 'red';
+            } else if (typeLower.includes('brown')) {
+              onionType = 'brown';
+            }
+            // Note: FloorPlan only shows red/brown, not specialty
+          }
+          // Fallback to old logic if Type field is missing
+          else {
+            const varietyLower = field.variety ? field.variety.toLowerCase() : '';
+            if (varietyLower.includes('red') || cropTypeLower.includes('red')) {
+              onionType = 'red';
+            }
           }
           
           if (!onionSummary[onionType][intake.grade]) {
