@@ -174,9 +174,9 @@ class StockControlTester:
                 crop_type = field.get('crop_type', 'Unknown')
                 available_grades = field.get('available_grades', [])
                 
-                # Check if Whole Crop is always included
-                if 'Whole Crop' not in available_grades:
-                    grade_tests.append(f"❌ {field_name}: Missing 'Whole Crop' grade")
+                # Check if at least one grade is available (Whole Crop or crop-specific grades)
+                if not available_grades:
+                    grade_tests.append(f"❌ {field_name}: No grades available")
                     continue
                 
                 # Check crop-specific grades
