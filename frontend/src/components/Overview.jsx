@@ -257,7 +257,7 @@ const Overview = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="pt-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {/* Red Onions */}
                     {hasRedOnions && (
                       <div className="p-4 bg-red-50 rounded-lg border border-red-200">
@@ -314,6 +314,37 @@ const Overview = () => {
                             <span className="font-bold text-gray-900">Total</span>
                             <span className="font-bold text-amber-800">
                               {Object.values(onionSummary.brown).reduce((sum, qty) => sum + qty, 0).toFixed(0)} units
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Specialty Onions */}
+                    {hasSpecialtyOnions && (
+                      <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
+                        <h3 className="text-lg font-semibold text-purple-900 mb-4 flex items-center gap-2">
+                          <div className="w-4 h-4 bg-purple-600 rounded-full"></div>
+                          Specialty Onions
+                        </h3>
+                        <div className="space-y-2">
+                          {Object.entries(onionSummary.specialty)
+                            .sort(([a], [b]) => a.localeCompare(b))
+                            .map(([grade, qty]) => (
+                              <div 
+                                key={grade}
+                                className="flex items-center justify-between bg-white px-4 py-3 rounded border border-purple-300"
+                              >
+                                <span className="font-medium text-gray-900">{grade}</span>
+                                <span className="font-semibold text-purple-700">
+                                  {qty.toFixed(0)} units
+                                </span>
+                              </div>
+                            ))}
+                          <div className="flex items-center justify-between bg-purple-100 px-4 py-3 rounded border-2 border-purple-400 mt-3">
+                            <span className="font-bold text-gray-900">Total</span>
+                            <span className="font-bold text-purple-800">
+                              {Object.values(onionSummary.specialty).reduce((sum, qty) => sum + qty, 0).toFixed(0)} units
                             </span>
                           </div>
                         </div>
