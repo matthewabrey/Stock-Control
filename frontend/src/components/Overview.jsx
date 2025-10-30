@@ -92,21 +92,35 @@ const Overview = () => {
       
       // Check if it's an onion crop
       const cropTypeLower = field.crop_type.toLowerCase();
-      const varietyLower = field.variety ? field.variety.toLowerCase() : '';
       
       if (cropTypeLower.includes('onion')) {
-        // Determine onion type
+        // Use the Type field from Excel for classification
         let onionType = 'brown'; // Default to brown
         
-        // Specials: Check crop_type for "specials" (e.g., "Onions - Specials")
-        if (cropTypeLower.includes('specials')) {
-          onionType = 'specialty';
-        } 
-        // Red onions: Check variety for "red" (e.g., "Red Light", "Red Tide")
-        else if (varietyLower.includes('red')) {
-          onionType = 'red';
+        if (field.type) {
+          const typeLower = field.type.toLowerCase();
+          if (typeLower.includes('red')) {
+            onionType = 'red';
+          } else if (typeLower.includes('special')) {
+            onionType = 'specialty';
+          } else if (typeLower.includes('brown')) {
+            onionType = 'brown';
+          }
         }
-        // Brown onions: Everything else (including varieties like "Brown Seed", "Numbito", etc.)
+        // Fallback to old logic if Type field is missing
+        else {
+          const varietyLower = field.variety ? field.variety.toLowerCase() : '';
+          
+          // Specials: Check crop_type for "specials" (e.g., "Onions - Specials")
+          if (cropTypeLower.includes('specials')) {
+            onionType = 'specialty';
+          } 
+          // Red onions: Check variety for "red" (e.g., "Red Light", "Red Tide")
+          else if (varietyLower.includes('red')) {
+            onionType = 'red';
+          }
+          // Brown onions: Everything else
+        }
         
         // Add to summary
         if (!onionSummary[onionType][intake.grade]) {
