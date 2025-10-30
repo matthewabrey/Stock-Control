@@ -252,6 +252,28 @@ const ShedsManager = () => {
               </Button>
             </CardContent>
           </Card>
+
+          <Card className="border-red-300 bg-red-100">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-red-900">
+                <AlertTriangle className="w-5 h-5" />
+                Clear All Data (Full Reset)
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-red-800 mb-4">
+                <strong>⚠️ DANGER:</strong> Remove ALL data including sheds, zones, fields, and stock. This cannot be undone!
+              </p>
+              <Button 
+                onClick={handleClearAllData}
+                variant="destructive"
+                className="w-full bg-red-700 hover:bg-red-800"
+              >
+                <Trash2 className="mr-2 w-4 h-4" />
+                Clear All Data (Full Reset)
+              </Button>
+            </CardContent>
+          </Card>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
