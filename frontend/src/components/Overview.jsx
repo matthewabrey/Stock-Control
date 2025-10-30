@@ -245,8 +245,9 @@ const Overview = () => {
           const onionSummary = getOnionSummary();
           const hasRedOnions = Object.keys(onionSummary.red).length > 0;
           const hasBrownOnions = Object.keys(onionSummary.brown).length > 0;
+          const hasSpecialtyOnions = Object.keys(onionSummary.specialty).length > 0;
           
-          if (hasRedOnions || hasBrownOnions) {
+          if (hasRedOnions || hasBrownOnions || hasSpecialtyOnions) {
             return (
               <Card className="bg-white shadow rounded-xl border border-gray-200 mb-6">
                 <CardHeader className="border-b border-gray-100">
