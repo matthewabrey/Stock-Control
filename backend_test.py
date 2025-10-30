@@ -339,6 +339,82 @@ class StockControlTester:
             self.log_test("Zone CRUD", False, f"Exception: {str(e)}")
             return False
     
+    def test_type_column_integration(self):
+        """Test Type column parsing and storage from Excel"""
+        try:
+            # First clear all data
+            response = self.session.delete(f"{self.base_url}/clear-all-data")
+            if response.status_code != 200:
+                self.log_test("Clear Data", False, f"Failed to clear data, status: {response.status_code}")
+                return False
+            
+            # Create and upload Excel with Type column
+            excel_data = self.create_test_excel_with_type()
+            files = {'file': ('test_type_fields.xlsx', excel_data, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')}
+            response = self.session.post(f"{self.base_url}/upload-excel", files=files)
+            
+            if response.status_code != 200:
+                self.log_test("Type Column Upload", False, f"Upload failed with status {response.status_code}", response.text)
+                return False
+            
+            # Get fields and verify Type column values
+            response = self.session.get(f"{self.base_url}/fields")
+            if response.status_code != 200:
+                self.log_test("Type Column Fields API", False, f"Failed to get fields, status: {response.status_code}")
+                return False
+            
+            fields = response.json()
+            if not fields:
+                self.log_test("Type Column Fields API", False, "No fields found after upload")
+                return False
+            
+            # Expected Type values from our test data
+            expected_types = {
+                "Greenfield Farm - Field A": "Red",
+                "Hillside Farm - Field B": "Brown", 
+                "Valley Farm - Field C": "Special",
+                "Riverside Farm - Field D": "Brown",
+                "Westside Farm - Field E": None  # No Type value in Excel
+            }
+            
+            type_tests = []
+            for field in fields:
+                field_name = field.get('name', 'Unknown')
+                field_type = field.get('type')
+                
+                if field_name in expected_types:
+                    expected_type = expected_types[field_name]
+                    if field_type == expected_type:
+                        type_tests.append(f"✅ {field_name}: Type='{field_type}' (correct)")
+                    else:
+                        type_tests.append(f"❌ {field_name}: Expected Type='{expected_type}', Got='{field_type}'")
+                else:
+                    type_tests.append(f"⚠️ {field_name}: Unexpected field (Type='{field_type}')")
+            
+            # Check if any Type tests failed
+            failed_type_tests = [test for test in type_tests if test.startswith('❌')]
+            
+            if failed_type_tests:
+                self.log_test(
+                    "Type Column Integration", 
+                    False, 
+                    f"Type column parsing issues found",
+                    "\n".join(type_tests)
+                )
+                return False
+            else:
+                self.log_test(
+                    "Type Column Integration", 
+                    True, 
+                    f"All {len(fields)} fields have correct Type values",
+                    "\n".join(type_tests)
+                )
+                return True
+                
+        except Exception as e:
+            self.log_test("Type Column Integration", False, f"Exception: {str(e)}")
+            return False
+    
     def test_stock_intake_with_grade(self):
         """Test Stock Intake with grade field"""
         try:
