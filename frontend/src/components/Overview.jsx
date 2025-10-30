@@ -81,7 +81,8 @@ const Overview = () => {
     // Calculate onion summary by variety and grade
     const onionSummary = {
       red: {},
-      brown: {}
+      brown: {},
+      specialty: {}
     };
 
     // Process all stock intakes
@@ -94,12 +95,13 @@ const Overview = () => {
       const varietyLower = field.variety ? field.variety.toLowerCase() : '';
       
       if (cropTypeLower.includes('onion')) {
-        // Determine if it's red or brown onion
-        // Red onions have "red" in variety or crop type
-        // All other onions default to brown (since most storage onions are brown)
+        // Determine onion type
         let onionType = 'brown'; // Default to brown
+        
         if (varietyLower.includes('red') || cropTypeLower.includes('red')) {
           onionType = 'red';
+        } else if (cropTypeLower.includes('special') || varietyLower.includes('special')) {
+          onionType = 'specialty';
         }
         
         // Add to summary
@@ -111,6 +113,36 @@ const Overview = () => {
     });
 
     return onionSummary;
+  };
+
+  const getPotatoSummary = () => {
+    // Calculate potato summary by variety
+    const potatoSummary = {};
+
+    // Process all stock intakes
+    stockIntakes.forEach(intake => {
+      const field = fields.find(f => f.id === intake.field_id);
+      if (!field) return;
+      
+      // Check if it's a potato crop
+      const cropTypeLower = field.crop_type.toLowerCase();
+      
+      if (cropTypeLower.includes('potato')) {
+        const variety = field.variety || 'Unknown';
+        
+        if (!potatoSummary[variety]) {
+          potatoSummary[variety] = {};
+        }
+        
+        if (!potatoSummary[variety][intake.grade]) {
+          potatoSummary[variety][intake.grade] = 0;
+        }
+        
+        potatoSummary[variety][intake.grade] += intake.quantity;
+      }
+    });
+
+    return potatoSummary;
   };
 
   const handlePrint = () => {
