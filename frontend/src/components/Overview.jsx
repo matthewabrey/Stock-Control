@@ -98,15 +98,15 @@ const Overview = () => {
         // Determine onion type
         let onionType = 'brown'; // Default to brown
         
-        // Red onions: have "red" in variety or crop type
-        if (varietyLower.includes('red') || cropTypeLower.includes('red')) {
-          onionType = 'red';
-        } 
-        // Specials onions: if crop type is "Onions - Specials" or contains "specials"
-        else if (cropTypeLower.includes('specials') || cropTypeLower === 'onions - specials') {
+        // Specials: Check crop_type for "specials" (e.g., "Onions - Specials")
+        if (cropTypeLower.includes('specials')) {
           onionType = 'specialty';
+        } 
+        // Red onions: Check variety for "red" (e.g., "Red Light", "Red Tide")
+        else if (varietyLower.includes('red')) {
+          onionType = 'red';
         }
-        // Everything else is brown
+        // Brown onions: Everything else (including varieties like "Brown Seed", "Numbito", etc.)
         
         // Add to summary
         if (!onionSummary[onionType][intake.grade]) {
