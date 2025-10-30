@@ -517,7 +517,7 @@ async def upload_excel(file: UploadFile = File(...)):
         # Skip field sheets, Grade Options Page, and other non-store sheets
         skip_sheets = ["FRONT PAGE", "Master Harvest 25", "Master Harevst 26", "Master Harvest 26", "Master Cropping", "Grade Options Page", "Sheet1", "Sheet2", "Sheet3"]
         
-        print(f"=== Processing Store Sheets ===")
+        print("=== Processing Store Sheets ===")
         print(f"All sheets in workbook: {wb.sheetnames}")
         print(f"Skip list: {skip_sheets}")
         
@@ -550,11 +550,11 @@ async def upload_excel(file: UploadFile = File(...)):
                         cell_str = str(cell.value).lower()
                         if 'bulk' in cell_str:
                             storage_type = "bulk"
-                            print(f"  Detected BULK storage type")
+                            print("  Detected BULK storage type")
                             break
                         elif 'box' in cell_str:
                             storage_type = "box"
-                            print(f"  Detected BOX storage type")
+                            print("  Detected BOX storage type")
                             break
                 if storage_type == "bulk":
                     break
@@ -1012,7 +1012,7 @@ async def export_excel():
         return StreamingResponse(
             output,
             media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            headers={"Content-Disposition": f"attachment; filename=stock-control-export.xlsx"}
+            headers={"Content-Disposition": "attachment; filename=stock-control-export.xlsx"}
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error exporting to Excel: {str(e)}")
