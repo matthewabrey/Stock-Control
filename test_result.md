@@ -387,7 +387,10 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus: []
+  current_focus:
+    - "Parse Type column from Excel and store in Field model"
+    - "Use Type field for onion classification in Overview"
+    - "Use Type field for onion classification in FloorPlan"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
