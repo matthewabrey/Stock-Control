@@ -454,8 +454,8 @@ async def upload_excel(file: UploadFile = File(...)):
                 field_name = ws.cell(row_idx, field_col).value
                 area = ws.cell(row_idx, area_col).value
                 crop = ws.cell(row_idx, crop_col).value
-                variety = ws.cell(row_idx, variety_col).value
-                type_value = ws.cell(row_idx, type_col).value  # Read Type column
+                variety_excel = ws.cell(row_idx, variety_col).value  # Column 7 = Classification (Red/Brown/Special)
+                type_excel = ws.cell(row_idx, type_col).value  # Column 8 = Actual variety name
                 
                 # Read year from column if it exists, otherwise use sheet name
                 if year_col:
