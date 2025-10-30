@@ -128,6 +128,7 @@ const FloorPlan = () => {
   const fetchStockIntakes = async () => {
     try {
       const response = await axios.get(`${API}/stock-intakes`);
+      console.log(`DEBUG fetchStockIntakes: Loaded ${response.data.length} stock intakes`);
       setStockIntakes(response.data);
     } catch (error) {
       console.error("Error fetching stock intakes:", error);
