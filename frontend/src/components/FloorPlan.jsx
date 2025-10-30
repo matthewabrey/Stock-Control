@@ -670,6 +670,8 @@ const FloorPlan = () => {
       let remainingQty = qty;
       const distributions = [];
       
+      console.log(`DEBUG: Distributing ${qty} units across ${zonesToUpdate.length} zones`);
+      
       for (let i = 0; i < zonesToUpdate.length; i++) {
         const zone = zonesToUpdate[i];
         const available = (zone.max_capacity || 6) - (zone.total_quantity || 0);
@@ -677,18 +679,23 @@ const FloorPlan = () => {
         if (i === zonesToUpdate.length - 1) {
           // Last zone: put all remaining quantity here
           distributions.push({ zone, quantity: remainingQty });
+          console.log(`DEBUG: Zone ${zone.name} (last): ${remainingQty} units`);
           remainingQty = 0;
         } else {
           // Fill to capacity or take what's needed
           const qtyForThisZone = Math.min(available, remainingQty);
           distributions.push({ zone, quantity: qtyForThisZone });
+          console.log(`DEBUG: Zone ${zone.name}: ${qtyForThisZone} units (available: ${available}, remaining: ${remainingQty})`);
           remainingQty -= qtyForThisZone;
         }
       }
       
+      console.log(`DEBUG: Total distributions: ${distributions.length}, Total qty: ${distributions.reduce((s, d) => s + d.quantity, 0)}`);
+      
       // Create stock intake records
       for (const { zone, quantity } of distributions) {
         if (quantity > 0) {
+          console.log(`DEBUG: Creating intake for zone ${zone.name} with ${quantity} units`);
           await axios.post(`${API}/stock-intakes`, {
             field_id: field.id,
             field_name: field.name,
