@@ -1575,39 +1575,67 @@ const FloorPlan = () => {
               
               <div>
                 <Label htmlFor="field-search">Search & Select Field</Label>
-                <Input
-                  id="field-search"
-                  placeholder="Type to search and select field..."
-                  value={fieldSearchTerm}
-                  onChange={(e) => setFieldSearchTerm(e.target.value)}
-                  className="mb-2"
-                  onFocus={() => {
-                    // Auto-open the dropdown when focused
-                    const selectTrigger = document.querySelector('[data-testid="select-field"]');
-                    if (selectTrigger) selectTrigger.click();
-                  }}
-                />
+                <div className="relative">
+                  <Input
+                    id="field-search"
+                    placeholder="Type to search and select field..."
+                    value={fieldSearchTerm}
+                    onChange={(e) => setFieldSearchTerm(e.target.value)}
+                    className="mb-2"
+                  />
+                  {/* Show filtered results as you type */}
+                  {fieldSearchTerm && (
+                    <div className="absolute z-50 w-full mt-1 max-h-[300px] overflow-y-auto bg-white border rounded-md shadow-lg">
+                      {fields
+                        .filter(field => 
+                          field.name.toLowerCase().includes(fieldSearchTerm.toLowerCase()) ||
+                          field.crop_type.toLowerCase().includes(fieldSearchTerm.toLowerCase()) ||
+                          (field.variety && field.variety.toLowerCase().includes(fieldSearchTerm.toLowerCase())) ||
+                          field.harvest_year.includes(fieldSearchTerm)
+                        )
+                        .slice(0, 10)
+                        .map((field) => (
+                          <div
+                            key={field.id}
+                            className="px-3 py-2 hover:bg-gray-100 cursor-pointer border-b last:border-b-0"
+                            onClick={() => {
+                              setSelectedField(field.id);
+                              setSelectedGrade("");
+                              setFieldSearchTerm("");
+                              setSelectedCrop(field.crop_type);
+                              setSelectedYear(field.harvest_year);
+                            }}
+                          >
+                            <div className="flex flex-col">
+                              <span className="font-semibold text-sm">{field.name}</span>
+                              <span className="text-xs text-gray-600">
+                                {field.harvest_year} • {field.crop_type} • {field.variety}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      {fields.filter(field => 
+                        field.name.toLowerCase().includes(fieldSearchTerm.toLowerCase()) ||
+                        field.crop_type.toLowerCase().includes(fieldSearchTerm.toLowerCase()) ||
+                        (field.variety && field.variety.toLowerCase().includes(fieldSearchTerm.toLowerCase())) ||
+                        field.harvest_year.includes(fieldSearchTerm)
+                      ).length === 0 && (
+                        <div className="px-3 py-2 text-sm text-gray-500">No fields found</div>
+                      )}
+                    </div>
+                  )}
+                </div>
+                {/* Hidden Select for backwards compatibility */}
                 <Select 
-                  open={fieldSearchTerm.length > 0 || selectedField === ""}
                   value={selectedField} 
                   onValueChange={(value) => { 
                     setSelectedField(value); 
                     setSelectedGrade(""); 
-                    setFieldSearchTerm(""); // Clear search after selection
                     // Auto-populate crop and year from selected field
                     const field = fields.find(f => f.id === value);
                     if (field) {
                       setSelectedCrop(field.crop_type);
                       setSelectedYear(field.harvest_year);
-                    }
-                  }}
-                  onOpenChange={(open) => {
-                    // Keep dropdown open when typing
-                    if (!open && fieldSearchTerm.length > 0) {
-                      setTimeout(() => {
-                        const selectTrigger = document.querySelector('[data-testid="select-field"]');
-                        if (selectTrigger) selectTrigger.click();
-                      }, 0);
                     }
                   }}
                 >
