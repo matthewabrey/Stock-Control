@@ -414,6 +414,7 @@ async def upload_excel(file: UploadFile = File(...)):
             area_col = 5  # Default: Column E
             crop_col = 6  # Default: Column F
             variety_col = 7  # Default: Column G
+            type_col = 8  # Default: Column H (Type column)
             year_col = None  # Will be detected if exists
             start_row = 4  # Default data start row
             
@@ -426,25 +427,26 @@ async def upload_excel(file: UploadFile = File(...)):
                 area_col = 6  # Column F
                 crop_col = 7  # Column G
                 variety_col = 8  # Column H
+                type_col = 9  # Column I (Type column)
                 start_row = 5  # Data starts row 5
                 
-                # Check for Year column (could be column I or beyond)
-                for col_idx in range(9, ws.max_column + 1):
+                # Check for Year column (could be column J or beyond)
+                for col_idx in range(10, ws.max_column + 1):
                     header_val = ws.cell(4, col_idx).value
                     if header_val and 'year' in str(header_val).lower():
                         year_col = col_idx
                         break
                 
-                print(f"Detected Harvest 26 format: columns D-H, starting row 5, year_col={year_col}")
+                print(f"Detected Harvest 26 format: columns D-H, Type=I, starting row 5, year_col={year_col}")
             else:
                 # Check for Year column in row 3 (Master Harvest 25 format)
-                for col_idx in range(8, ws.max_column + 1):
+                for col_idx in range(9, ws.max_column + 1):
                     header_val = ws.cell(3, col_idx).value
                     if header_val and 'year' in str(header_val).lower():
                         year_col = col_idx
                         break
                 
-                print(f"Detected Harvest 25 format: columns C-G, starting row 4, year_col={year_col}")
+                print(f"Detected Harvest 25 format: columns C-G, Type=H, starting row 4, year_col={year_col}")
             
             # Parse fields from data start row onwards
             for row_idx in range(start_row, ws.max_row + 1):
