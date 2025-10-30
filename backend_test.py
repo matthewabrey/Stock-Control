@@ -94,11 +94,18 @@ class StockControlTester:
         store_ws['B3'] = "175t"  # Bulk storage
         store_ws['A1'] = "DOOR"  # Door marker
         
+        # Remove default sheet
+        wb.remove(wb['Sheet'])
+        
         # Save to bytes
         excel_buffer = io.BytesIO()
         wb.save(excel_buffer)
         excel_buffer.seek(0)
         return excel_buffer.getvalue()
+    
+    def create_test_excel(self):
+        """Create a test Excel file with grade tables and field data (legacy method)"""
+        return self.create_test_excel_with_type()
     
     def test_api_health(self):
         """Test if API is accessible"""
