@@ -194,6 +194,59 @@ backend:
           - Database now in clean state ready for fresh data
 
 frontend:
+  - task: "Use Type field for onion classification in Overview"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/Overview.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: |
+          ✅ UPDATED getOnionSummary() to use Type field
+          - Modified classification logic to check field.type first
+          - Maps type values: "Red" → red, "Special" → specialty, "Brown" → brown
+          - Maintains fallback to old keyword matching if Type field is missing
+          - Ensures backward compatibility with old data
+          
+          CHANGES:
+          - Lines 80-120: Updated getOnionSummary() function
+          - Type-based classification takes precedence
+          - Fallback logic preserves existing behavior for fields without Type
+          
+          NEEDS TESTING:
+          - Upload Excel with Type column and verify onion summary reflects correct categories
+          - Test that Red, Brown, and Special onions are correctly classified
+  
+  - task: "Use Type field for onion classification in FloorPlan"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/FloorPlan.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: |
+          ✅ UPDATED getShedOnionSummary() to use Type field
+          - Modified classification logic to check field.type first
+          - Maps type values: "Red" → red, "Brown" → brown
+          - Note: FloorPlan only shows red/brown, not specialty
+          - Maintains fallback to old keyword matching if Type field is missing
+          - Ensures backward compatibility with old data
+          
+          CHANGES:
+          - Lines 795-836: Updated getShedOnionSummary() function
+          - Type-based classification takes precedence
+          - Fallback logic preserves existing behavior for fields without Type
+          
+          NEEDS TESTING:
+          - Navigate to FloorPlan and verify shed-specific onion summary reflects correct categories
+          - Test that Red and Brown onions are correctly classified per shed
+  
   - task: "Onion Summary by Grade on Overview page"
     implemented: true
     working: true
