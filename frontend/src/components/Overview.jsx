@@ -121,20 +121,18 @@ const Overview = () => {
           const actualQty = zone.total_quantity * proportion;
           
           // Determine if it's red or brown onion
-          let onionType = null;
-          if (varietyLower.includes('red seed') || varietyLower.includes('red') || cropTypeLower.includes('red')) {
+          // Red onions have "red" in variety or crop type
+          // All other onions default to brown (since most storage onions are brown)
+          let onionType = 'brown'; // Default to brown
+          if (varietyLower.includes('red') || cropTypeLower.includes('red')) {
             onionType = 'red';
-          } else if (varietyLower.includes('brown seed') || varietyLower.includes('brown') || cropTypeLower.includes('brown')) {
-            onionType = 'brown';
           }
           
           // Add to summary
-          if (onionType) {
-            if (!onionSummary[onionType][intake.grade]) {
-              onionSummary[onionType][intake.grade] = 0;
-            }
-            onionSummary[onionType][intake.grade] += actualQty;
+          if (!onionSummary[onionType][intake.grade]) {
+            onionSummary[onionType][intake.grade] = 0;
           }
+          onionSummary[onionType][intake.grade] += actualQty;
         }
       });
     });
