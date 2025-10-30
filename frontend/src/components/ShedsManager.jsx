@@ -93,7 +93,7 @@ const ShedsManager = () => {
 
   const handleClearAllStores = async () => {
     try {
-      console.log("Calling API to clear stores...");
+      console.log("Calling API to clear stock only...");
       const response = await axios.delete(`${API}/clear-stores`);
       console.log("Response:", response.data);
       
@@ -103,6 +103,21 @@ const ShedsManager = () => {
     } catch (error) {
       console.error("Error clearing stock:", error);
       toast.error("Failed to clear stock: " + (error.response?.data?.detail || error.message));
+    }
+  };
+
+  const handleClearAllData = async () => {
+    try {
+      console.log("Calling API to clear all data...");
+      const response = await axios.delete(`${API}/clear-all-data`);
+      console.log("Response:", response.data);
+      
+      toast.success("All data cleared successfully. Database reset.");
+      setShowClearConfirm(false);
+      fetchSheds();
+    } catch (error) {
+      console.error("Error clearing data:", error);
+      toast.error("Failed to clear data: " + (error.response?.data?.detail || error.message));
     }
   };
 
