@@ -34,60 +34,57 @@ class StockControlTester:
         if details:
             print(f"   Details: {details}")
     
-    def create_test_excel(self):
-        """Create a test Excel file with grade tables and field data"""
+    def create_test_excel_with_type(self):
+        """Create a test Excel file with Type column for testing Type column integration"""
         wb = openpyxl.Workbook()
-        ws = wb.active
-        ws.title = "FRONT PAGE"
         
-        # Add grade tables in separate columns to avoid conflicts
-        # OnionGradeTable
-        ws['A1'] = "OnionGradeTable"
-        ws['A2'] = "Grade"
-        ws['A3'] = "O1"
-        ws['A4'] = "O2" 
-        ws['A5'] = "O3"
-        ws['A6'] = "O4"
+        # Create Grade Options Page
+        ws_grades = wb.create_sheet("Grade Options Page")
         
-        # MaincropGradeTable
-        ws['B1'] = "MaincropGradeTable"
-        ws['B2'] = "Grade"
-        ws['B3'] = "MC1"
-        ws['B4'] = "MC2"
-        ws['B5'] = "MC3"
-        ws['B6'] = "MC4"
-        ws['B7'] = "MC5"
-        ws['B8'] = "MC6"
-        ws['B9'] = "MC7"
+        # Add grade tables
+        ws_grades['A1'] = "Onion"
+        ws_grades['A2'] = "50/60"
+        ws_grades['A3'] = "70/80"
+        ws_grades['A4'] = "O Whole Crop"
         
-        # SaladPotatoGradeTable
-        ws['H1'] = "SaladPotatoGradeTable"
-        ws['H2'] = "Grade"
-        ws['H3'] = "SP1"
-        ws['H4'] = "SP2"
-        ws['H5'] = "SP3"
+        ws_grades['B1'] = "Onion Special"
+        ws_grades['B2'] = "Special Grade 1"
+        ws_grades['B3'] = "Special Grade 2"
         
-        # Field data headers (row 3) - using columns C, D, E, F, G
+        ws_grades['C1'] = "Maincrop Potato"
+        ws_grades['C2'] = "40/50"
+        ws_grades['C3'] = "50/60"
+        ws_grades['C4'] = "70/80"
+        ws_grades['C5'] = "80+"
+        
+        # Create Master Harvest 25 sheet with Type column
+        ws = wb.create_sheet("Master Harvest 25")
+        
+        # Headers in row 3 (Master Harvest 25 format)
         ws['C3'] = "Farm"
         ws['D3'] = "Field"
         ws['E3'] = "Area"
         ws['F3'] = "Crop"
         ws['G3'] = "Variety"
+        ws['H3'] = "Type"  # Type column (Column H for Harvest 25)
         
-        # Test field data (starting from row 4)
+        # Test field data with Type values (starting from row 4)
         test_fields = [
-            ("Greenfield Farm", "Field A", "25", "Onion", "Red Baron"),
-            ("Hillside Farm", "Field B", "30", "Maincrop Potato", "Maris Piper"),
-            ("Valley Farm", "Field C", "15", "Salad Potato", "Charlotte"),
-            ("Riverside Farm", "Field D", "20", "Maincrop Potato", "King Edward")
+            ("Greenfield Farm", "Field A", "25", "Onion", "Red Baron", "Red"),
+            ("Hillside Farm", "Field B", "30", "Onion", "Brown Variety", "Brown"),
+            ("Valley Farm", "Field C", "15", "Onion", "Special Shallot", "Special"),
+            ("Riverside Farm", "Field D", "20", "Maincrop Potato", "King Edward", "Brown"),
+            ("Westside Farm", "Field E", "18", "Onion", "White Variety", None)  # No Type value
         ]
         
-        for i, (farm, field, area, crop, variety) in enumerate(test_fields, start=4):
+        for i, (farm, field, area, crop, variety, type_val) in enumerate(test_fields, start=4):
             ws[f'C{i}'] = farm
             ws[f'D{i}'] = field
             ws[f'E{i}'] = area
             ws[f'F{i}'] = crop
             ws[f'G{i}'] = variety
+            if type_val:
+                ws[f'H{i}'] = type_val
         
         # Create a simple store sheet
         store_ws = wb.create_sheet("Test Store")
