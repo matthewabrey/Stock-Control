@@ -39,6 +39,7 @@ class Field(BaseModel):
     variety: str
     available_grades: List[str] = []
     harvest_year: str = "2025"  # Default harvest year
+    type: Optional[str] = None  # Type column for classification (Red, Brown, Special, etc.)
 
 class FieldCreate(BaseModel):
     name: str
@@ -47,6 +48,7 @@ class FieldCreate(BaseModel):
     variety: str
     available_grades: List[str] = []
     harvest_year: str = "2025"
+    type: Optional[str] = None
 
 class DoorPosition(BaseModel):
     side: str  # "top", "bottom", "left", "right"
