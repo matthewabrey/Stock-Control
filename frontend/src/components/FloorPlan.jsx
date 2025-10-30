@@ -1260,26 +1260,14 @@ const FloorPlan = () => {
                           {fieldsInShed.map((field) => {
                             const fieldIntakes = stockIntakes.filter(i => i.field_id === field.id && i.shed_id === shedId);
                             
-                            // Get zones with this field that have stock
+                            // Calculate total quantity directly from intake records
+                            const totalQty = fieldIntakes.reduce((sum, i) => sum + i.quantity, 0);
+                            
+                            // Get zones with this field
                             const fieldZonesData = zones.filter(zone => {
                               if (!zone.total_quantity || zone.total_quantity === 0) return false;
                               const zoneIntakes = getZoneIntakes(zone.id);
                               return zoneIntakes.some(intake => intake.field_id === field.id);
-                            });
-                            
-                            // Calculate actual total considering mixed zones
-                            let totalQty = 0;
-                            fieldZonesData.forEach(zone => {
-                              const zoneIntakes = getZoneIntakes(zone.id);
-                              const totalIntakeQty = zoneIntakes.reduce((sum, i) => sum + i.quantity, 0);
-                              const fieldIntakesInZone = zoneIntakes.filter(i => i.field_id === field.id);
-                              const fieldIntakeQty = fieldIntakesInZone.reduce((sum, i) => sum + i.quantity, 0);
-                              
-                              if (totalIntakeQty > 0) {
-                                // Calculate this field's proportional share of zone's actual quantity
-                                const proportion = fieldIntakeQty / totalIntakeQty;
-                                totalQty += zone.total_quantity * proportion;
-                              }
                             });
                             
                             const fieldZones = fieldZonesData.map(zone => {
@@ -1291,24 +1279,14 @@ const FloorPlan = () => {
                             const latestDate = fieldIntakes.length > 0 ? 
                               new Date(Math.max(...fieldIntakes.map(i => new Date(i.date)))).toLocaleDateString() : '';
                             
-                            // Calculate grade breakdown
+                            // Calculate grade breakdown from intake records
                             const gradeBreakdown = {};
-                            fieldZonesData.forEach(zone => {
-                              const zoneIntakes = getZoneIntakes(zone.id);
-                              const totalIntakeQty = zoneIntakes.reduce((sum, i) => sum + i.quantity, 0);
-                              const fieldIntakesInZone = zoneIntakes.filter(i => i.field_id === field.id);
-                              
-                              if (totalIntakeQty > 0) {
-                                const proportion = fieldIntakesInZone.reduce((sum, i) => sum + i.quantity, 0) / totalIntakeQty;
-                                const zoneFieldQty = zone.total_quantity * proportion;
-                                
-                                fieldIntakesInZone.forEach(intake => {
-                                  const intakeProportion = intake.quantity / fieldIntakesInZone.reduce((sum, i) => sum + i.quantity, 0);
-                                  if (!gradeBreakdown[intake.grade]) {
-                                    gradeBreakdown[intake.grade] = 0;
-                                  }
-                                  gradeBreakdown[intake.grade] += zoneFieldQty * intakeProportion;
-                                });
+                            fieldIntakes.forEach(intake => {
+                              if (!gradeBreakdown[intake.grade]) {
+                                gradeBreakdown[intake.grade] = 0;
+                              }
+                              gradeBreakdown[intake.grade] += intake.quantity;
+                            });
                               }
                             });
                             
