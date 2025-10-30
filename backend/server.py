@@ -251,7 +251,7 @@ async def create_stock_intake(input: StockIntakeCreate):
 
 @api_router.get("/stock-intakes", response_model=List[StockIntake])
 async def get_stock_intakes():
-    intakes = await db.stock_intakes.find({}, {"_id": 0}).to_list(1000)
+    intakes = await db.stock_intakes.find({}, {"_id": 0}).to_list(None)  # No limit
     return intakes
 
 @api_router.get("/stock-intakes/zone/{zone_id}", response_model=List[StockIntake])
