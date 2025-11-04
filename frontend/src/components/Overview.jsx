@@ -138,6 +138,67 @@ const Overview = () => {
     return onionSummary;
   };
 
+  const getOnionGradeDetails = (onionType, grade) => {
+    // Get detailed intake information for a specific onion type and grade
+    const details = [];
+
+    stockIntakes.forEach(intake => {
+      if (intake.grade !== grade) return;
+      
+      const field = fields.find(f => f.id === intake.field_id);
+      if (!field) return;
+      
+      const cropTypeLower = field.crop_type.toLowerCase();
+      if (!cropTypeLower.includes('onion')) return;
+      
+      // Determine if this intake matches the requested onion type
+      let intakeOnionType = 'brown';
+      if (field.type) {
+        const typeLower = field.type.toLowerCase();
+        if (typeLower.includes('red')) {
+          intakeOnionType = 'red';
+        } else if (typeLower.includes('special')) {
+          intakeOnionType = 'specialty';
+        } else if (typeLower.includes('brown')) {
+          intakeOnionType = 'brown';
+        }
+      } else {
+        const varietyLower = field.variety ? field.variety.toLowerCase() : '';
+        if (cropTypeLower.includes('specials')) {
+          intakeOnionType = 'specialty';
+        } else if (varietyLower.includes('red')) {
+          intakeOnionType = 'red';
+        }
+      }
+      
+      if (intakeOnionType === onionType) {
+        const shed = sheds.find(s => s.id === intake.shed_id);
+        details.push({
+          fieldName: field.name,
+          variety: field.variety,
+          shedName: shed?.name || 'Unknown',
+          shedId: intake.shed_id,
+          date: intake.date,
+          quantity: intake.quantity
+        });
+      }
+    });
+
+    // Group by shed
+    const groupedByShed = {};
+    details.forEach(detail => {
+      if (!groupedByShed[detail.shedId]) {
+        groupedByShed[detail.shedId] = {
+          shedName: detail.shedName,
+          intakes: []
+        };
+      }
+      groupedByShed[detail.shedId].intakes.push(detail);
+    });
+
+    return Object.values(groupedByShed);
+  };
+
   const getPotatoSummary = () => {
     // Calculate potato summary by variety
     const potatoSummary = {};
