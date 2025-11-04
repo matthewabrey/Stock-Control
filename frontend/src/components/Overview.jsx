@@ -229,6 +229,48 @@ const Overview = () => {
     return potatoSummary;
   };
 
+  const getPotatoGradeDetails = (variety, grade) => {
+    // Get detailed intake information for a specific potato variety and grade
+    const details = [];
+
+    stockIntakes.forEach(intake => {
+      if (intake.grade !== grade) return;
+      
+      const field = fields.find(f => f.id === intake.field_id);
+      if (!field) return;
+      
+      const cropTypeLower = field.crop_type.toLowerCase();
+      if (!cropTypeLower.includes('potato')) return;
+      
+      const fieldVariety = field.variety || 'Unknown';
+      if (fieldVariety !== variety) return;
+      
+      const shed = sheds.find(s => s.id === intake.shed_id);
+      details.push({
+        fieldName: field.name,
+        variety: field.variety,
+        shedName: shed?.name || 'Unknown',
+        shedId: intake.shed_id,
+        date: intake.date,
+        quantity: intake.quantity
+      });
+    });
+
+    // Group by shed
+    const groupedByShed = {};
+    details.forEach(detail => {
+      if (!groupedByShed[detail.shedId]) {
+        groupedByShed[detail.shedId] = {
+          shedName: detail.shedName,
+          intakes: []
+        };
+      }
+      groupedByShed[detail.shedId].intakes.push(detail);
+    });
+
+    return Object.values(groupedByShed);
+  };
+
   const handlePrint = () => {
     window.print();
   };
