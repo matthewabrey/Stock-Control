@@ -546,7 +546,8 @@ const Overview = () => {
                               .map(([grade, qty]) => (
                                 <div 
                                   key={grade}
-                                  className="flex items-center justify-between bg-white px-4 py-3 rounded border border-green-300"
+                                  onClick={() => handlePotatoGradeClick(variety, grade)}
+                                  className="flex items-center justify-between bg-white px-4 py-3 rounded border border-green-300 cursor-pointer hover:bg-green-50 transition-colors"
                                 >
                                   <span className="font-medium text-gray-900">{grade}</span>
                                   <span className="font-semibold text-green-700">
