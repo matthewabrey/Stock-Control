@@ -424,7 +424,8 @@ const Overview = () => {
                             .map(([grade, qty]) => (
                               <div 
                                 key={grade}
-                                className="flex items-center justify-between bg-white px-4 py-3 rounded border border-red-300"
+                                onClick={() => handleOnionGradeClick('red', grade)}
+                                className="flex items-center justify-between bg-white px-4 py-3 rounded border border-red-300 cursor-pointer hover:bg-red-50 transition-colors"
                               >
                                 <span className="font-medium text-gray-900">{grade}</span>
                                 <span className="font-semibold text-red-700">
@@ -455,7 +456,8 @@ const Overview = () => {
                             .map(([grade, qty]) => (
                               <div 
                                 key={grade}
-                                className="flex items-center justify-between bg-white px-4 py-3 rounded border border-amber-300"
+                                onClick={() => handleOnionGradeClick('brown', grade)}
+                                className="flex items-center justify-between bg-white px-4 py-3 rounded border border-amber-300 cursor-pointer hover:bg-amber-50 transition-colors"
                               >
                                 <span className="font-medium text-gray-900">{grade}</span>
                                 <span className="font-semibold text-amber-700">
@@ -486,7 +488,8 @@ const Overview = () => {
                             .map(([grade, qty]) => (
                               <div 
                                 key={grade}
-                                className="flex items-center justify-between bg-white px-4 py-3 rounded border border-purple-300"
+                                onClick={() => handleOnionGradeClick('specialty', grade)}
+                                className="flex items-center justify-between bg-white px-4 py-3 rounded border border-purple-300 cursor-pointer hover:bg-purple-50 transition-colors"
                               >
                                 <span className="font-medium text-gray-900">{grade}</span>
                                 <span className="font-semibold text-purple-700">
