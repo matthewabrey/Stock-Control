@@ -781,6 +781,63 @@ const Overview = () => {
         )}
         </div>
       </div>
+
+      {/* Details Modal */}
+      {detailsModal.isOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[80vh] overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h2 className="text-2xl font-bold text-gray-900">{detailsModal.title}</h2>
+              <button
+                onClick={closeDetailsModal}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto max-h-[60vh]">
+              {detailsModal.data.length === 0 ? (
+                <p className="text-gray-600 text-center py-8">No stock intakes found for this grade.</p>
+              ) : (
+                <div className="space-y-6">
+                  {detailsModal.data.map((shedGroup, idx) => (
+                    <div key={idx} className="border border-gray-200 rounded-lg overflow-hidden">
+                      <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
+                        <h3 className="font-semibold text-lg text-gray-900">{shedGroup.shedName}</h3>
+                      </div>
+                      <div className="divide-y divide-gray-200">
+                        {shedGroup.intakes.map((intake, intakeIdx) => (
+                          <div key={intakeIdx} className="px-4 py-3 hover:bg-gray-50">
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <p className="font-medium text-gray-900">{intake.fieldName}</p>
+                                <p className="text-sm text-gray-600 mt-1">Variety: {intake.variety}</p>
+                                <p className="text-sm text-gray-500 mt-1">Date: {intake.date}</p>
+                              </div>
+                              <div className="text-right ml-4">
+                                <p className="font-semibold text-lg text-gray-900">{intake.quantity.toFixed(0)} units</p>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-end p-6 border-t border-gray-200 bg-gray-50">
+              <Button onClick={closeDetailsModal} className="bg-gray-600 hover:bg-gray-700">
+                Close
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };
