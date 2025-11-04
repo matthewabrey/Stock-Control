@@ -14,6 +14,11 @@ const Overview = () => {
   const [stockIntakes, setStockIntakes] = useState([]);
   const [fields, setFields] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [detailsModal, setDetailsModal] = useState({
+    isOpen: false,
+    title: '',
+    data: []
+  });
 
   useEffect(() => {
     fetchData();
