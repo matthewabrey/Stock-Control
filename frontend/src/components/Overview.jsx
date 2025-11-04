@@ -271,6 +271,33 @@ const Overview = () => {
     return Object.values(groupedByShed);
   };
 
+  const handleOnionGradeClick = (onionType, grade) => {
+    const details = getOnionGradeDetails(onionType, grade);
+    const typeLabel = onionType === 'red' ? 'Red' : onionType === 'brown' ? 'Brown' : 'Special';
+    setDetailsModal({
+      isOpen: true,
+      title: `${typeLabel} Onions - ${grade}`,
+      data: details
+    });
+  };
+
+  const handlePotatoGradeClick = (variety, grade) => {
+    const details = getPotatoGradeDetails(variety, grade);
+    setDetailsModal({
+      isOpen: true,
+      title: `${variety} Potatoes - ${grade}`,
+      data: details
+    });
+  };
+
+  const closeDetailsModal = () => {
+    setDetailsModal({
+      isOpen: false,
+      title: '',
+      data: []
+    });
+  };
+
   const handlePrint = () => {
     window.print();
   };
