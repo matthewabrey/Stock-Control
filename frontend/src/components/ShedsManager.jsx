@@ -121,6 +121,32 @@ const ShedsManager = () => {
     }
   };
 
+  const handleNameListUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      toast.info("Uploading name list...");
+      const response = await axios.post(`${API}/upload-name-list`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      
+      toast.success(`Name list uploaded successfully! ${response.data.message || 'Users updated.'}`);
+      // Reset the file input
+      event.target.value = '';
+    } catch (error) {
+      console.error("Error uploading name list:", error);
+      toast.error("Failed to upload name list: " + (error.response?.data?.detail || error.message));
+      // Reset the file input
+      event.target.value = '';
+    }
+  };
+
   return (
     <div className="min-h-screen p-8">
       <div className="max-w-7xl mx-auto">
