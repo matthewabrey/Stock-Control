@@ -82,16 +82,6 @@ const Dashboard = ({ user, onLogout }) => {
     }
     navigate('/login');
   };
-      toast.error("Incorrect password");
-      setPassword("");
-    }
-  };
-
-  const handlePasswordKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      handlePasswordSubmit();
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gray-50">
