@@ -20,8 +20,6 @@ const Dashboard = ({ user, onLogout }) => {
   });
   const [sheds, setSheds] = useState([]);
   const [shedDetails, setShedDetails] = useState({});
-  const [showPasswordDialog, setShowPasswordDialog] = useState(false);
-  const [password, setPassword] = useState("");
 
   useEffect(() => {
     fetchStats();
