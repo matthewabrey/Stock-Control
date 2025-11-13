@@ -139,6 +139,29 @@ const FloorPlan = ({ user }) => {
     return stockIntakes.filter(intake => intake.zone_id === zoneId);
   };
 
+  // Log stock movement to database
+  const logMovement = async (fromZoneId, toZoneId, fromShedId, toShedId, quantity, fieldId, fieldName, grade) => {
+    try {
+      const movementData = {
+        from_zone_id: fromZoneId,
+        to_zone_id: toZoneId || fromZoneId, // Use same zone if moving to grader/customer
+        from_shed_id: fromShedId,
+        to_shed_id: toShedId || fromShedId,
+        quantity: quantity,
+        date: new Date().toISOString().split('T')[0],
+        employee_number: user?.employee_number || "Unknown",
+        field_id: fieldId,
+        field_name: fieldName,
+        grade: grade
+      };
+      
+      await axios.post(`${API}/stock-movements`, movementData);
+    } catch (error) {
+      console.error("Error logging movement:", error);
+      // Don't show error to user - movement logging is secondary
+    }
+  };
+
   // Get unique years from fields
   const getAvailableYears = () => {
     const years = [...new Set(fields.map(f => f.harvest_year))].filter(y => y);
