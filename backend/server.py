@@ -350,8 +350,88 @@ async def create_stock_movement(input: StockMovementCreate):
 
 @api_router.get("/stock-movements", response_model=List[StockMovement])
 async def get_stock_movements():
-    movements = await db.stock_movements.find({}, {"_id": 0}).to_list(1000)
+    movements = await db.stock_movements.find({}, {"_id": 0}).to_list(length=None)
     return movements
+
+
+# User Management and Authentication Routes
+@api_router.post("/login")
+async def login(input: LoginRequest):
+    """Login with employee number"""
+    user = await db.users.find_one({"employee_number": input.employee_number}, {"_id": 0})
+    if not user:
+        raise HTTPException(status_code=404, detail="Employee number not found")
+    return user
+
+@api_router.get("/users", response_model=List[User])
+async def get_users():
+    users = await db.users.find({}, {"_id": 0}).to_list(length=None)
+    return users
+
+@api_router.get("/users/{employee_number}", response_model=User)
+async def get_user(employee_number: str):
+    user = await db.users.find_one({"employee_number": employee_number}, {"_id": 0})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
+
+@api_router.post("/upload-name-list")
+async def upload_name_list(file: UploadFile = File(...)):
+    """Upload and parse name list Excel file"""
+    try:
+        contents = await file.read()
+        wb = openpyxl.load_workbook(io.BytesIO(contents))
+        
+        # Get the first sheet (assuming name list is in first sheet)
+        ws = wb.active
+        
+        # Clear existing users
+        await db.users.delete_many({})
+        
+        users_created = 0
+        
+        # Find header row (usually row 1)
+        headers = []
+        for col_idx in range(1, ws.max_column + 1):
+            header = ws.cell(1, col_idx).value
+            if header:
+                headers.append(str(header).strip())
+        
+        print(f"Found headers: {headers}")
+        
+        # Parse user data starting from row 2
+        for row_idx in range(2, ws.max_row + 1):
+            employee_number = ws.cell(row_idx, 1).value
+            name = ws.cell(row_idx, 2).value
+            
+            if not employee_number or not name:
+                continue
+            
+            # Parse columns based on headers
+            user_doc = {
+                "id": str(uuid.uuid4()),
+                "employee_number": str(employee_number).strip(),
+                "name": str(name).strip(),
+                "qc": str(ws.cell(row_idx, 3).value or "No").strip(),
+                "daily_check": str(ws.cell(row_idx, 4).value or "No").strip(),
+                "stock_movement": str(ws.cell(row_idx, 5).value or "No").strip(),
+                "workshop_control": str(ws.cell(row_idx, 6).value or "No").strip(),
+                "admin_control": str(ws.cell(row_idx, 7).value or "NO").strip().upper(),
+                "operations": str(ws.cell(row_idx, 8).value or "No").strip()
+            }
+            
+            await db.users.insert_one(user_doc)
+            users_created += 1
+            print(f"Created user: {user_doc['employee_number']} - {user_doc['name']} (Admin: {user_doc['admin_control']})")
+        
+        return {
+            "message": f"Name list uploaded successfully. {users_created} users created.",
+            "users_created": users_created
+        }
+    
+    except Exception as e:
+        print(f"Error uploading name list: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to upload name list: {str(e)}")
 
 
 # Excel Upload for Fields and Store Plans
