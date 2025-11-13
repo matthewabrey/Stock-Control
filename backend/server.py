@@ -122,6 +122,10 @@ class StockMovement(BaseModel):
     to_shed_id: str
     quantity: float
     date: str
+    employee_number: Optional[str] = None  # Who moved the stock
+    field_id: Optional[str] = None  # What was moved
+    field_name: Optional[str] = None
+    grade: Optional[str] = None
     created_at: str = PydanticField(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
 class StockMovementCreate(BaseModel):
@@ -131,6 +135,35 @@ class StockMovementCreate(BaseModel):
     to_shed_id: str
     quantity: float
     date: str
+    employee_number: Optional[str] = None
+    field_id: Optional[str] = None
+    field_name: Optional[str] = None
+    grade: Optional[str] = None
+
+class User(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = PydanticField(default_factory=lambda: str(uuid.uuid4()))
+    employee_number: str
+    name: str
+    stock_movement: str = "No"  # Yes/No
+    admin_control: str = "NO"  # YES/NO
+    qc: Optional[str] = "No"
+    daily_check: Optional[str] = "No"
+    workshop_control: Optional[str] = "No"
+    operations: Optional[str] = "No"
+
+class UserCreate(BaseModel):
+    employee_number: str
+    name: str
+    stock_movement: str = "No"
+    admin_control: str = "NO"
+    qc: Optional[str] = "No"
+    daily_check: Optional[str] = "No"
+    workshop_control: Optional[str] = "No"
+    operations: Optional[str] = "No"
+
+class LoginRequest(BaseModel):
+    employee_number: str
 
 
 # Field Routes
