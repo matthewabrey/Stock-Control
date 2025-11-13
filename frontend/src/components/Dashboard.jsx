@@ -68,16 +68,20 @@ const Dashboard = ({ user, onLogout }) => {
   };
 
   const handleAdminClick = () => {
-    setShowPasswordDialog(true);
-  };
-
-  const handlePasswordSubmit = () => {
-    // Simple password check - you can change this password
-    if (password === "4444") {
-      setShowPasswordDialog(false);
-      setPassword("");
+    // Check if user has admin permission
+    if (user && user.admin_control?.toUpperCase() === "YES") {
       navigate('/sheds');
     } else {
+      toast.error("You do not have admin permissions");
+    }
+  };
+
+  const handleLogout = () => {
+    if (onLogout) {
+      onLogout();
+    }
+    navigate('/login');
+  };
       toast.error("Incorrect password");
       setPassword("");
     }
