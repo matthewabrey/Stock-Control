@@ -208,6 +208,40 @@ const ShedsManager = () => {
           <ManualStoreCreator onStoreCreated={fetchSheds} />
         </div>
 
+        {/* Name List Upload Section */}
+        <Card className="border-green-200 bg-green-50 mb-8">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-green-900">
+              <Plus className="w-5 h-5" />
+              Upload Name List
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-green-700 mb-4">
+              Upload employee name list Excel file to manage user access. The file should include Employee Number, Name, and Admin Control columns.
+            </p>
+            <input
+              type="file"
+              accept=".xlsx, .xls"
+              onChange={handleNameListUpload}
+              className="hidden"
+              id="name-list-upload"
+            />
+            <label htmlFor="name-list-upload">
+              <Button 
+                className="w-full bg-green-600 hover:bg-green-700"
+                onClick={() => document.getElementById('name-list-upload').click()}
+                asChild
+              >
+                <span>
+                  <Plus className="mr-2 w-4 h-4" />
+                  Upload Name List
+                </span>
+              </Button>
+            </label>
+          </CardContent>
+        </Card>
+
         {/* Admin Actions */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           <Card className="border-blue-200 bg-blue-50">
