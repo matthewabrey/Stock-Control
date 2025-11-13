@@ -155,7 +155,7 @@ const FloorPlan = ({ user }) => {
         grade: grade
       };
       
-      await axios.post(`${API}/stock-movements`, movementData);
+      await axios.post(`${API}/log-movement`, movementData);
     } catch (error) {
       console.error("Error logging movement:", error);
       // Don't show error to user - movement logging is secondary
