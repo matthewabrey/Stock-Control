@@ -348,6 +348,14 @@ async def create_stock_movement(input: StockMovementCreate):
     
     return movement_obj
 
+@api_router.post("/log-movement")
+async def log_movement(input: StockMovementCreate):
+    """Log a stock movement without validation or quantity updates (for tracking only)"""
+    movement_obj = StockMovement(**input.model_dump())
+    doc = movement_obj.model_dump()
+    await db.stock_movements.insert_one(doc)
+    return {"message": "Movement logged successfully"}
+
 @api_router.get("/stock-movements", response_model=List[StockMovement])
 async def get_stock_movements():
     movements = await db.stock_movements.find({}, {"_id": 0}).to_list(length=None)
