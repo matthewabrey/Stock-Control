@@ -556,6 +556,36 @@ const FloorPlan = ({ user }) => {
             const totalSourceQty = sourceIntakes.reduce((sum, i) => sum + i.quantity, 0);
             const moveRatio = qtyToMove / totalSourceQty;
             
+            // Log the movement (use first intake for details, or "Mixed" if multiple fields)
+            const uniqueFields = [...new Set(sourceIntakes.map(i => i.field_id))];
+            if (sourceIntakes.length > 0) {
+              if (uniqueFields.length === 1) {
+                // Single field
+                await logMovement(
+                  sourceZone.id,
+                  destZone.id,
+                  shedId,
+                  moveDestinationShed,
+                  qtyToMove,
+                  sourceIntakes[0].field_id,
+                  sourceIntakes[0].field_name,
+                  sourceIntakes[0].grade
+                );
+              } else {
+                // Mixed fields
+                await logMovement(
+                  sourceZone.id,
+                  destZone.id,
+                  shedId,
+                  moveDestinationShed,
+                  qtyToMove,
+                  null,
+                  "Mixed Fields",
+                  "Various"
+                );
+              }
+            }
+            
             // Update source zone quantity
             await axios.put(`${API}/zones/${sourceZone.id}`, null, {
               params: { quantity: Math.max(0, sourceZone.total_quantity - qtyToMove) }
