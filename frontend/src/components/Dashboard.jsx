@@ -176,7 +176,7 @@ const Dashboard = ({ user, onLogout }) => {
             <CardDescription className="text-gray-600">Manage your stock control system</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Button 
                 onClick={handleAdminClick}
                 className="h-20 text-lg bg-green-600 hover:bg-green-700 rounded-md shadow"
@@ -192,6 +192,14 @@ const Dashboard = ({ user, onLogout }) => {
               >
                 <Map className="mr-2 w-6 h-6" />
                 Stock Overview
+              </Button>
+              <Button 
+                onClick={() => navigate('/movement-log')} 
+                className="h-20 text-lg bg-blue-600 hover:bg-blue-700 rounded-md shadow"
+                data-testid="btn-movement-log"
+              >
+                <ArrowRightLeft className="mr-2 w-6 h-6" />
+                Movement Log
               </Button>
             </div>
           </CardContent>
