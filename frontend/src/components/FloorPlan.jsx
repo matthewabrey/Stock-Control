@@ -369,6 +369,26 @@ const FloorPlan = ({ user }) => {
         for (const zone of selectedZones) {
           const qtyToMove = parseFloat(moveQuantities[zone.id] || 0);
           if (qtyToMove > 0) {
+            // Get field info for logging
+            const selectedFieldId = moveFieldSelections[zone.id];
+            let logFieldId = null;
+            let logFieldName = "Mixed";
+            let logGrade = "Various";
+            
+            if (selectedFieldId) {
+              const zoneIntakes = await axios.get(`${API}/stock-intakes/zone/${zone.id}`);
+              const fieldIntakes = zoneIntakes.data.filter(i => i.field_id === selectedFieldId);
+              if (fieldIntakes.length > 0) {
+                logFieldId = fieldIntakes[0].field_id;
+                logFieldName = fieldIntakes[0].field_name;
+                logGrade = fieldIntakes[0].grade || "N/A";
+              }
+            }
+            
+            // Log the movement
+            const destShedId = moveDestinationType === "grader" ? "GRADER" : "CUSTOMER";
+            await logMovement(zone.id, null, shedId, destShedId, qtyToMove, logFieldId, logFieldName, logGrade);
+            
             // Update zone quantity
             const newQuantity = Math.max(0, zone.total_quantity - qtyToMove);
             await axios.put(`${API}/zones/${zone.id}`, null, {
@@ -376,10 +396,8 @@ const FloorPlan = ({ user }) => {
             });
             
             // If moving from specific field in mixed zone, update intake records
-            const selectedFieldId = moveFieldSelections[zone.id];
             if (selectedFieldId) {
               // Reduce intake quantity for this field proportionally
-              const zoneIntakes = await axios.get(`${API}/stock-intakes/zone/${zone.id}`);
               const fieldIntakes = zoneIntakes.data.filter(i => i.field_id === selectedFieldId);
               const totalFieldQty = fieldIntakes.reduce((sum, i) => sum + i.quantity, 0);
               const reductionRatio = qtyToMove / totalFieldQty;
