@@ -487,6 +487,20 @@ const FloorPlan = ({ user }) => {
             const totalFieldIntakeQty = fieldIntakes.reduce((sum, i) => sum + i.quantity, 0);
             const reductionRatio = qtyToMove / totalFieldIntakeQty;
             
+            // Log the movement (use first field intake for details)
+            if (fieldIntakes.length > 0) {
+              await logMovement(
+                sourceZone.id,
+                destZone.id,
+                shedId,
+                moveDestinationShed,
+                qtyToMove,
+                fieldIntakes[0].field_id,
+                fieldIntakes[0].field_name,
+                fieldIntakes[0].grade
+              );
+            }
+            
             // Update source zone quantity
             await axios.put(`${API}/zones/${sourceZone.id}`, null, {
               params: { quantity: Math.max(0, sourceZone.total_quantity - qtyToMove) }
