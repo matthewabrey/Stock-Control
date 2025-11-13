@@ -26,7 +26,7 @@ const FIELD_COLORS = [
   "#db2777", "#0d9488", "#ea580c", "#0891b2", "#65a30d"
 ];
 
-const FloorPlan = () => {
+const FloorPlan = ({ user }) => {
   const navigate = useNavigate();
   const { shedId } = useParams();
   const [shed, setShed] = useState(null);
