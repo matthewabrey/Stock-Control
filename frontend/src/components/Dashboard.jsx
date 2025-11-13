@@ -7,10 +7,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Warehouse, Sprout, Map, Package, Lock } from "lucide-react";
+import { Warehouse, Sprout, Map, Package, Lock, LogOut, User, ArrowRightLeft } from "lucide-react";
 import { toast } from "sonner";
 
-const Dashboard = () => {
+const Dashboard = ({ user, onLogout }) => {
   const navigate = useNavigate();
   const [stats, setStats] = useState({
     totalFields: 0,
