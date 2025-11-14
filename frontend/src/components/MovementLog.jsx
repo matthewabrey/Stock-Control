@@ -50,6 +50,7 @@ const MovementLog = () => {
     // Handle special destinations
     if (shedId === "GRADER") return "Grader";
     if (shedId === "CUSTOMER") return "Customer";
+    if (shedId === "NO_LOCATION") return "No Location";
     
     const shed = sheds.find(s => s.id === shedId);
     return shed?.name || "Unknown";
