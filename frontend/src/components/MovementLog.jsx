@@ -47,6 +47,10 @@ const MovementLog = () => {
   };
 
   const getShedName = (shedId) => {
+    // Handle special destinations
+    if (shedId === "GRADER") return "Grader";
+    if (shedId === "CUSTOMER") return "Customer";
+    
     const shed = sheds.find(s => s.id === shedId);
     return shed?.name || "Unknown";
   };
