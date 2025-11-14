@@ -369,6 +369,10 @@ const FloorPlan = ({ user }) => {
         for (const zone of selectedZones) {
           const qtyToMove = parseFloat(moveQuantities[zone.id] || 0);
           if (qtyToMove > 0) {
+            // Get zone intakes first
+            const zoneIntakesResponse = await axios.get(`${API}/stock-intakes/zone/${zone.id}`);
+            const zoneIntakes = zoneIntakesResponse.data;
+            
             // Get field info for logging
             const selectedFieldId = moveFieldSelections[zone.id];
             let logFieldId = null;
@@ -376,8 +380,7 @@ const FloorPlan = ({ user }) => {
             let logGrade = "Various";
             
             if (selectedFieldId) {
-              const zoneIntakes = await axios.get(`${API}/stock-intakes/zone/${zone.id}`);
-              const fieldIntakes = zoneIntakes.data.filter(i => i.field_id === selectedFieldId);
+              const fieldIntakes = zoneIntakes.filter(i => i.field_id === selectedFieldId);
               if (fieldIntakes.length > 0) {
                 logFieldId = fieldIntakes[0].field_id;
                 logFieldName = fieldIntakes[0].field_name;
@@ -398,7 +401,7 @@ const FloorPlan = ({ user }) => {
             // If moving from specific field in mixed zone, update intake records
             if (selectedFieldId) {
               // Reduce intake quantity for this field proportionally
-              const fieldIntakes = zoneIntakes.data.filter(i => i.field_id === selectedFieldId);
+              const fieldIntakes = zoneIntakes.filter(i => i.field_id === selectedFieldId);
               const totalFieldQty = fieldIntakes.reduce((sum, i) => sum + i.quantity, 0);
               const reductionRatio = qtyToMove / totalFieldQty;
               
