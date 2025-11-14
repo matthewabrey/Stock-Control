@@ -795,6 +795,18 @@ const FloorPlan = ({ user }) => {
             date: intakeDate,
             grade: selectedGrade
           });
+          
+          // Log this as a movement (intake from field)
+          await logMovement(
+            zone.id,
+            zone.id,
+            "NO_LOCATION",
+            shedId,
+            quantity,
+            field.id,
+            field.name,
+            selectedGrade
+          );
         }
       }
       
