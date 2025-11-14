@@ -78,13 +78,27 @@ const FloorPlan = ({ user }) => {
   }, [shedId]);
 
   useEffect(() => {
-    // Create field color mapping
-    const colorMap = {};
-    fields.forEach((field, index) => {
-      colorMap[field.id] = FIELD_COLORS[index % FIELD_COLORS.length];
+    // Create field color mapping based on fields with stock in THIS shed
+    const fieldsWithStockInShed = new Set();
+    stockIntakes.forEach(intake => {
+      if (intake.shed_id === shedId) {
+        fieldsWithStockInShed.add(intake.field_id);
+      }
     });
+    
+    const colorMap = {};
+    let colorIndex = 0;
+    
+    // Sort field IDs to ensure consistent color assignment
+    const sortedFieldIds = Array.from(fieldsWithStockInShed).sort();
+    
+    sortedFieldIds.forEach(fieldId => {
+      colorMap[fieldId] = FIELD_COLORS[colorIndex % FIELD_COLORS.length];
+      colorIndex++;
+    });
+    
     setFieldColorMap(colorMap);
-  }, [fields]);
+  }, [fields, stockIntakes, shedId]);
 
   const fetchShed = async () => {
     try {
