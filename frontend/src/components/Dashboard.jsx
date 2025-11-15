@@ -212,7 +212,16 @@ const Dashboard = ({ user, onLogout }) => {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {sheds.map((shed) => {
+                {sheds
+                  .sort((a, b) => {
+                    // Grader Shed always first
+                    if (a.name.toLowerCase().includes('grader')) return -1;
+                    if (b.name.toLowerCase().includes('grader')) return 1;
+                    
+                    // All others alphabetically
+                    return a.name.localeCompare(b.name);
+                  })
+                  .map((shed) => {
                   const details = shedDetails[shed.id] || { zoneCount: 0, totalStock: 0, utilization: 0 };
                   
                   return (
