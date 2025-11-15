@@ -777,21 +777,48 @@ async def upload_excel(file: UploadFile = File(...)):
             col_x_positions = {}
             current_x = 0
             
+            # Track which columns are occupied by merged cells
+            occupied_columns = set()
+            
+            # First pass: mark columns occupied by merged cells
+            for row_idx, col_idx, capacity, cell_width, cell_height in zone_positions:
+                for c in range(col_idx, col_idx + cell_width):
+                    occupied_columns.add(c)
+            
             # Iterate through ALL columns from min to max (including empty ones)
-            for col_idx in range(min_col, max_col + 1):
+            col_idx = min_col
+            while col_idx <= max_col:
                 col_x_positions[col_idx] = current_x
                 
                 # Check if this column has zones
                 if col_idx in zones_by_col_temp:
-                    # Column has zones - use storage type width
-                    if storage_type == "bulk":
-                        col_width = 8  # Bulk storage gets 8m width (elongated)
+                    # Find the zone that starts at this column to get its width
+                    zone_info = zones_by_col_temp[col_idx][0]  # Get first zone in this column
+                    if len(zone_info) >= 3:  # Has cell_width info
+                        row_idx, capacity, cell_width, cell_height = zone_info
+                        # Calculate width based on merged cell size
+                        if storage_type == "bulk":
+                            col_width = 8 * cell_width  # Bulk storage base width * merged width
+                        else:
+                            col_width = 2 * cell_width  # Box storage base width * merged width
+                        
+                        # Skip the columns that are part of this merged cell
+                        for skip_col in range(col_idx + 1, col_idx + cell_width):
+                            if skip_col <= max_col:
+                                col_x_positions[skip_col] = current_x
+                        col_idx += cell_width  # Jump to next unoccupied column
                     else:
-                        col_width = 2  # Box storage gets 2m width (square)
+                        # Fallback for old format
+                        if storage_type == "bulk":
+                            col_width = 8
+                        else:
+                            col_width = 2
+                        col_idx += 1
                 else:
                     # Empty column - create a gap/walkway (2m wide)
                     col_width = 2
                     print(f"  Empty column {openpyxl.utils.get_column_letter(col_idx)} - creating 2m gap")
+                    col_idx += 1
                 
                 current_x += col_width
             
