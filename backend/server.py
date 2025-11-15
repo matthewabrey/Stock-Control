@@ -688,15 +688,22 @@ async def upload_excel(file: UploadFile = File(...)):
                     break
             
             # Find all zones and doors - scan the entire sheet
-            zone_positions = []  # Will store (row, col, capacity)
+            zone_positions = []  # Will store (row, col, capacity, width, height)
             door_positions = []  # Will store (row, col) for doors inside grid
             max_col = 0
             max_row = 0
             min_col = float('inf')
             min_row = float('inf')
             
+            # Track which cells we've already processed (for merged cells)
+            processed_cells = set()
+            
             for row_idx in range(1, ws.max_row + 1):
                 for col_idx in range(1, ws.max_column + 1):
+                    # Skip if this cell was already processed as part of a merged cell
+                    if (row_idx, col_idx) in processed_cells:
+                        continue
+                    
                     cell = ws.cell(row_idx, col_idx)
                     if cell.value is not None:
                         cell_str = str(cell.value).strip()
@@ -707,14 +714,32 @@ async def upload_excel(file: UploadFile = File(...)):
                             print(f"  Found door inside grid at {openpyxl.utils.get_column_letter(col_idx)}{row_idx}")
                             continue
                         
+                        # Check if this cell is part of a merged cell
+                        cell_width = 1
+                        cell_height = 1
+                        for merged_range in ws.merged_cells.ranges:
+                            if (row_idx, col_idx) in merged_range:
+                                # This cell is part of a merged cell
+                                # Use the merged cell dimensions
+                                cell_height = merged_range.max_row - merged_range.min_row + 1
+                                cell_width = merged_range.max_col - merged_range.min_col + 1
+                                
+                                # Mark all cells in this merged range as processed
+                                for r in range(merged_range.min_row, merged_range.max_row + 1):
+                                    for c in range(merged_range.min_col, merged_range.max_col + 1):
+                                        processed_cells.add((r, c))
+                                
+                                print(f"  Found merged cell at {openpyxl.utils.get_column_letter(col_idx)}{row_idx} - size: {cell_width}x{cell_height} cols")
+                                break
+                        
                         # Check for bulk storage (tonnage like "175t", "200t", etc.)
                         if cell_str.lower().endswith('t') and len(cell_str) > 1:
                             try:
                                 # Extract the number before 't'
                                 tonnage = int(cell_str[:-1])
-                                zone_positions.append((row_idx, col_idx, tonnage))
-                                max_col = max(max_col, col_idx)
-                                max_row = max(max_row, row_idx)
+                                zone_positions.append((row_idx, col_idx, tonnage, cell_width, cell_height))
+                                max_col = max(max_col, col_idx + cell_width - 1)
+                                max_row = max(max_row, row_idx + cell_height - 1)
                                 min_col = min(min_col, col_idx)
                                 min_row = min(min_row, row_idx)
                             except ValueError:
@@ -725,9 +750,9 @@ async def upload_excel(file: UploadFile = File(...)):
                                 capacity = int(cell_str)
                                 # Only accept reasonable capacity numbers (1-50)
                                 if 1 <= capacity <= 50:
-                                    zone_positions.append((row_idx, col_idx, capacity))
-                                    max_col = max(max_col, col_idx)
-                                    max_row = max(max_row, row_idx)
+                                    zone_positions.append((row_idx, col_idx, capacity, cell_width, cell_height))
+                                    max_col = max(max_col, col_idx + cell_width - 1)
+                                    max_row = max(max_row, row_idx + cell_height - 1)
                                     min_col = min(min_col, col_idx)
                                     min_row = min(min_row, row_idx)
                             except ValueError:
