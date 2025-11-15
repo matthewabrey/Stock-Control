@@ -711,7 +711,7 @@ async def upload_excel(file: UploadFile = File(...)):
                     if isinstance(cell, openpyxl.cell.cell.MergedCell):
                         # This is a merged cell - find the merged range and get value from top-left
                         for merged_range in ws.merged_cells.ranges:
-                            if (row_idx, col_idx) in merged_range:
+                            if cell.coordinate in merged_range:
                                 # Get value from top-left cell of merged range
                                 top_left_cell = ws.cell(merged_range.min_row, merged_range.min_col)
                                 cell_value = top_left_cell.value
