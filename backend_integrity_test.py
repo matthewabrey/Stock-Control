@@ -11,7 +11,7 @@ import openpyxl
 from datetime import datetime
 
 # Backend URL from environment
-BACKEND_URL = "https://harvest-manager-6.preview.emergentagent.com/api"
+BACKEND_URL = "https://harvestflow.preview.emergentagent.com/api"
 
 class StockControlIntegrityTester:
     def __init__(self):
