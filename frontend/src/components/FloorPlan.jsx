@@ -2171,6 +2171,16 @@ const DestinationFloorPlan = ({ shed, onZoneClick, selectedZones = [] }) => {
             <div
               key={zone.id}
               onClick={() => onZoneClick(zone)}
+              onMouseEnter={(e) => {
+                setHoveredZone(zone);
+                setTooltipPosition({ x: e.clientX, y: e.clientY });
+              }}
+              onMouseMove={(e) => {
+                setTooltipPosition({ x: e.clientX, y: e.clientY });
+              }}
+              onMouseLeave={() => {
+                setHoveredZone(null);
+              }}
               className={`absolute cursor-pointer hover:shadow-2xl hover:z-10 transition-all rounded ${
                 isSelected ? 'border-4 border-blue-600 z-10' : 'border-2 border-gray-700 hover:border-blue-500'
               }`}
