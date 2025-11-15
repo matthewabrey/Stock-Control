@@ -706,12 +706,12 @@ async def upload_excel(file: UploadFile = File(...)):
                     
                     cell = ws.cell(row_idx, col_idx)
                     if cell.value is not None:
-                        cell_str = str(cell.value).strip()
+                        # Ensure cell value is a string
+                        cell_str = str(cell.value).strip() if cell.value else ""
                         
                         # Check for DOOR markers (skip these cells, don't create zones)
                         if 'door' in cell_str.lower():
                             door_positions.append((row_idx, col_idx))
-                            print(f"  Found door inside grid at {openpyxl.utils.get_column_letter(col_idx)}{row_idx}")
                             continue
                         
                         # Check if this cell is part of a merged cell
@@ -728,8 +728,6 @@ async def upload_excel(file: UploadFile = File(...)):
                                 for r in range(merged_range.min_row, merged_range.max_row + 1):
                                     for c in range(merged_range.min_col, merged_range.max_col + 1):
                                         processed_cells.add((r, c))
-                                
-                                print(f"  Found merged cell at {openpyxl.utils.get_column_letter(col_idx)}{row_idx} - size: {cell_width}x{cell_height} cols")
                                 break
                         
                         # Check for bulk storage (tonnage like "175t", "200t", etc.)
@@ -742,8 +740,9 @@ async def upload_excel(file: UploadFile = File(...)):
                                 max_row = max(max_row, row_idx + cell_height - 1)
                                 min_col = min(min_col, col_idx)
                                 min_row = min(min_row, row_idx)
-                            except ValueError:
-                                pass  # Not a valid tonnage format
+                            except (ValueError, TypeError) as e:
+                                print(f"  Warning: Could not parse tonnage '{cell_str}': {e}")
+                                pass
                         # Check for numeric capacity (box storage like "5", "6", "7", "8", etc.)
                         else:
                             try:
@@ -755,8 +754,9 @@ async def upload_excel(file: UploadFile = File(...)):
                                     max_row = max(max_row, row_idx + cell_height - 1)
                                     min_col = min(min_col, col_idx)
                                     min_row = min(min_row, row_idx)
-                            except ValueError:
-                                pass  # Not a number
+                            except (ValueError, TypeError) as e:
+                                print(f"  Warning: Could not parse capacity '{cell_str}': {e}")
+                                pass
             
             if not zone_positions:
                 print(f"No zones found in {store_name}, skipping...")
