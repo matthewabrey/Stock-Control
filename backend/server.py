@@ -768,10 +768,10 @@ async def upload_excel(file: UploadFile = File(...)):
             # Calculate column positions (used for both zones and doors)
             # IMPORTANT: Include empty columns as gaps to preserve layout
             zones_by_col_temp = {}
-            for row_idx, col_idx, capacity in zone_positions:
+            for row_idx, col_idx, capacity, cell_width, cell_height in zone_positions:
                 if col_idx not in zones_by_col_temp:
                     zones_by_col_temp[col_idx] = []
-                zones_by_col_temp[col_idx].append((row_idx, capacity))
+                zones_by_col_temp[col_idx].append((row_idx, capacity, cell_width, cell_height))
             
             # Calculate x positions for ALL columns (including empty ones for gaps)
             col_x_positions = {}
