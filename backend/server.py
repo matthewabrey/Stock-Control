@@ -705,16 +705,34 @@ async def upload_excel(file: UploadFile = File(...)):
                         continue
                     
                     cell = ws.cell(row_idx, col_idx)
-                    if cell.value is not None:
-                        # Ensure cell value is a string
-                        cell_str = str(cell.value).strip() if cell.value else ""
+                    
+                    # Handle merged cells properly - get the actual value from top-left cell
+                    cell_value = None
+                    if isinstance(cell, openpyxl.cell.cell.MergedCell):
+                        # This is a merged cell - find the merged range and get value from top-left
+                        for merged_range in ws.merged_cells.ranges:
+                            if (row_idx, col_idx) in merged_range:
+                                # Get value from top-left cell of merged range
+                                top_left_cell = ws.cell(merged_range.min_row, merged_range.min_col)
+                                cell_value = top_left_cell.value
+                                break
+                    else:
+                        cell_value = cell.value
+                    
+                    if cell_value is not None:
+                        # Safely convert to string
+                        try:
+                            cell_str = str(cell_value).strip()
+                        except Exception as e:
+                            print(f"  Warning: Could not convert cell value to string: {e}")
+                            continue
                         
                         # Check for DOOR markers (skip these cells, don't create zones)
                         if 'door' in cell_str.lower():
                             door_positions.append((row_idx, col_idx))
                             continue
                         
-                        # Check if this cell is part of a merged cell
+                        # Check if this cell is part of a merged cell to get dimensions
                         cell_width = 1
                         cell_height = 1
                         for merged_range in ws.merged_cells.ranges:
