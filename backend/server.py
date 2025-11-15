@@ -736,7 +736,7 @@ async def upload_excel(file: UploadFile = File(...)):
                         cell_width = 1
                         cell_height = 1
                         for merged_range in ws.merged_cells.ranges:
-                            if (row_idx, col_idx) in merged_range:
+                            if cell.coordinate in merged_range:
                                 # This cell is part of a merged cell
                                 # Use the merged cell dimensions
                                 cell_height = merged_range.max_row - merged_range.min_row + 1
