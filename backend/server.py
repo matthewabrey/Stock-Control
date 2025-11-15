@@ -695,19 +695,15 @@ async def upload_excel(file: UploadFile = File(...)):
             min_col = float('inf')
             min_row = float('inf')
             
-            # Track which cells we've already processed (for merged cells)
-            processed_cells = set()
-            
             for row_idx in range(1, ws.max_row + 1):
                 for col_idx in range(1, ws.max_column + 1):
-                    # Skip if this cell was already processed as part of a merged cell
-                    if (row_idx, col_idx) in processed_cells:
-                        continue
-                    
                     cell = ws.cell(row_idx, col_idx)
                     
                     # Handle merged cells properly - get the actual value from top-left cell
                     cell_value = None
+                    cell_width = 1
+                    cell_height = 1
+                    
                     if isinstance(cell, openpyxl.cell.cell.MergedCell):
                         # This is a merged cell - find the merged range and get value from top-left
                         for merged_range in ws.merged_cells.ranges:
@@ -715,9 +711,21 @@ async def upload_excel(file: UploadFile = File(...)):
                                 # Get value from top-left cell of merged range
                                 top_left_cell = ws.cell(merged_range.min_row, merged_range.min_col)
                                 cell_value = top_left_cell.value
+                                
+                                # Get merged cell dimensions
+                                cell_height = merged_range.max_row - merged_range.min_row + 1
+                                cell_width = merged_range.max_col - merged_range.min_col + 1
                                 break
                     else:
                         cell_value = cell.value
+                        
+                        # Check if this non-merged cell is the top-left of a merged range
+                        for merged_range in ws.merged_cells.ranges:
+                            if cell.coordinate in merged_range:
+                                # Get merged cell dimensions
+                                cell_height = merged_range.max_row - merged_range.min_row + 1
+                                cell_width = merged_range.max_col - merged_range.min_col + 1
+                                break
                     
                     if cell_value is not None:
                         # Safely convert to string
@@ -732,32 +740,18 @@ async def upload_excel(file: UploadFile = File(...)):
                             door_positions.append((row_idx, col_idx))
                             continue
                         
-                        # Check if this cell is part of a merged cell to get dimensions
-                        cell_width = 1
-                        cell_height = 1
-                        for merged_range in ws.merged_cells.ranges:
-                            if cell.coordinate in merged_range:
-                                # This cell is part of a merged cell
-                                # Use the merged cell dimensions
-                                cell_height = merged_range.max_row - merged_range.min_row + 1
-                                cell_width = merged_range.max_col - merged_range.min_col + 1
-                                
-                                # Mark all cells in this merged range as processed
-                                for r in range(merged_range.min_row, merged_range.max_row + 1):
-                                    for c in range(merged_range.min_col, merged_range.max_col + 1):
-                                        processed_cells.add((r, c))
-                                break
-                        
                         # Check for bulk storage (tonnage like "175t", "200t", etc.)
                         if cell_str.lower().endswith('t') and len(cell_str) > 1:
                             try:
                                 # Extract the number before 't'
                                 tonnage = int(cell_str[:-1])
-                                zone_positions.append((row_idx, col_idx, tonnage, cell_width, cell_height))
-                                max_col = max(max_col, col_idx + cell_width - 1)
-                                max_row = max(max_row, row_idx + cell_height - 1)
-                                min_col = min(min_col, col_idx)
-                                min_row = min(min_row, row_idx)
+                                # For merged cells, create individual zones for each column
+                                for c_offset in range(cell_width):
+                                    zone_positions.append((row_idx, col_idx + c_offset, tonnage, 1, cell_height))
+                                    max_col = max(max_col, col_idx + c_offset)
+                                    max_row = max(max_row, row_idx + cell_height - 1)
+                                    min_col = min(min_col, col_idx + c_offset)
+                                    min_row = min(min_row, row_idx)
                             except (ValueError, TypeError) as e:
                                 print(f"  Warning: Could not parse tonnage '{cell_str}': {e}")
                                 pass
@@ -767,11 +761,13 @@ async def upload_excel(file: UploadFile = File(...)):
                                 capacity = int(cell_str)
                                 # Only accept reasonable capacity numbers (1-50)
                                 if 1 <= capacity <= 50:
-                                    zone_positions.append((row_idx, col_idx, capacity, cell_width, cell_height))
-                                    max_col = max(max_col, col_idx + cell_width - 1)
-                                    max_row = max(max_row, row_idx + cell_height - 1)
-                                    min_col = min(min_col, col_idx)
-                                    min_row = min(min_row, row_idx)
+                                    # For merged cells, create individual zones for each column
+                                    for c_offset in range(cell_width):
+                                        zone_positions.append((row_idx, col_idx + c_offset, capacity, 1, cell_height))
+                                        max_col = max(max_col, col_idx + c_offset)
+                                        max_row = max(max_row, row_idx + cell_height - 1)
+                                        min_col = min(min_col, col_idx + c_offset)
+                                        min_row = min(min_row, row_idx)
                             except (ValueError, TypeError) as e:
                                 print(f"  Warning: Could not parse capacity '{cell_str}': {e}")
                                 pass
