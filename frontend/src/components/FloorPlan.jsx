@@ -185,6 +185,45 @@ const FloorPlan = ({ user }) => {
     return years.sort();
   };
 
+  // Get zone contents for tooltip
+  const getZoneContents = (zone) => {
+    const zoneIntakes = stockIntakes.filter(i => i.zone_id === zone.id);
+    
+    if (zoneIntakes.length === 0) {
+      return {
+        isEmpty: true,
+        quantity: 0,
+        fields: []
+      };
+    }
+    
+    // Group by field
+    const fieldGroups = {};
+    zoneIntakes.forEach(intake => {
+      const field = fields.find(f => f.id === intake.field_id);
+      const fieldName = field?.name || intake.field_name || 'Unknown';
+      const variety = field?.variety || 'Unknown';
+      
+      const key = `${fieldName}_${variety}_${intake.grade}`;
+      if (!fieldGroups[key]) {
+        fieldGroups[key] = {
+          fieldName,
+          variety,
+          grade: intake.grade,
+          quantity: 0
+        };
+      }
+      fieldGroups[key].quantity += intake.quantity;
+    });
+    
+    return {
+      isEmpty: false,
+      quantity: zone.total_quantity,
+      capacity: zone.max_capacity,
+      fields: Object.values(fieldGroups)
+    };
+  };
+
   const getZoneColor = (zone) => {
     // If zone has no quantity, it's empty regardless of intake records
     if (!zone.total_quantity || zone.total_quantity === 0) {
