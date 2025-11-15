@@ -903,7 +903,7 @@ async def upload_excel(file: UploadFile = File(...)):
             
             # Create zones
             # Use the col_x_positions we already calculated above
-            for row_idx, col_idx, capacity in zone_positions:
+            for row_idx, col_idx, capacity, cell_width, cell_height in zone_positions:
                 # Calculate position relative to store origin
                 zone_x = col_x_positions[col_idx]
                 zone_y = (row_idx - min_row) * 2
@@ -912,12 +912,15 @@ async def upload_excel(file: UploadFile = File(...)):
                 col_letter = openpyxl.utils.get_column_letter(col_idx - min_col + 1)
                 zone_name = f"{col_letter}{row_idx - min_row + 1}"
                 
-                # Use storage_type to determine zone width (not capacity)
+                # Use merged cell dimensions to determine zone size
                 if storage_type == "bulk":
-                    zone_width = 8  # Bulk storage gets 8m width (elongated)
+                    base_width = 8  # Bulk storage base width
                 else:
-                    zone_width = 2  # Box storage gets 2m width (square)
-                zone_height = 2
+                    base_width = 2  # Box storage base width
+                
+                # Scale zone dimensions based on merged cell size
+                zone_width = base_width * cell_width
+                zone_height = 2 * cell_height
                 
                 zone_doc = {
                     "id": str(uuid.uuid4()),
