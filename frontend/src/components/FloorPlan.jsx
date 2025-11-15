@@ -2200,6 +2200,47 @@ const DestinationFloorPlan = ({ shed, onZoneClick, selectedZones = [] }) => {
             </div>
           );
         })}
+
+        {/* Hover Tooltip */}
+        {hoveredZone && (
+          <div
+            className="fixed z-50 bg-white border-2 border-gray-800 rounded-lg shadow-2xl p-3 max-w-sm"
+            style={{
+              left: `${tooltipPosition.x + 15}px`,
+              top: `${tooltipPosition.y + 15}px`,
+              pointerEvents: 'none'
+            }}
+          >
+            <div className="text-sm font-bold text-gray-900 mb-2 border-b border-gray-300 pb-1">
+              Zone: {hoveredZone.name}
+            </div>
+            {(() => {
+              const contents = getZoneContents(hoveredZone);
+              
+              if (contents.isEmpty) {
+                return <div className="text-sm text-gray-600">Empty zone</div>;
+              }
+              
+              return (
+                <div className="space-y-2">
+                  <div className="text-xs font-semibold text-gray-700">
+                    Total: {contents.quantity.toFixed(0)} / {contents.capacity} units
+                  </div>
+                  <div className="border-t border-gray-200 pt-2">
+                    {contents.fields.map((field, idx) => (
+                      <div key={idx} className="text-xs mb-2 pb-2 border-b border-gray-100 last:border-0">
+                        <div className="font-semibold text-gray-900">{field.fieldName}</div>
+                        <div className="text-gray-600 ml-2">• Variety: {field.variety}</div>
+                        <div className="text-gray-600 ml-2">• Grade: {field.grade}</div>
+                        <div className="text-gray-900 ml-2 font-medium">• Quantity: {field.quantity.toFixed(0)} units</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
+        )}
       </div>
     </div>
   );
