@@ -745,13 +745,12 @@ async def upload_excel(file: UploadFile = File(...)):
                             try:
                                 # Extract the number before 't'
                                 tonnage = int(cell_str[:-1])
-                                # For merged cells, create individual zones for each column
-                                for c_offset in range(cell_width):
-                                    zone_positions.append((row_idx, col_idx + c_offset, tonnage, 1, cell_height))
-                                    max_col = max(max_col, col_idx + c_offset)
-                                    max_row = max(max_row, row_idx + cell_height - 1)
-                                    min_col = min(min_col, col_idx + c_offset)
-                                    min_row = min(min_row, row_idx)
+                                # Create ONE zone for the entire merged cell
+                                zone_positions.append((row_idx, col_idx, tonnage, cell_width, cell_height))
+                                max_col = max(max_col, col_idx + cell_width - 1)
+                                max_row = max(max_row, row_idx + cell_height - 1)
+                                min_col = min(min_col, col_idx)
+                                min_row = min(min_row, row_idx)
                             except (ValueError, TypeError) as e:
                                 print(f"  Warning: Could not parse tonnage '{cell_str}': {e}")
                                 pass
@@ -761,13 +760,12 @@ async def upload_excel(file: UploadFile = File(...)):
                                 capacity = int(cell_str)
                                 # Only accept reasonable capacity numbers (1-50)
                                 if 1 <= capacity <= 50:
-                                    # For merged cells, create individual zones for each column
-                                    for c_offset in range(cell_width):
-                                        zone_positions.append((row_idx, col_idx + c_offset, capacity, 1, cell_height))
-                                        max_col = max(max_col, col_idx + c_offset)
-                                        max_row = max(max_row, row_idx + cell_height - 1)
-                                        min_col = min(min_col, col_idx + c_offset)
-                                        min_row = min(min_row, row_idx)
+                                    # Create ONE zone for the entire merged cell
+                                    zone_positions.append((row_idx, col_idx, capacity, cell_width, cell_height))
+                                    max_col = max(max_col, col_idx + cell_width - 1)
+                                    max_row = max(max_row, row_idx + cell_height - 1)
+                                    min_col = min(min_col, col_idx)
+                                    min_row = min(min_row, row_idx)
                             except (ValueError, TypeError) as e:
                                 print(f"  Warning: Could not parse capacity '{cell_str}': {e}")
                                 pass
