@@ -297,6 +297,12 @@ const FloorPlan = ({ user }) => {
   };
 
   const handleZoneClick = (zone, event) => {
+    // Double-click to view zone details
+    if (event.detail === 2) {
+      handleViewZoneDetails(zone);
+      return;
+    }
+    
     // Ctrl+Click for range selection
     if (event.ctrlKey || event.metaKey) {
       if (selectedZones.length === 1) {
@@ -335,6 +341,14 @@ const FloorPlan = ({ user }) => {
       // Add to selection
       setSelectedZones([...selectedZones, zone]);
     }
+  };
+
+  const handleViewZoneDetails = (zone) => {
+    setSelectedZone(zone);
+    // Get all stock intakes for this zone
+    const zoneIntakes = stockIntakes.filter(intake => intake.zone_id === zone.id);
+    setSelectedZoneIntakes(zoneIntakes);
+    setShowZoneDetails(true);
   };
 
   const handleAddStock = () => {
