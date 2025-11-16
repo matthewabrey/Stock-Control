@@ -1270,14 +1270,12 @@ const FloorPlan = ({ user }) => {
                               onDragOver={handleDragOver}
                               onDrop={(e) => handleDrop(e, zone)}
                               onClick={(e) => handleZoneClick(zone, e)}
-                              onContextMenu={(e) => {
-                                e.preventDefault();
-                                handleViewZoneDetails(zone);
-                              }}
+                              onMouseEnter={() => handleZoneMouseEnter(zone)}
+                              onMouseLeave={handleZoneMouseLeave}
                               className={`absolute cursor-pointer hover:shadow-2xl hover:z-10 transition-all rounded ${
                                 isSelected ? 'border-4 border-blue-600 z-10' : 'border-2 border-gray-700'
                               }`}
-                              title="Right-click or double-click to view contents"
+                              title="Hover for 1.5s or double-click to view contents"
                               style={{
                                 left: `${shedPadding + displayCol * gridCellSize + boxPadding}px`,
                                 top: `${shedPadding + displayRow * gridCellSize + boxPadding}px`,
