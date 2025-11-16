@@ -802,7 +802,7 @@ async def upload_excel(file: UploadFile = File(...)):
             while col_idx <= max_col:
                 col_x_positions[col_idx] = current_x
                 
-                # Check if this column has zones
+                # Check if this column has zones starting at it
                 if col_idx in zones_by_col_temp:
                     # Find the zone that starts at this column to get its width
                     zone_info = zones_by_col_temp[col_idx][0]  # Get first zone in this column
@@ -814,30 +814,31 @@ async def upload_excel(file: UploadFile = File(...)):
                         else:
                             col_width = 2 * cell_width  # Box storage base width * merged width
                         
-                        # Skip the columns that are part of this merged cell
+                        # Mark positions for all columns covered by this merged cell
                         for skip_col in range(col_idx + 1, col_idx + cell_width):
                             if skip_col <= max_col:
                                 col_x_positions[skip_col] = current_x
+                        
+                        current_x += col_width
                         col_idx += cell_width  # Jump to next unoccupied column
                     else:
-                        # Fallback for old format
+                        # Fallback for old format (shouldn't happen with new logic)
                         if storage_type == "bulk":
                             col_width = 8
                         else:
                             col_width = 2
+                        current_x += col_width
                         col_idx += 1
                 elif col_idx in occupied_columns:
-                    # This column is part of a merged cell but doesn't start a zone
-                    # Skip it without creating a gap (it's already covered by the merged cell)
+                    # This column is part of a merged cell but zone already processed
+                    # Skip to next column without adding width
                     col_idx += 1
-                    continue
                 else:
                     # Empty column - create a gap/walkway (2m wide)
                     col_width = 2
                     print(f"  Empty column {openpyxl.utils.get_column_letter(col_idx)} - creating 2m gap")
+                    current_x += col_width
                     col_idx += 1
-                
-                current_x += col_width
             
             # Calculate total store dimensions
             store_width = current_x
