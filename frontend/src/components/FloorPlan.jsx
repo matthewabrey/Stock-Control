@@ -352,6 +352,31 @@ const FloorPlan = ({ user }) => {
     setShowZoneDetails(true);
   };
 
+  const handleZoneMouseEnter = (zone) => {
+    // Only show details popup if zone has stock
+    if (zone.total_quantity > 0) {
+      // Clear any existing timer
+      if (hoverTimer) {
+        clearTimeout(hoverTimer);
+      }
+      
+      // Set a new timer to show details after 1.5 seconds
+      const timer = setTimeout(() => {
+        handleViewZoneDetails(zone);
+      }, 1500);
+      
+      setHoverTimer(timer);
+    }
+  };
+
+  const handleZoneMouseLeave = () => {
+    // Clear the timer when mouse leaves
+    if (hoverTimer) {
+      clearTimeout(hoverTimer);
+      setHoverTimer(null);
+    }
+  };
+
   const handleAddStock = () => {
     setShowZoneDetails(false);
     setShowIntakeDialog(true);
