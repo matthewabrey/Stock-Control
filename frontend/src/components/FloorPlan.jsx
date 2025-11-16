@@ -1288,6 +1288,13 @@ const FloorPlan = ({ user }) => {
                                 </div>
                               )}
                               
+                              {/* Clickable indicator for zones with stock */}
+                              {!isEmpty && (
+                                <div className="absolute top-1 right-1 bg-blue-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold opacity-70 hover:opacity-100">
+                                  i
+                                </div>
+                              )}
+                              
                               {/* Quantity display */}
                               {!isEmpty && (
                                 <div className="absolute inset-0 flex items-center justify-center">
