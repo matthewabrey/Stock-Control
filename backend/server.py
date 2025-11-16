@@ -694,38 +694,44 @@ async def upload_excel(file: UploadFile = File(...)):
             max_row = 0
             min_col = float('inf')
             min_row = float('inf')
+            processed_cells = set()  # Track cells we've already processed
             
             for row_idx in range(1, ws.max_row + 1):
                 for col_idx in range(1, ws.max_column + 1):
+                    # Skip if we've already processed this cell as part of a merged range
+                    if (row_idx, col_idx) in processed_cells:
+                        continue
+                    
                     cell = ws.cell(row_idx, col_idx)
                     
                     # Handle merged cells properly - get the actual value from top-left cell
                     cell_value = None
                     cell_width = 1
                     cell_height = 1
+                    is_merged = False
                     
-                    if isinstance(cell, openpyxl.cell.cell.MergedCell):
-                        # This is a merged cell - find the merged range and get value from top-left
-                        for merged_range in ws.merged_cells.ranges:
-                            if cell.coordinate in merged_range:
-                                # Get value from top-left cell of merged range
-                                top_left_cell = ws.cell(merged_range.min_row, merged_range.min_col)
-                                cell_value = top_left_cell.value
+                    # Check if this cell is part of a merged range
+                    for merged_range in ws.merged_cells.ranges:
+                        if cell.coordinate in merged_range:
+                            is_merged = True
+                            # Only process if this is the top-left cell of the merge
+                            if row_idx == merged_range.min_row and col_idx == merged_range.min_col:
+                                cell_value = cell.value
+                                cell_height = merged_range.max_row - merged_range.min_row + 1
+                                cell_width = merged_range.max_col - merged_range.min_col + 1
                                 
-                                # Get merged cell dimensions
-                                cell_height = merged_range.max_row - merged_range.min_row + 1
-                                cell_width = merged_range.max_col - merged_range.min_col + 1
+                                # Mark all cells in this merged range as processed
+                                for r in range(merged_range.min_row, merged_range.max_row + 1):
+                                    for c in range(merged_range.min_col, merged_range.max_col + 1):
+                                        processed_cells.add((r, c))
+                            else:
+                                # This is NOT the top-left, skip it
                                 break
-                    else:
+                            break
+                    
+                    # If not part of a merged range, it's a regular cell
+                    if not is_merged:
                         cell_value = cell.value
-                        
-                        # Check if this non-merged cell is the top-left of a merged range
-                        for merged_range in ws.merged_cells.ranges:
-                            if cell.coordinate in merged_range:
-                                # Get merged cell dimensions
-                                cell_height = merged_range.max_row - merged_range.min_row + 1
-                                cell_width = merged_range.max_col - merged_range.min_col + 1
-                                break
                     
                     if cell_value is not None:
                         # Safely convert to string
