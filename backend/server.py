@@ -828,6 +828,11 @@ async def upload_excel(file: UploadFile = File(...)):
                         else:
                             col_width = 2
                         col_idx += 1
+                elif col_idx in occupied_columns:
+                    # This column is part of a merged cell but doesn't start a zone
+                    # Skip it without creating a gap (it's already covered by the merged cell)
+                    col_idx += 1
+                    continue
                 else:
                     # Empty column - create a gap/walkway (2m wide)
                     col_width = 2
