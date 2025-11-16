@@ -40,6 +40,7 @@ const FloorPlan = ({ user }) => {
   const [lastClickedZone, setLastClickedZone] = useState(null);
   const [hoveredZone, setHoveredZone] = useState(null);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
+  const [hoverTimer, setHoverTimer] = useState(null);
   const [showIntakeDialog, setShowIntakeDialog] = useState(false);
   const [showMoveDialog, setShowMoveDialog] = useState(false);
   const [showBulkMoveDialog, setShowBulkMoveDialog] = useState(false);
