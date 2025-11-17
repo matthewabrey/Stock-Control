@@ -867,17 +867,13 @@ async def upload_excel(file: UploadFile = File(...)):
                 elif door_row == min_row:
                     # Top edge
                     door_side = 'top'
-                    if door_col in col_x_positions:
-                        door_position = col_x_positions[door_col]
-                    else:
-                        door_position = (door_col - min_col) * 2
+                    # Use simple calculation for door position
+                    door_position = (door_col - min_col) * 2
                 elif door_row == max_row:
                     # Bottom edge
                     door_side = 'bottom'
-                    if door_col in col_x_positions:
-                        door_position = col_x_positions[door_col]
-                    else:
-                        door_position = (door_col - min_col) * 2
+                    # Use simple calculation for door position
+                    door_position = (door_col - min_col) * 2
                 else:
                     # Door is in the middle of grid, use closest edge
                     # For now, default to right side
