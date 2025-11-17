@@ -32,6 +32,7 @@ const FloorPlan = ({ user }) => {
   const [shed, setShed] = useState(null);
   const [zones, setZones] = useState([]);
   const [fridges, setFridges] = useState([]);
+  const [doors, setDoors] = useState([]);
   const [fields, setFields] = useState([]);
   const [sheds, setSheds] = useState([]);
   const [stockIntakes, setStockIntakes] = useState([]);
