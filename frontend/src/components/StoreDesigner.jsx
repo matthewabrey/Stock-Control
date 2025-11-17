@@ -72,7 +72,9 @@ const StoreDesigner = () => {
     
     // Draw zones
     zones.forEach((zone, idx) => {
-      ctx.fillStyle = "rgba(59, 130, 246, 0.3)"; // blue
+      const isSelected = idx === selectedZoneIndex;
+      
+      ctx.fillStyle = isSelected ? "rgba(59, 130, 246, 0.5)" : "rgba(59, 130, 246, 0.3)"; // blue
       ctx.fillRect(
         zone.x * CELL_SIZE,
         zone.y * CELL_SIZE,
@@ -80,8 +82,8 @@ const StoreDesigner = () => {
         zone.height * CELL_SIZE
       );
       
-      ctx.strokeStyle = "#2563eb";
-      ctx.lineWidth = 2;
+      ctx.strokeStyle = isSelected ? "#dc2626" : "#2563eb"; // red if selected
+      ctx.lineWidth = isSelected ? 3 : 2;
       ctx.strokeRect(
         zone.x * CELL_SIZE,
         zone.y * CELL_SIZE,
@@ -100,6 +102,28 @@ const StoreDesigner = () => {
         (zone.y + zone.height / 2) * CELL_SIZE
       );
     });
+    
+    // Draw dragging copy zone
+    if (isDraggingCopy && draggedZoneCopy) {
+      ctx.fillStyle = "rgba(34, 197, 94, 0.4)"; // green
+      ctx.fillRect(
+        draggedZoneCopy.x * CELL_SIZE,
+        draggedZoneCopy.y * CELL_SIZE,
+        draggedZoneCopy.width * CELL_SIZE,
+        draggedZoneCopy.height * CELL_SIZE
+      );
+      
+      ctx.strokeStyle = "#16a34a";
+      ctx.lineWidth = 2;
+      ctx.setLineDash([5, 5]);
+      ctx.strokeRect(
+        draggedZoneCopy.x * CELL_SIZE,
+        draggedZoneCopy.y * CELL_SIZE,
+        draggedZoneCopy.width * CELL_SIZE,
+        draggedZoneCopy.height * CELL_SIZE
+      );
+      ctx.setLineDash([]);
+    }
     
     // Draw doors
     doors.forEach((door) => {
