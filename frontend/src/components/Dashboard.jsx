@@ -174,7 +174,7 @@ const Dashboard = ({ user, onLogout }) => {
             <CardDescription className="text-gray-600">Manage your stock control system</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {user && user.admin_control?.toUpperCase() === "YES" && (
                 <Button 
                   onClick={handleAdminClick}
@@ -183,16 +183,6 @@ const Dashboard = ({ user, onLogout }) => {
                 >
                   <Lock className="mr-2 w-6 h-6" />
                   Admin
-                </Button>
-              )}
-              {user && user.admin_control?.toUpperCase() === "YES" && (
-                <Button 
-                  onClick={() => navigate('/store-designer')}
-                  className="h-20 text-lg bg-purple-600 hover:bg-purple-700 rounded-md shadow"
-                  data-testid="btn-store-designer"
-                >
-                  <PenTool className="mr-2 w-6 h-6" />
-                  Store Designer
                 </Button>
               )}
               <Button 
