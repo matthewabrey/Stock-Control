@@ -551,37 +551,58 @@ const StoreDesigner = () => {
                   <p><strong>Zones:</strong> {zones.length}</p>
                   <p><strong>Doors:</strong> {doors.length}</p>
                   <p><strong>Fridges:</strong> {fridges.length}</p>
+                  {selectedZoneIndexes.length > 0 && (
+                    <p className="text-red-600"><strong>Selected:</strong> {selectedZoneIndexes.length} zone{selectedZoneIndexes.length > 1 ? 's' : ''}</p>
+                  )}
                 </div>
               </div>
               
-              {selectedZoneIndex !== null && (
+              {selectedZoneIndexes.length > 0 && (
                 <div className="pt-4 border-t">
-                  <Label className="mb-2 block text-sm font-semibold">Selected Zone Actions</Label>
+                  <Label className="mb-2 block text-sm font-semibold">
+                    Selected Zone{selectedZoneIndexes.length > 1 ? 's' : ''} Actions
+                  </Label>
                   <div className="space-y-2">
                     <Button
                       variant="outline"
                       onClick={() => {
-                        const zone = zones[selectedZoneIndex];
-                        setZones([...zones, { ...zone }]);
-                        toast.success("Zone duplicated! Drag with Ctrl to position it.");
+                        const minX = Math.min(...selectedZoneIndexes.map(i => zones[i].x));
+                        const minY = Math.min(...selectedZoneIndexes.map(i => zones[i].y));
+                        const duplicates = selectedZoneIndexes.map(i => {
+                          const z = zones[i];
+                          return { ...z, x: z.x - minX + z.x + z.width + 1, y: z.y - minY + z.y };
+                        });
+                        setZones([...zones, ...duplicates]);
+                        toast.success(`${selectedZoneIndexes.length} zone${selectedZoneIndexes.length > 1 ? 's' : ''} duplicated!`);
                       }}
                       className="w-full justify-start"
                       size="sm"
                     >
-                      Duplicate Zone
+                      Duplicate ({selectedZoneIndexes.length})
                     </Button>
                     <Button
                       variant="destructive"
                       onClick={() => {
-                        setZones(zones.filter((_, idx) => idx !== selectedZoneIndex));
-                        setSelectedZoneIndex(null);
-                        toast.success("Zone deleted");
+                        setZones(zones.filter((_, idx) => !selectedZoneIndexes.includes(idx)));
+                        setSelectedZoneIndexes([]);
+                        toast.success(`${selectedZoneIndexes.length} zone${selectedZoneIndexes.length > 1 ? 's' : ''} deleted`);
                       }}
                       className="w-full justify-start"
                       size="sm"
                     >
                       <Trash2 className="w-4 h-4 mr-2" />
-                      Delete Zone
+                      Delete ({selectedZoneIndexes.length})
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setSelectedZoneIndexes([]);
+                        toast.success("Selection cleared");
+                      }}
+                      className="w-full justify-start"
+                      size="sm"
+                    >
+                      Clear Selection
                     </Button>
                   </div>
                 </div>
