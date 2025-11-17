@@ -859,7 +859,8 @@ async def upload_excel(file: UploadFile = File(...)):
                     col_idx += 1
             
             # Calculate total store dimensions
-            store_width = current_x
+            # Add a small buffer to prevent zones from touching the right edge
+            store_width = current_x + 1  # Add 1m buffer
             store_height = (max_row - min_row + 1) * 2
             
             # Detect doors - look for cells containing "DOOR" text (both inside and outside grid)
