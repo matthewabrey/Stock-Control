@@ -949,10 +949,10 @@ async def upload_excel(file: UploadFile = File(...)):
             stores_created += 1
             
             # Create zones
-            # Use the col_x_positions we already calculated above
+            # Use the zone_x_positions we calculated above
             for row_idx, col_idx, capacity, cell_width, cell_height in zone_positions:
-                # Calculate position relative to store origin
-                zone_x = col_x_positions[col_idx]
+                # Get position from our calculated positions
+                zone_x = zone_x_positions.get((row_idx, col_idx), 0)
                 zone_y = (row_idx - min_row) * 2
                 
                 # Generate zone name (column letter + row number)
