@@ -334,6 +334,11 @@ const StoreDesigner = () => {
     } else if (mode === "fridge") {
       setFridges([...fridges, cell]);
       setSelectedZoneIndexes([]);
+    } else if (mode === "wall") {
+      // Start drawing wall
+      setIsDrawingWall(true);
+      setWallStart(cell);
+      setSelectedZoneIndexes([]);
     } else if (mode === "delete") {
       // Delete zone at this cell
       setZones(zones.filter((zone, idx) => {
@@ -344,6 +349,12 @@ const StoreDesigner = () => {
       setDoors(doors.filter(door => !(door.x === cell.x && door.y === cell.y)));
       // Delete fridge at this cell
       setFridges(fridges.filter(fridge => !(fridge.x === cell.x && fridge.y === cell.y)));
+      // Delete walls near this cell
+      setWalls(walls.filter(wall => {
+        const dist1 = Math.sqrt(Math.pow(wall.x1 - cell.x, 2) + Math.pow(wall.y1 - cell.y, 2));
+        const dist2 = Math.sqrt(Math.pow(wall.x2 - cell.x, 2) + Math.pow(wall.y2 - cell.y, 2));
+        return dist1 > 2 && dist2 > 2; // Keep walls that are far from click
+      }));
       setSelectedZoneIndexes([]);
     }
   };
