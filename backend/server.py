@@ -1058,7 +1058,7 @@ async def upload_excel(file: UploadFile = File(...)):
                     cell = ws.cell(row_idx, col_idx)
                     if cell.value and 'door' in str(cell.value).lower():
                         # Skip if already processed (was in door_positions)
-                        if (row_idx, col_idx) in door_positions:
+                        if any(row_idx == door_row and col_idx == door_col for door_row, door_col, _, _ in door_positions):
                             continue
                         
                         # Determine which side this door is on relative to the zone area
