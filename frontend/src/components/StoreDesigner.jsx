@@ -462,7 +462,7 @@ const StoreDesigner = () => {
       setDraggedZonesCopy([]);
       toast.success(`${draggedZonesCopy.length} zone${draggedZonesCopy.length > 1 ? 's' : ''} copied!`);
     } else if (isSelectingWallCells && wallCellStart && wallCellEnd) {
-      // Add selected cells to wall cells
+      // Add ONLY PERIMETER cells to wall cells (not interior)
       const x1 = Math.min(wallCellStart.x, wallCellEnd.x);
       const y1 = Math.min(wallCellStart.y, wallCellEnd.y);
       const x2 = Math.max(wallCellStart.x, wallCellEnd.x);
@@ -471,8 +471,10 @@ const StoreDesigner = () => {
       const newCells = [];
       for (let x = x1; x <= x2; x++) {
         for (let y = y1; y <= y2; y++) {
-          // Check if cell already exists
-          if (!wallCells.find(c => c.x === x && c.y === y)) {
+          // Only add perimeter cells (edges of selection)
+          const isPerimeter = (x === x1 || x === x2 || y === y1 || y === y2);
+          
+          if (isPerimeter && !wallCells.find(c => c.x === x && c.y === y)) {
             newCells.push({ x, y });
           }
         }
@@ -485,7 +487,7 @@ const StoreDesigner = () => {
       const generatedWalls = generateWallsFromCells(updatedWallCells);
       setWalls(generatedWalls);
       
-      toast.success(`${newCells.length} cell${newCells.length > 1 ? 's' : ''} added to wall area`);
+      toast.success(`${newCells.length} perimeter cell${newCells.length > 1 ? 's' : ''} added`);
       
       setIsSelectingWallCells(false);
       setWallCellStart(null);
