@@ -247,6 +247,49 @@ const StoreDesigner = () => {
     drawGrid();
   }, [zones, doors, fridges, walls, wallCells, isSelecting, selectionStart, selectionEnd, selectedZoneIndexes, isDraggingCopy, draggedZonesCopy, hoveredZoneIndex, mode, isSelectingWallCells, wallCellStart, wallCellEnd, mousePos]);
 
+  // Load existing store data if in edit mode
+  useEffect(() => {
+    if (isEditMode && shedId) {
+      const loadStore = async () => {
+        try {
+          // Load shed details
+          const shedResponse = await axios.get(`${API}/sheds/${shedId}`);
+          const shed = shedResponse.data;
+          setStoreName(shed.name);
+          setStoreType(shed.description?.includes('bulk') ? 'bulk' : 'box');
+          
+          // Load zones
+          const zonesResponse = await axios.get(`${API}/zones?shed_id=${shedId}`);
+          const loadedZones = zonesResponse.data.map(z => ({
+            x: z.x / 2, // Convert meters back to cells
+            y: z.y / 2,
+            width: z.width / 2,
+            height: z.height / 2,
+            capacity: z.max_capacity
+          }));
+          setZones(loadedZones);
+          
+          // Load doors (convert from shed doors)
+          if (shed.doors && shed.doors.length > 0) {
+            const loadedDoors = shed.doors.map(d => ({
+              x: Math.floor(d.position / 2),
+              y: d.side === 'top' ? 0 : 24 // Approximate position
+            }));
+            setDoors(loadedDoors);
+          }
+          
+          toast.success("Store loaded for editing");
+        } catch (error) {
+          console.error("Error loading store:", error);
+          toast.error("Failed to load store");
+          navigate("/store-designer");
+        }
+      };
+      
+      loadStore();
+    }
+  }, [isEditMode, shedId]);
+
   const getCellFromMouse = (e) => {
     const canvas = canvasRef.current;
     const rect = canvas.getBoundingClientRect();
