@@ -401,7 +401,9 @@ const StoreDesigner = () => {
       }
     }
     
-    if (isSelecting && mode === "zone") {
+    if (isSelectingWallCells && mode === "wall") {
+      setWallCellEnd(cell);
+    } else if (isSelecting && mode === "zone") {
       setSelectionEnd(cell);
     } else if (isDraggingCopy && draggedZonesCopy.length > 0) {
       // Update all copied zones' positions while dragging
