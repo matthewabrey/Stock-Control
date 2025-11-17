@@ -652,10 +652,15 @@ const StoreDesigner = () => {
         await axios.post(`${API}/sheds`, shedData);
         
         // Create zones (don't send id, backend generates it)
+        // Generate letter-number names (A1, B1, C1, A2, B2...)
         for (const zone of zones) {
+          const zoneIndex = zones.indexOf(zone);
+          const col = String.fromCharCode(65 + (zone.x % 26)); // A, B, C...
+          const row = Math.floor(zone.y) + 1; // 1, 2, 3...
+          
           const zoneData = {
             shed_id: shedData.id,
-            name: `Z${zones.indexOf(zone) + 1}`,
+            name: `${col}${row}`,
             x: zone.x * 2,
             y: zone.y * 2,
             width: zone.width * 2,
