@@ -720,10 +720,14 @@ const StoreDesigner = () => {
                 />
               </div>
               
-              <div className="mt-4 flex gap-4 text-sm">
+              <div className="mt-4 flex flex-wrap gap-3 text-sm">
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 bg-blue-300 border-2 border-blue-600"></div>
                   <span>Zones</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-1 bg-gray-800"></div>
+                  <span>Walls</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 bg-green-500 border-2 border-green-600"></div>
