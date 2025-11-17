@@ -684,7 +684,7 @@ const StoreDesigner = () => {
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back
             </Button>
-            <h1 className="text-3xl font-bold">Store Designer</h1>
+            <h1 className="text-3xl font-bold">{isEditMode ? 'Edit Store' : 'Store Designer'}</h1>
           </div>
           
           <Button onClick={handleSave} className="bg-green-600 hover:bg-green-700">
