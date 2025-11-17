@@ -32,9 +32,9 @@ const StoreDesigner = () => {
   const [pendingZone, setPendingZone] = useState(null);
   const [zoneCapacity, setZoneCapacity] = useState("");
   
-  const [selectedZoneIndex, setSelectedZoneIndex] = useState(null);
+  const [selectedZoneIndexes, setSelectedZoneIndexes] = useState([]);
   const [isDraggingCopy, setIsDraggingCopy] = useState(false);
-  const [draggedZoneCopy, setDraggedZoneCopy] = useState(null);
+  const [draggedZonesCopy, setDraggedZonesCopy] = useState([]); // Array of zones being copied
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [hoveredZoneIndex, setHoveredZoneIndex] = useState(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
