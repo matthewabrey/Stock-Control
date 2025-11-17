@@ -1381,6 +1381,33 @@ const FloorPlan = ({ user }) => {
                             </div>
                           );
                         })}
+                        
+                        {/* Doors */}
+                        {doors.map((door) => {
+                          const doorDisplayX = door.x * scale;
+                          const doorDisplayY = door.y * scale;
+                          const doorDisplayWidth = door.width * scale;
+                          const doorDisplayHeight = door.height * scale;
+                          
+                          return (
+                            <div
+                              key={door.id}
+                              className="absolute border-2 border-gray-700 rounded flex items-center justify-center"
+                              style={{
+                                left: `${shedPadding + doorDisplayX + boxPadding}px`,
+                                top: `${shedPadding + doorDisplayY + boxPadding}px`,
+                                width: `${doorDisplayWidth - boxPadding * 2}px`,
+                                height: `${doorDisplayHeight - boxPadding * 2}px`,
+                                backgroundColor: '#0070C0',
+                                color: '#FF0000',
+                                pointerEvents: 'none'
+                              }}
+                              data-testid={`door-${door.id}`}
+                            >
+                              <span className="font-bold text-sm" style={{ color: '#FF0000' }}>Door</span>
+                            </div>
+                          );
+                        })}
                         </div>
                         
                         {/* Row numbers on RIGHT side */}
