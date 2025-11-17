@@ -224,28 +224,31 @@ const StoreDesigner = () => {
 
   const handleMouseDown = (e) => {
     const cell = getCellFromMouse(e);
+    const pixelPos = getMousePixelPos(e);
     
-    // Check if clicking on an existing zone to select/copy it
+    // Check if clicking on drag handle of any zone
+    if (mode === "zone") {
+      for (let idx = 0; idx < zones.length; idx++) {
+        const zone = zones[idx];
+        if (isMouseOverDragHandle(zone, pixelPos)) {
+          // Start drag-to-copy from handle
+          setIsDraggingCopy(true);
+          setDraggedZoneCopy({ ...zone, x: cell.x, y: cell.y });
+          setSelectedZoneIndex(idx);
+          return;
+        }
+      }
+    }
+    
+    // Check if clicking on an existing zone to select it
     const clickedZoneIndex = zones.findIndex(zone => 
       cell.x >= zone.x && cell.x < zone.x + zone.width &&
       cell.y >= zone.y && cell.y < zone.y + zone.height
     );
     
     if (clickedZoneIndex !== -1 && mode === "zone") {
-      // Ctrl+Click to start drag copy
-      if (e.ctrlKey || e.metaKey) {
-        const zone = zones[clickedZoneIndex];
-        setIsDraggingCopy(true);
-        setDragOffset({
-          x: cell.x - zone.x,
-          y: cell.y - zone.y
-        });
-        setDraggedZoneCopy({ ...zone, x: zone.x, y: zone.y });
-        setSelectedZoneIndex(clickedZoneIndex);
-      } else {
-        // Just select the zone
-        setSelectedZoneIndex(clickedZoneIndex);
-      }
+      // Just select the zone
+      setSelectedZoneIndex(clickedZoneIndex);
     } else if (mode === "zone") {
       // Start drawing new zone
       setIsSelecting(true);
