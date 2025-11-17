@@ -785,7 +785,7 @@ async def upload_excel(file: UploadFile = File(...)):
             # Find all zones, fridges, and doors - scan the entire sheet
             zone_positions = []  # Will store (row, col, capacity, width, height)
             fridge_positions = []  # Will store (row, col, width, height) for fridges
-            door_positions = []  # Will store (row, col) for doors inside grid
+            door_positions = []  # Will store (row, col, width, height) for doors (blue cells)
             max_col = 0
             max_row = 0
             min_col = float('inf')
