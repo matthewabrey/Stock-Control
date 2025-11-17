@@ -783,6 +783,18 @@ async def upload_excel(file: UploadFile = File(...)):
             print(f"Store {store_name}: Found {len(zone_positions)} zones")
             print(f"  Bounds: rows {min_row}-{max_row}, cols {min_col}-{max_col}")
             
+            # Debug: Show zone distribution by row
+            from collections import defaultdict
+            zones_by_row = defaultdict(list)
+            for row_idx, col_idx, capacity, cell_width, cell_height in zone_positions:
+                zones_by_row[row_idx].append((col_idx, cell_width, cell_height, capacity))
+            
+            print(f"  Zone distribution by row:")
+            for row in sorted(zones_by_row.keys())[:5]:  # Show first 5 rows
+                zones = zones_by_row[row]
+                widths = [z[1] for z in zones]
+                print(f"    Row {row}: {len(zones)} zones, widths: {widths[:10]}{'...' if len(widths) > 10 else ''}")
+            
             # Calculate column positions (used for both zones and doors)
             # IMPORTANT: Include empty columns as gaps to preserve layout
             zones_by_col_temp = {}
