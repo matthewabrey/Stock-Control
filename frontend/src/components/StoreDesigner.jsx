@@ -472,6 +472,14 @@ const StoreDesigner = () => {
     toast.success("Zone added");
   };
 
+  const generateUUID = () => {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      const r = Math.random() * 16 | 0;
+      const v = c === 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
+  };
+
   const handleSave = async () => {
     if (!storeName.trim()) {
       toast.error("Please enter a store name");
@@ -486,7 +494,7 @@ const StoreDesigner = () => {
     try {
       // Create shed
       const shedData = {
-        id: crypto.randomUUID(),
+        id: generateUUID(),
         name: storeName,
         width: GRID_SIZE * 2, // Convert cells to meters (each cell = 2m)
         height: GRID_SIZE * 2,
@@ -502,7 +510,7 @@ const StoreDesigner = () => {
       // Create zones
       for (const zone of zones) {
         const zoneData = {
-          id: crypto.randomUUID(),
+          id: generateUUID(),
           shed_id: shedData.id,
           name: `Z${zones.indexOf(zone) + 1}`,
           x: zone.x * 2, // Convert to meters
@@ -520,7 +528,7 @@ const StoreDesigner = () => {
       navigate("/");
     } catch (error) {
       console.error("Error creating store:", error);
-      toast.error("Failed to create store");
+      toast.error(`Failed to create store: ${error.response?.data?.detail || error.message}`);
     }
   };
 
