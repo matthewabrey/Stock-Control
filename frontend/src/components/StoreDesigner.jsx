@@ -613,8 +613,9 @@ const StoreDesigner = () => {
                 <ul className="list-disc list-inside space-y-1">
                   <li>Click & drag to create new zones</li>
                   <li>Click a zone to select it</li>
-                  <li><strong>Hover zone → drag green cross</strong> to copy (Excel-style)</li>
-                  <li>Use buttons to delete/duplicate selected zone</li>
+                  <li><strong>Ctrl+Click</strong> to select multiple zones</li>
+                  <li><strong>Drag green cross</strong> to copy selected zone(s)</li>
+                  <li>Use buttons to delete/duplicate selected zones</li>
                   <li>Click cells to add doors or fridges</li>
                   <li>Each cell = 2m × 2m</li>
                 </ul>
