@@ -224,9 +224,17 @@ const StoreDesigner = () => {
   };
 
   const handleMouseMove = (e) => {
+    const cell = getCellFromMouse(e);
+    
     if (isSelecting && mode === "zone") {
-      const cell = getCellFromMouse(e);
       setSelectionEnd(cell);
+    } else if (isDraggingCopy && draggedZoneCopy) {
+      // Update copy position while dragging
+      setDraggedZoneCopy({
+        ...draggedZoneCopy,
+        x: cell.x - dragOffset.x,
+        y: cell.y - dragOffset.y
+      });
     }
   };
 
