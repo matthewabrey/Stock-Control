@@ -762,9 +762,8 @@ const StoreDesigner = () => {
                   <li>Click a zone to select it</li>
                   <li><strong>Ctrl+Click</strong> to select multiple zones</li>
                   <li><strong>Drag green cross</strong> to copy selected zone(s)</li>
-                  <li><strong>Draw Walls:</strong> Click & drag to draw perimeter</li>
-                  <li>Use buttons to delete/duplicate selected zones</li>
-                  <li>Click cells to add doors or fridges</li>
+                  <li><strong>Walls:</strong> Select cells, walls appear on outer edges</li>
+                  <li>Delete mode removes cells/walls/doors/fridges</li>
                   <li>Each cell = 2m × 2m</li>
                 </ul>
               </div>
