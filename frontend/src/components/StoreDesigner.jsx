@@ -79,7 +79,31 @@ const StoreDesigner = () => {
       ctx.stroke();
     }
     
-    // Draw walls/perimeter
+    // Draw wall cells (cells selected for wall placement)
+    wallCells.forEach(cell => {
+      ctx.fillStyle = "rgba(31, 41, 55, 0.2)"; // semi-transparent dark gray
+      ctx.fillRect(cell.x * CELL_SIZE, cell.y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+      ctx.strokeStyle = "#1f2937";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(cell.x * CELL_SIZE, cell.y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+    });
+    
+    // Draw current wall cell selection
+    if (isSelectingWallCells && wallCellStart && wallCellEnd) {
+      const x1 = Math.min(wallCellStart.x, wallCellEnd.x);
+      const y1 = Math.min(wallCellStart.y, wallCellEnd.y);
+      const x2 = Math.max(wallCellStart.x, wallCellEnd.x);
+      const y2 = Math.max(wallCellStart.y, wallCellEnd.y);
+      
+      for (let x = x1; x <= x2; x++) {
+        for (let y = y1; y <= y2; y++) {
+          ctx.fillStyle = "rgba(31, 41, 55, 0.3)"; // darker during selection
+          ctx.fillRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+        }
+      }
+    }
+    
+    // Draw walls/perimeter on grid lines
     ctx.strokeStyle = "#1f2937"; // dark gray
     ctx.lineWidth = 4;
     walls.forEach(wall => {
@@ -88,22 +112,6 @@ const StoreDesigner = () => {
       ctx.lineTo(wall.x2 * CELL_SIZE, wall.y2 * CELL_SIZE);
       ctx.stroke();
     });
-    
-    // Draw wall being drawn
-    if (isDrawingWall && wallStart && mousePos) {
-      const endCell = {
-        x: Math.floor(mousePos.x / CELL_SIZE),
-        y: Math.floor(mousePos.y / CELL_SIZE)
-      };
-      ctx.strokeStyle = "#ef4444"; // red
-      ctx.lineWidth = 4;
-      ctx.setLineDash([5, 5]);
-      ctx.beginPath();
-      ctx.moveTo(wallStart.x * CELL_SIZE, wallStart.y * CELL_SIZE);
-      ctx.lineTo(endCell.x * CELL_SIZE, endCell.y * CELL_SIZE);
-      ctx.stroke();
-      ctx.setLineDash([]);
-    }
     
     // Draw zones
     zones.forEach((zone, idx) => {
