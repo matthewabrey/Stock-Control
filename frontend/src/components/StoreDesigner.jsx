@@ -31,6 +31,11 @@ const StoreDesigner = () => {
   const [showCapacityDialog, setShowCapacityDialog] = useState(false);
   const [pendingZone, setPendingZone] = useState(null);
   const [zoneCapacity, setZoneCapacity] = useState("");
+  
+  const [selectedZoneIndex, setSelectedZoneIndex] = useState(null);
+  const [isDraggingCopy, setIsDraggingCopy] = useState(false);
+  const [draggedZoneCopy, setDraggedZoneCopy] = useState(null);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
 
   const drawGrid = () => {
     const canvas = canvasRef.current;
