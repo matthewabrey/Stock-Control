@@ -350,13 +350,21 @@ const StoreDesigner = () => {
     
     if (isSelecting && mode === "zone") {
       setSelectionEnd(cell);
-    } else if (isDraggingCopy && draggedZoneCopy) {
-      // Update copy position while dragging
-      setDraggedZoneCopy({
-        ...draggedZoneCopy,
-        x: cell.x,
-        y: cell.y
+    } else if (isDraggingCopy && draggedZonesCopy.length > 0) {
+      // Update all copied zones' positions while dragging
+      const minX = Math.min(...selectedZoneIndexes.map(i => zones[i].x));
+      const minY = Math.min(...selectedZoneIndexes.map(i => zones[i].y));
+      
+      const updatedCopies = selectedZoneIndexes.map(i => {
+        const zone = zones[i];
+        return {
+          ...zone,
+          x: zone.x - minX + cell.x,
+          y: zone.y - minY + cell.y
+        };
       });
+      
+      setDraggedZonesCopy(updatedCopies);
     }
   };
 
