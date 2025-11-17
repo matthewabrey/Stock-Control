@@ -837,10 +837,30 @@ async def upload_excel(file: UploadFile = File(...)):
                             print(f"  Warning: Could not convert cell value to string: {e}")
                             continue
                         
-                        # Check for DOOR markers (skip these cells, don't create zones)
+                        # Check for DOOR markers (blue cells with "Door" text)
                         if 'door' in cell_str.lower():
-                            door_positions.append((row_idx, col_idx))
-                            continue
+                            # Check if cell has blue fill
+                            cell_fill = cell.fill
+                            is_blue = False
+                            if cell_fill and cell_fill.start_color:
+                                # Check for blue color (hex: 0000FF, 0070C0, etc.)
+                                color_value = cell_fill.start_color.rgb if hasattr(cell_fill.start_color, 'rgb') else None
+                                if color_value:
+                                    # Blue variants: FF0000FF, 0000FF, 000070C0, FF0070C0, etc.
+                                    color_str = str(color_value).upper()
+                                    # Check for various blue shades
+                                    if ('0000FF' in color_str or '0070C0' in color_str or 
+                                        '4472C4' in color_str or '5B9BD5' in color_str):
+                                        is_blue = True
+                            
+                            if is_blue:
+                                print(f"  Found DOOR at row={row_idx}, col={col_idx}, size={cell_width}x{cell_height}")
+                                door_positions.append((row_idx, col_idx, cell_width, cell_height))
+                                max_col = max(max_col, col_idx + cell_width - 1)
+                                max_row = max(max_row, row_idx + cell_height - 1)
+                                min_col = min(min_col, col_idx)
+                                min_row = min(min_row, row_idx)
+                                continue  # Don't process as zone
                         
                         # Check for FRIDGE markers (yellow cells with "Fridge" text)
                         if 'fridge' in cell_str.lower():
