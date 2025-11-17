@@ -606,6 +606,14 @@ const StoreDesigner = () => {
                     Add Fridge
                   </Button>
                   <Button
+                    variant={mode === "wall" ? "default" : "outline"}
+                    onClick={() => setMode("wall")}
+                    className="w-full justify-start"
+                  >
+                    <Square className="w-4 h-4 mr-2" />
+                    Draw Walls
+                  </Button>
+                  <Button
                     variant={mode === "delete" ? "destructive" : "outline"}
                     onClick={() => setMode("delete")}
                     className="w-full justify-start"
