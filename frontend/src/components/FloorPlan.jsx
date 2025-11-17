@@ -138,6 +138,17 @@ const FloorPlan = ({ user }) => {
     }
   };
 
+  const fetchDoors = async () => {
+    try {
+      const response = await axios.get(`${API}/doors?shed_id=${shedId}`);
+      setDoors(response.data);
+    } catch (error) {
+      console.error("Error fetching doors:", error);
+      toast.error("Failed to load doors");
+    }
+  };
+
+
 
   const fetchFields = async () => {
     try {
