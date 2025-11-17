@@ -38,6 +38,11 @@ const StoreDesigner = () => {
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [hoveredZoneIndex, setHoveredZoneIndex] = useState(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  
+  // Wall/perimeter state
+  const [walls, setWalls] = useState([]); // [{x1, y1, x2, y2}]
+  const [isDrawingWall, setIsDrawingWall] = useState(false);
+  const [wallStart, setWallStart] = useState(null);
 
   const drawGrid = () => {
     const canvas = canvasRef.current;
