@@ -417,6 +417,26 @@ const StoreDesigner = () => {
       setIsDraggingCopy(false);
       setDraggedZonesCopy([]);
       toast.success(`${draggedZonesCopy.length} zone${draggedZonesCopy.length > 1 ? 's' : ''} copied!`);
+    } else if (isDrawingWall && wallStart) {
+      // Finalize wall
+      const cell = {
+        x: Math.floor(mousePos.x / CELL_SIZE),
+        y: Math.floor(mousePos.y / CELL_SIZE)
+      };
+      
+      // Only add if wall has length
+      if (cell.x !== wallStart.x || cell.y !== wallStart.y) {
+        setWalls([...walls, {
+          x1: wallStart.x,
+          y1: wallStart.y,
+          x2: cell.x,
+          y2: cell.y
+        }]);
+        toast.success("Wall added");
+      }
+      
+      setIsDrawingWall(false);
+      setWallStart(null);
     } else if (isSelecting && selectionStart && selectionEnd && mode === "zone") {
       const x = Math.min(selectionStart.x, selectionEnd.x);
       const y = Math.min(selectionStart.y, selectionEnd.y);
