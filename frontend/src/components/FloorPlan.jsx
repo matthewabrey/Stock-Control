@@ -1342,6 +1342,32 @@ const FloorPlan = ({ user }) => {
                             </div>
                           );
                         })}
+                        
+                        {/* Fridges */}
+                        {fridges.map((fridge) => {
+                          const fridgeDisplayX = fridge.x * scale;
+                          const fridgeDisplayY = fridge.y * scale;
+                          const fridgeDisplayWidth = fridge.width * scale;
+                          const fridgeDisplayHeight = fridge.height * scale;
+                          
+                          return (
+                            <div
+                              key={fridge.id}
+                              className="absolute border-2 border-gray-700 rounded flex items-center justify-center"
+                              style={{
+                                left: `${shedPadding + fridgeDisplayX + boxPadding}px`,
+                                top: `${shedPadding + fridgeDisplayY + boxPadding}px`,
+                                width: `${fridgeDisplayWidth - boxPadding * 2}px`,
+                                height: `${fridgeDisplayHeight - boxPadding * 2}px`,
+                                backgroundColor: '#FFFF00',
+                                pointerEvents: 'none'
+                              }}
+                              data-testid={`fridge-${fridge.id}`}
+                            >
+                              <span className="text-gray-800 font-bold text-sm">Fridge</span>
+                            </div>
+                          );
+                        })}
                         </div>
                         
                         {/* Row numbers on RIGHT side */}
