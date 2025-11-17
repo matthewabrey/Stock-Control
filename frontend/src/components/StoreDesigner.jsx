@@ -614,17 +614,15 @@ const StoreDesigner = () => {
           await axios.delete(`${API}/zones/${zone.id}`);
         }
         
-        // Create new zones
+        // Create new zones (don't send id, backend generates it)
         for (const zone of zones) {
           const zoneData = {
-            id: generateUUID(),
             shed_id: shedId,
             name: `Z${zones.indexOf(zone) + 1}`,
             x: zone.x * 2,
             y: zone.y * 2,
             width: zone.width * 2,
             height: zone.height * 2,
-            total_quantity: 0,
             max_capacity: zone.capacity
           };
           
