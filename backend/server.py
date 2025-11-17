@@ -243,8 +243,9 @@ async def delete_shed(shed_id: str):
     result = await db.sheds.delete_one({"id": shed_id})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Shed not found")
-    # Delete all zones in this shed
+    # Delete all zones and fridges in this shed
     await db.zones.delete_many({"shed_id": shed_id})
+    await db.fridges.delete_many({"shed_id": shed_id})
     return {"message": "Shed deleted"}
 
 
