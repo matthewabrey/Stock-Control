@@ -26,7 +26,7 @@ const StoreDesigner = () => {
   const [isSelecting, setIsSelecting] = useState(false);
   const [selectionStart, setSelectionStart] = useState(null);
   const [selectionEnd, setSelectionEnd] = useState(null);
-  const [mode, setMode] = useState("zone"); // "zone", "door", "fridge", "delete"
+  const [mode, setMode] = useState("zone"); // "zone", "door", "fridge", "delete", "wall"
   
   const [showCapacityDialog, setShowCapacityDialog] = useState(false);
   const [pendingZone, setPendingZone] = useState(null);
