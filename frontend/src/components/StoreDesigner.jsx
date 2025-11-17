@@ -238,16 +238,34 @@ const StoreDesigner = () => {
   const handleMouseDown = (e) => {
     const cell = getCellFromMouse(e);
     const pixelPos = getMousePixelPos(e);
+    const isCtrlKey = e.ctrlKey || e.metaKey;
     
-    // Check if clicking on drag handle of any zone
-    if (mode === "zone") {
-      for (let idx = 0; idx < zones.length; idx++) {
+    // Check if clicking on drag handle of any selected zone
+    if (mode === "zone" && selectedZoneIndexes.length > 0) {
+      for (let idx of selectedZoneIndexes) {
         const zone = zones[idx];
         if (isMouseOverDragHandle(zone, pixelPos)) {
-          // Start drag-to-copy from handle
+          // Start drag-to-copy all selected zones
           setIsDraggingCopy(true);
-          setDraggedZoneCopy({ ...zone, x: cell.x, y: cell.y });
-          setSelectedZoneIndex(idx);
+          
+          // Calculate relative positions of all selected zones
+          const minX = Math.min(...selectedZoneIndexes.map(i => zones[i].x));
+          const minY = Math.min(...selectedZoneIndexes.map(i => zones[i].y));
+          
+          const copiedZones = selectedZoneIndexes.map(i => {
+            const z = zones[i];
+            return {
+              ...z,
+              x: z.x - minX + cell.x,
+              y: z.y - minY + cell.y
+            };
+          });
+          
+          setDraggedZonesCopy(copiedZones);
+          setDragOffset({
+            x: cell.x - minX,
+            y: cell.y - minY
+          });
           return;
         }
       }
@@ -260,20 +278,31 @@ const StoreDesigner = () => {
     );
     
     if (clickedZoneIndex !== -1 && mode === "zone") {
-      // Just select the zone
-      setSelectedZoneIndex(clickedZoneIndex);
+      if (isCtrlKey) {
+        // Ctrl+Click: Toggle zone in selection
+        if (selectedZoneIndexes.includes(clickedZoneIndex)) {
+          setSelectedZoneIndexes(selectedZoneIndexes.filter(i => i !== clickedZoneIndex));
+        } else {
+          setSelectedZoneIndexes([...selectedZoneIndexes, clickedZoneIndex]);
+        }
+      } else {
+        // Regular click: Select only this zone
+        setSelectedZoneIndexes([clickedZoneIndex]);
+      }
     } else if (mode === "zone") {
       // Start drawing new zone
       setIsSelecting(true);
       setSelectionStart(cell);
       setSelectionEnd(cell);
-      setSelectedZoneIndex(null);
+      if (!isCtrlKey) {
+        setSelectedZoneIndexes([]);
+      }
     } else if (mode === "door") {
       setDoors([...doors, cell]);
-      setSelectedZoneIndex(null);
+      setSelectedZoneIndexes([]);
     } else if (mode === "fridge") {
       setFridges([...fridges, cell]);
-      setSelectedZoneIndex(null);
+      setSelectedZoneIndexes([]);
     } else if (mode === "delete") {
       // Delete zone at this cell
       setZones(zones.filter((zone, idx) => {
@@ -284,7 +313,7 @@ const StoreDesigner = () => {
       setDoors(doors.filter(door => !(door.x === cell.x && door.y === cell.y)));
       // Delete fridge at this cell
       setFridges(fridges.filter(fridge => !(fridge.x === cell.x && fridge.y === cell.y)));
-      setSelectedZoneIndex(null);
+      setSelectedZoneIndexes([]);
     }
   };
 
