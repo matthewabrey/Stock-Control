@@ -423,6 +423,47 @@ backend:
           - Deleted all fields, sheds, zones, stock_intakes, and stock_movements
           - Database now in clean state ready for fresh data
 
+  - task: "Excel parsing to detect blue Door cells"
+    implemented: true
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: |
+          ❌ DOOR DETECTION NOT WORKING WITH NEW EXCEL FILE
+          
+          🔍 ISSUE IDENTIFIED:
+          - Backend logs show "Warning: Could not parse capacity 'DOOR'" messages
+          - No "Found DOOR at row=X, col=Y" messages for blue cells
+          - 0 doors created despite DOOR text being detected in Excel
+          - Door positioning logic works (shows "Found door: top/bottom at Xm" for existing doors)
+          
+          🔍 ROOT CAUSE ANALYSIS:
+          The Excel parsing logic (lines 841-864) requires BOTH:
+          1. Blue fill color detection (checking for 0000FF, 0070C0, etc.)
+          2. Cell text containing "door" (case-insensitive)
+          
+          🔴 POTENTIAL ISSUES:
+          1. Blue color detection may not match Excel file's blue color codes
+          2. Case sensitivity: Excel has "DOOR" (uppercase) vs expected "door" (lowercase)
+          3. Cell fill color format may be different than expected RGB format
+          4. Blue cells may not have proper color metadata in Excel file
+          
+          📊 EVIDENCE FROM LOGS:
+          - Multiple "Warning: Could not parse capacity 'DOOR'" messages
+          - No blue door creation messages in logs
+          - Fridge detection working perfectly (yellow cells detected)
+          
+          🎯 NEEDS INVESTIGATION:
+          - Check actual blue color codes in Excel file
+          - Verify case-insensitive matching for "DOOR" text
+          - Debug color detection logic for blue cells
+          - Test with different blue color variants
+
 frontend:
   - task: "Use Type field for onion classification in Overview"
     implemented: true
