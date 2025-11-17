@@ -424,6 +424,39 @@ const StoreDesigner = () => {
                 </div>
               </div>
               
+              {selectedZoneIndex !== null && (
+                <div className="pt-4 border-t">
+                  <Label className="mb-2 block text-sm font-semibold">Selected Zone Actions</Label>
+                  <div className="space-y-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        const zone = zones[selectedZoneIndex];
+                        setZones([...zones, { ...zone }]);
+                        toast.success("Zone duplicated! Drag with Ctrl to position it.");
+                      }}
+                      className="w-full justify-start"
+                      size="sm"
+                    >
+                      Duplicate Zone
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      onClick={() => {
+                        setZones(zones.filter((_, idx) => idx !== selectedZoneIndex));
+                        setSelectedZoneIndex(null);
+                        toast.success("Zone deleted");
+                      }}
+                      className="w-full justify-start"
+                      size="sm"
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Delete Zone
+                    </Button>
+                  </div>
+                </div>
+              )}
+              
               <div className="pt-4 border-t text-xs text-gray-600">
                 <p className="font-semibold mb-1">Instructions:</p>
                 <ul className="list-disc list-inside space-y-1">
