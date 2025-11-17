@@ -934,8 +934,8 @@ async def upload_excel(file: UploadFile = File(...)):
                 widths = [z[1] for z in zones]
                 print(f"    Row {row}: {len(zones)} zones, widths: {widths[:10]}{'...' if len(widths) > 10 else ''}")
             
-            # Calculate zone and fridge positions
-            # Group zones and fridges by row for proper x-position calculation
+            # Calculate zone, fridge, and door positions
+            # Group zones, fridges, and doors by row for proper x-position calculation
             zones_by_row = {}
             for row_idx, col_idx, capacity, cell_width, cell_height in zone_positions:
                 if row_idx not in zones_by_row:
@@ -947,6 +947,12 @@ async def upload_excel(file: UploadFile = File(...)):
                 if row_idx not in zones_by_row:
                     zones_by_row[row_idx] = []
                 zones_by_row[row_idx].append((col_idx, 0, cell_width, cell_height, 'fridge'))  # capacity=0 for fridges
+            
+            # Add doors to the same row structure for position calculation
+            for row_idx, col_idx, cell_width, cell_height in door_positions:
+                if row_idx not in zones_by_row:
+                    zones_by_row[row_idx] = []
+                zones_by_row[row_idx].append((col_idx, 0, cell_width, cell_height, 'door'))  # capacity=0 for doors
             
             # Sort items in each row by column
             for row_idx in zones_by_row:
