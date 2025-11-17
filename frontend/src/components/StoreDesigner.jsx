@@ -423,6 +423,35 @@ const StoreDesigner = () => {
     }
   };
 
+  const generateWallsFromCells = (cells) => {
+    if (cells.length === 0) return [];
+    
+    const newWalls = [];
+    const cellSet = new Set(cells.map(c => `${c.x},${c.y}`));
+    
+    // For each cell, check each of its 4 sides
+    cells.forEach(cell => {
+      // Top side
+      if (!cellSet.has(`${cell.x},${cell.y - 1}`)) {
+        newWalls.push({ x1: cell.x, y1: cell.y, x2: cell.x + 1, y2: cell.y });
+      }
+      // Bottom side
+      if (!cellSet.has(`${cell.x},${cell.y + 1}`)) {
+        newWalls.push({ x1: cell.x, y1: cell.y + 1, x2: cell.x + 1, y2: cell.y + 1 });
+      }
+      // Left side
+      if (!cellSet.has(`${cell.x - 1},${cell.y}`)) {
+        newWalls.push({ x1: cell.x, y1: cell.y, x2: cell.x, y2: cell.y + 1 });
+      }
+      // Right side
+      if (!cellSet.has(`${cell.x + 1},${cell.y}`)) {
+        newWalls.push({ x1: cell.x + 1, y1: cell.y, x2: cell.x + 1, y2: cell.y + 1 });
+      }
+    });
+    
+    return newWalls;
+  };
+
   const handleMouseUp = () => {
     if (isDraggingCopy && draggedZonesCopy.length > 0) {
       // Finalize the copy - add all zones
@@ -430,26 +459,35 @@ const StoreDesigner = () => {
       setIsDraggingCopy(false);
       setDraggedZonesCopy([]);
       toast.success(`${draggedZonesCopy.length} zone${draggedZonesCopy.length > 1 ? 's' : ''} copied!`);
-    } else if (isDrawingWall && wallStart) {
-      // Finalize wall
-      const cell = {
-        x: Math.floor(mousePos.x / CELL_SIZE),
-        y: Math.floor(mousePos.y / CELL_SIZE)
-      };
+    } else if (isSelectingWallCells && wallCellStart && wallCellEnd) {
+      // Add selected cells to wall cells
+      const x1 = Math.min(wallCellStart.x, wallCellEnd.x);
+      const y1 = Math.min(wallCellStart.y, wallCellEnd.y);
+      const x2 = Math.max(wallCellStart.x, wallCellEnd.x);
+      const y2 = Math.max(wallCellStart.y, wallCellEnd.y);
       
-      // Only add if wall has length
-      if (cell.x !== wallStart.x || cell.y !== wallStart.y) {
-        setWalls([...walls, {
-          x1: wallStart.x,
-          y1: wallStart.y,
-          x2: cell.x,
-          y2: cell.y
-        }]);
-        toast.success("Wall added");
+      const newCells = [];
+      for (let x = x1; x <= x2; x++) {
+        for (let y = y1; y <= y2; y++) {
+          // Check if cell already exists
+          if (!wallCells.find(c => c.x === x && c.y === y)) {
+            newCells.push({ x, y });
+          }
+        }
       }
       
-      setIsDrawingWall(false);
-      setWallStart(null);
+      const updatedWallCells = [...wallCells, ...newCells];
+      setWallCells(updatedWallCells);
+      
+      // Generate walls from all wall cells
+      const generatedWalls = generateWallsFromCells(updatedWallCells);
+      setWalls(generatedWalls);
+      
+      toast.success(`${newCells.length} cell${newCells.length > 1 ? 's' : ''} added to wall area`);
+      
+      setIsSelectingWallCells(false);
+      setWallCellStart(null);
+      setWallCellEnd(null);
     } else if (isSelecting && selectionStart && selectionEnd && mode === "zone") {
       const x = Math.min(selectionStart.x, selectionEnd.x);
       const y = Math.min(selectionStart.y, selectionEnd.y);
