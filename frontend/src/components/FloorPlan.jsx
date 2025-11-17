@@ -353,8 +353,12 @@ const FloorPlan = ({ user }) => {
   };
 
   const handleZoneMouseEnter = (zone) => {
-    // Only show details popup if zone has stock
-    if (zone.total_quantity > 0) {
+    // Only show details popup if zone has mixed stock (multiple crops)
+    const zoneIntakes = stockIntakes.filter(intake => intake.zone_id === zone.id);
+    const uniqueFields = new Set(zoneIntakes.map(intake => intake.field_id));
+    const isMixed = uniqueFields.size > 1;
+    
+    if (isMixed) {
       // Clear any existing timer
       if (hoverTimer) {
         clearTimeout(hoverTimer);
