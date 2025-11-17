@@ -898,28 +898,28 @@ async def upload_excel(file: UploadFile = File(...)):
             max_width_per_row = {}  # Track max width of each row
             
             for row_idx in sorted(zones_by_row.keys()):
-                row_zones = zones_by_row[row_idx]
+                row_items = zones_by_row[row_idx]
                 current_x = 0
                 prev_col_idx = min_col - 1
                 
-                for col_idx, capacity, cell_width, cell_height in row_zones:
-                    # Check if there are empty columns between previous zone and this one
+                for col_idx, capacity, cell_width, cell_height, item_type in row_items:
+                    # Check if there are empty columns between previous item and this one
                     if col_idx > prev_col_idx + 1:
                         # Add gaps for empty columns
                         gap_cols = col_idx - (prev_col_idx + 1)
                         current_x += gap_cols * 2  # 2m per empty column
                     
-                    # Store position for this zone
+                    # Store position for this zone or fridge
                     zone_x_positions[(row_idx, col_idx)] = current_x
                     
-                    # Calculate zone width and advance current_x
+                    # Calculate width and advance current_x
                     if storage_type == "bulk":
-                        zone_width = 8 * cell_width
+                        item_width = 8 * cell_width
                     else:
-                        zone_width = 2 * cell_width
+                        item_width = 2 * cell_width
                     
-                    current_x += zone_width
-                    prev_col_idx = col_idx + cell_width - 1  # Last column occupied by this zone
+                    current_x += item_width
+                    prev_col_idx = col_idx + cell_width - 1  # Last column occupied by this item
                 
                 max_width_per_row[row_idx] = current_x
             
