@@ -348,6 +348,39 @@ frontend:
           - Upload Excel with Type column and verify onion summary reflects correct categories
           - Test that Red, Brown, and Special onions are correctly classified
   
+  - task: "Render fridges on floor plan"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/FloorPlan.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: |
+          ✅ IMPLEMENTED fridge rendering on floor plan
+          - Added fridges state array
+          - Added fetchFridges() function to fetch fridges from API
+          - Fridges are fetched on component mount (useEffect)
+          - Rendered after zones using same positioning logic
+          - Styled as yellow (#FFFF00) blocks with "Fridge" text
+          - Border: 2px solid gray
+          - pointerEvents: none (not interactive)
+          - Positioned using fridge.x, fridge.y, fridge.width, fridge.height with scale
+          
+          CHANGES:
+          - Line 33: Added fridges state
+          - Line 79: Added fetchFridges() call in useEffect
+          - Lines 128-137: Added fetchFridges function
+          - Lines 1346-1370: Added fridge rendering loop
+          
+          NEEDS TESTING:
+          - Upload Excel with yellow Fridge cells
+          - Navigate to store floor plan
+          - Verify fridges appear as yellow blocks with "Fridge" text
+          - Verify positioning matches Excel layout
+
   - task: "Use Type field for onion classification in FloorPlan"
     implemented: true
     working: "NA"
