@@ -505,6 +505,327 @@ class StockControlTester:
             self.log_test("Stock Intake with Grade", False, f"Exception: {str(e)}")
             return False
     
+    def test_fridge_api_endpoints(self):
+        """Test Fridge API endpoints (POST, GET, DELETE)"""
+        try:
+            # First, ensure we have a shed to create fridges in
+            response = self.session.get(f"{self.base_url}/sheds")
+            if response.status_code != 200:
+                self.log_test("Fridge API Setup", False, "Failed to get sheds for fridge test")
+                return False
+            
+            sheds = response.json()
+            if not sheds:
+                # Create a test shed if none exist
+                shed_data = {
+                    "name": "Fridge Test Shed",
+                    "width": 30.0,
+                    "height": 20.0,
+                    "description": "Test shed for fridge API testing"
+                }
+                response = self.session.post(f"{self.base_url}/sheds", json=shed_data)
+                if response.status_code != 200:
+                    self.log_test("Fridge API Setup", False, "Failed to create test shed for fridges")
+                    return False
+                shed = response.json()
+            else:
+                shed = sheds[0]
+            
+            shed_id = shed.get('id')
+            
+            # Test POST /api/fridges (create a fridge)
+            fridge_data = {
+                "shed_id": shed_id,
+                "name": "Fridge",
+                "x": 10.0,
+                "y": 5.0,
+                "width": 4.0,
+                "height": 2.0
+            }
+            
+            response = self.session.post(f"{self.base_url}/fridges", json=fridge_data)
+            if response.status_code != 200:
+                self.log_test("Fridge Creation", False, f"Failed to create fridge, status: {response.status_code}", response.text)
+                return False
+            
+            fridge = response.json()
+            fridge_id = fridge.get('id')
+            
+            # Verify fridge model has required fields
+            required_fields = ['id', 'shed_id', 'name', 'x', 'y', 'width', 'height']
+            missing_fields = [field for field in required_fields if field not in fridge]
+            if missing_fields:
+                self.log_test("Fridge Model Validation", False, f"Fridge missing required fields: {missing_fields}")
+                return False
+            
+            # Verify field values
+            if fridge.get('shed_id') != shed_id:
+                self.log_test("Fridge Model Validation", False, f"Fridge shed_id mismatch. Expected: {shed_id}, Got: {fridge.get('shed_id')}")
+                return False
+            
+            if fridge.get('name') != "Fridge":
+                self.log_test("Fridge Model Validation", False, f"Fridge name mismatch. Expected: 'Fridge', Got: {fridge.get('name')}")
+                return False
+            
+            # Test GET /api/fridges?shed_id=xxx (fetch fridges for a shed)
+            response = self.session.get(f"{self.base_url}/fridges?shed_id={shed_id}")
+            if response.status_code != 200:
+                self.log_test("Fridge Retrieval by Shed", False, f"Failed to get fridges for shed, status: {response.status_code}")
+                return False
+            
+            fridges = response.json()
+            if not fridges:
+                self.log_test("Fridge Retrieval by Shed", False, "No fridges found for shed after creation")
+                return False
+            
+            # Verify our created fridge is in the list
+            created_fridge = next((f for f in fridges if f.get('id') == fridge_id), None)
+            if not created_fridge:
+                self.log_test("Fridge Retrieval by Shed", False, "Created fridge not found in shed's fridge list")
+                return False
+            
+            # Test GET /api/fridges (fetch all fridges)
+            response = self.session.get(f"{self.base_url}/fridges")
+            if response.status_code != 200:
+                self.log_test("Fridge Retrieval All", False, f"Failed to get all fridges, status: {response.status_code}")
+                return False
+            
+            all_fridges = response.json()
+            created_fridge_all = next((f for f in all_fridges if f.get('id') == fridge_id), None)
+            if not created_fridge_all:
+                self.log_test("Fridge Retrieval All", False, "Created fridge not found in all fridges list")
+                return False
+            
+            # Test DELETE /api/fridges/{fridge_id}
+            response = self.session.delete(f"{self.base_url}/fridges/{fridge_id}")
+            if response.status_code != 200:
+                self.log_test("Fridge Deletion", False, f"Failed to delete fridge, status: {response.status_code}")
+                return False
+            
+            # Verify fridge is deleted
+            response = self.session.get(f"{self.base_url}/fridges?shed_id={shed_id}")
+            if response.status_code == 200:
+                remaining_fridges = response.json()
+                deleted_fridge = next((f for f in remaining_fridges if f.get('id') == fridge_id), None)
+                if deleted_fridge:
+                    self.log_test("Fridge Deletion Verification", False, "Fridge still exists after deletion")
+                    return False
+            
+            self.log_test("Fridge API Endpoints", True, "All fridge API operations successful (POST, GET, DELETE)")
+            return True
+            
+        except Exception as e:
+            self.log_test("Fridge API Endpoints", False, f"Exception: {str(e)}")
+            return False
+    
+    def test_hardcoded_admin_login(self):
+        """Test hardcoded admin login for employee 1234"""
+        try:
+            # Test login with hardcoded admin employee number "1234"
+            login_data = {"employee_number": "1234"}
+            
+            response = self.session.post(f"{self.base_url}/login", json=login_data)
+            if response.status_code != 200:
+                self.log_test("Hardcoded Admin Login", False, f"Failed to login with employee 1234, status: {response.status_code}", response.text)
+                return False
+            
+            admin_user = response.json()
+            
+            # Verify admin user has all required permissions
+            expected_permissions = {
+                "employee_number": "1234",
+                "name": "Admin User",
+                "stock_movement": "Yes",
+                "admin_control": "YES",
+                "qc": "Yes",
+                "daily_check": "Yes",
+                "workshop_control": "Yes",
+                "operations": "Yes"
+            }
+            
+            permission_tests = []
+            for field, expected_value in expected_permissions.items():
+                actual_value = admin_user.get(field)
+                if actual_value == expected_value:
+                    permission_tests.append(f"✅ {field}: '{actual_value}' (correct)")
+                else:
+                    permission_tests.append(f"❌ {field}: Expected '{expected_value}', Got '{actual_value}'")
+            
+            # Check if admin user has an ID
+            if not admin_user.get('id'):
+                permission_tests.append("❌ id: Missing ID field")
+            else:
+                permission_tests.append(f"✅ id: '{admin_user.get('id')}' (present)")
+            
+            # Check for any failed permission tests
+            failed_permissions = [test for test in permission_tests if test.startswith('❌')]
+            
+            if failed_permissions:
+                self.log_test(
+                    "Hardcoded Admin Permissions", 
+                    False, 
+                    f"Admin permission issues found",
+                    "\n".join(permission_tests)
+                )
+                return False
+            
+            # Test that normal employee numbers still work (if any users exist in DB)
+            # First check if there are any users in the database
+            response = self.session.get(f"{self.base_url}/users")
+            if response.status_code == 200:
+                users = response.json()
+                if users:
+                    # Try to login with a normal user
+                    normal_user = users[0]
+                    normal_employee_number = normal_user.get('employee_number')
+                    
+                    if normal_employee_number and normal_employee_number != "1234":
+                        login_data = {"employee_number": normal_employee_number}
+                        response = self.session.post(f"{self.base_url}/login", json=login_data)
+                        
+                        if response.status_code == 200:
+                            normal_login_user = response.json()
+                            self.log_test(
+                                "Normal User Login", 
+                                True, 
+                                f"Normal user login still works for employee {normal_employee_number}"
+                            )
+                        else:
+                            self.log_test(
+                                "Normal User Login", 
+                                False, 
+                                f"Normal user login failed for employee {normal_employee_number}, status: {response.status_code}"
+                            )
+                            return False
+                    else:
+                        self.log_test(
+                            "Normal User Login", 
+                            True, 
+                            "No normal users found to test (only admin 1234 exists)"
+                        )
+                else:
+                    self.log_test(
+                        "Normal User Login", 
+                        True, 
+                        "No users in database to test normal login"
+                    )
+            
+            # Test invalid employee number
+            login_data = {"employee_number": "9999"}
+            response = self.session.post(f"{self.base_url}/login", json=login_data)
+            if response.status_code == 404:
+                self.log_test(
+                    "Invalid Employee Login", 
+                    True, 
+                    "Invalid employee number correctly returns 404"
+                )
+            else:
+                self.log_test(
+                    "Invalid Employee Login", 
+                    False, 
+                    f"Invalid employee number should return 404, got {response.status_code}"
+                )
+                return False
+            
+            self.log_test(
+                "Hardcoded Admin Login", 
+                True, 
+                "Admin login successful with all permissions",
+                "\n".join(permission_tests)
+            )
+            return True
+            
+        except Exception as e:
+            self.log_test("Hardcoded Admin Login", False, f"Exception: {str(e)}")
+            return False
+    
+    def test_clear_data_with_fridges(self):
+        """Test clear all data endpoint includes fridges collection"""
+        try:
+            # First create some test data including fridges
+            # Create a shed
+            shed_data = {
+                "name": "Clear Test Shed",
+                "width": 20.0,
+                "height": 15.0
+            }
+            response = self.session.post(f"{self.base_url}/sheds", json=shed_data)
+            if response.status_code != 200:
+                self.log_test("Clear Data Setup", False, "Failed to create test shed")
+                return False
+            
+            shed = response.json()
+            shed_id = shed.get('id')
+            
+            # Create a fridge
+            fridge_data = {
+                "shed_id": shed_id,
+                "name": "Fridge",
+                "x": 5.0,
+                "y": 5.0,
+                "width": 2.0,
+                "height": 2.0
+            }
+            response = self.session.post(f"{self.base_url}/fridges", json=fridge_data)
+            if response.status_code != 200:
+                self.log_test("Clear Data Setup", False, "Failed to create test fridge")
+                return False
+            
+            # Verify fridge exists
+            response = self.session.get(f"{self.base_url}/fridges")
+            if response.status_code != 200:
+                self.log_test("Clear Data Setup", False, "Failed to get fridges before clear")
+                return False
+            
+            fridges_before = response.json()
+            if not fridges_before:
+                self.log_test("Clear Data Setup", False, "No fridges found before clear operation")
+                return False
+            
+            # Test DELETE /api/clear-all-data
+            response = self.session.delete(f"{self.base_url}/clear-all-data")
+            if response.status_code != 200:
+                self.log_test("Clear All Data", False, f"Failed to clear all data, status: {response.status_code}")
+                return False
+            
+            clear_result = response.json()
+            collections_cleared = clear_result.get('collections_cleared', [])
+            
+            # Verify fridges collection is in the cleared list
+            if 'fridges' not in collections_cleared:
+                self.log_test("Clear Data Fridges", False, f"Fridges collection not in cleared list: {collections_cleared}")
+                return False
+            
+            # Verify fridges are actually deleted
+            response = self.session.get(f"{self.base_url}/fridges")
+            if response.status_code != 200:
+                self.log_test("Clear Data Verification", False, "Failed to get fridges after clear")
+                return False
+            
+            fridges_after = response.json()
+            if fridges_after:
+                self.log_test("Clear Data Verification", False, f"Fridges still exist after clear: {len(fridges_after)} fridges found")
+                return False
+            
+            # Verify other collections are also cleared
+            expected_collections = ["fields", "sheds", "zones", "fridges", "stock_intakes", "stock_movements"]
+            missing_collections = [col for col in expected_collections if col not in collections_cleared]
+            if missing_collections:
+                self.log_test("Clear Data Collections", False, f"Missing collections from clear: {missing_collections}")
+                return False
+            
+            self.log_test(
+                "Clear All Data with Fridges", 
+                True, 
+                f"Successfully cleared all data including fridges collection",
+                f"Cleared collections: {collections_cleared}"
+            )
+            return True
+            
+        except Exception as e:
+            self.log_test("Clear All Data with Fridges", False, f"Exception: {str(e)}")
+            return False
+    
     def run_all_tests(self):
         """Run all tests in sequence"""
         print(f"🧪 Starting Stock Control Backend API Tests")
