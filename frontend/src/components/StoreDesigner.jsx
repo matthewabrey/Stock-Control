@@ -680,6 +680,7 @@ const StoreDesigner = () => {
               <div className="pt-4 border-t">
                 <div className="text-sm space-y-1">
                   <p><strong>Zones:</strong> {zones.length}</p>
+                  <p><strong>Wall Cells:</strong> {wallCells.length}</p>
                   <p><strong>Walls:</strong> {walls.length}</p>
                   <p><strong>Doors:</strong> {doors.length}</p>
                   <p><strong>Fridges:</strong> {fridges.length}</p>
@@ -687,6 +688,20 @@ const StoreDesigner = () => {
                     <p className="text-red-600"><strong>Selected:</strong> {selectedZoneIndexes.length} zone{selectedZoneIndexes.length > 1 ? 's' : ''}</p>
                   )}
                 </div>
+                {wallCells.length > 0 && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setWallCells([]);
+                      setWalls([]);
+                      toast.success("All walls cleared");
+                    }}
+                    className="w-full mt-2"
+                  >
+                    Clear All Walls
+                  </Button>
+                )}
               </div>
               
               {selectedZoneIndexes.length > 0 && (
