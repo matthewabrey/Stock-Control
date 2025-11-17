@@ -325,6 +325,28 @@ async def delete_fridge(fridge_id: str):
     return {"message": "Fridge deleted"}
 
 
+# Door Routes
+@api_router.post("/doors", response_model=Door)
+async def create_door(input: DoorCreate):
+    door_obj = Door(**input.model_dump())
+    doc = door_obj.model_dump()
+    await db.doors.insert_one(doc)
+    return door_obj
+
+@api_router.get("/doors", response_model=List[Door])
+async def get_doors(shed_id: Optional[str] = None):
+    query = {"shed_id": shed_id} if shed_id else {}
+    doors = await db.doors.find(query, {"_id": 0}).to_list(length=None)
+    return doors
+
+@api_router.delete("/doors/{door_id}")
+async def delete_door(door_id: str):
+    result = await db.doors.delete_one({"id": door_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Door not found")
+    return {"message": "Door deleted"}
+
+
 # Stock Intake Routes
 @api_router.post("/stock-intakes", response_model=StockIntake)
 async def create_stock_intake(input: StockIntakeCreate):
