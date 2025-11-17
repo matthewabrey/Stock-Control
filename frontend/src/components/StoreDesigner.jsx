@@ -36,6 +36,8 @@ const StoreDesigner = () => {
   const [isDraggingCopy, setIsDraggingCopy] = useState(false);
   const [draggedZoneCopy, setDraggedZoneCopy] = useState(null);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [hoveredZoneIndex, setHoveredZoneIndex] = useState(null);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
   const drawGrid = () => {
     const canvas = canvasRef.current;
