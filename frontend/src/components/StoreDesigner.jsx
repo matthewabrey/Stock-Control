@@ -648,15 +648,45 @@ const StoreDesigner = () => {
         
         toast.success("Store updated successfully!");
       } else {
-        // Create new shed
+        // Calculate actual shed dimensions from zones and walls
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        
+        // Include zones in bounding box
+        zones.forEach(z => {
+          minX = Math.min(minX, z.x);
+          minY = Math.min(minY, z.y);
+          maxX = Math.max(maxX, z.x + z.width);
+          maxY = Math.max(maxY, z.y + z.height);
+        });
+        
+        // Include wall cells in bounding box
+        wallCells.forEach(w => {
+          minX = Math.min(minX, w.x);
+          minY = Math.min(minY, w.y);
+          maxX = Math.max(maxX, w.x + 1);
+          maxY = Math.max(maxY, w.y + 1);
+        });
+        
+        // Add padding
+        minX = Math.max(0, minX - 1);
+        minY = Math.max(0, minY - 1);
+        maxX = maxX + 1;
+        maxY = maxY + 1;
+        
+        const shedWidth = (maxX - minX) * 2; // Convert cells to meters
+        const shedHeight = (maxY - minY) * 2;
+        
+        console.log(`Shed bounds: ${minX},${minY} to ${maxX},${maxY} = ${shedWidth}m x ${shedHeight}m`);
+        
+        // Create new shed with actual dimensions
         const shedData = {
           name: storeName,
-          width: GRID_SIZE * 2,
-          height: GRID_SIZE * 2,
+          width: shedWidth,
+          height: shedHeight,
           description: `${storeType} storage - ${zones.length} zones`,
           doors: doors.map(d => ({
-            side: "top",
-            position: d.x * 2
+            side: d.y <= minY + 1 ? "top" : d.y >= maxY - 1 ? "bottom" : d.x <= minX + 1 ? "left" : "right",
+            position: Math.abs(d.x - minX) * 2 // Position relative to shed origin
           }))
         };
         
@@ -667,6 +697,17 @@ const StoreDesigner = () => {
           console.log('Shed created:', shedResponse.data);
           // Use the shed ID from the response
           shedData.id = shedResponse.data.id;
+          
+          // Adjust zone positions to be relative to shed origin
+          const adjustedZones = zones.map(z => ({
+            ...z,
+            x: (z.x - minX) * 2, // Relative to shed origin and convert to meters
+            y: (z.y - minY) * 2
+          }));
+          
+          zones.length = 0;
+          zones.push(...adjustedZones);
+          
         } catch (error) {
           console.error('Failed to create shed:', error.response?.data || error.message);
           throw error;
