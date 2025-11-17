@@ -1257,14 +1257,12 @@ const FloorPlan = ({ user }) => {
                           const isMixed = zoneColor === "mixed";
                           const mixedFields = isMixed ? getZoneMixedFields(zone) : [];
                           
-                          const actualCol = Math.floor(zone.x / 2);
-                          const actualRow = Math.floor(zone.y / 2);
-                          const displayCol = actualCol - minCol;
-                          const displayRow = actualRow - minRow;
-                          
-                          // Calculate display dimensions based on actual zone size
-                          const zoneWidthCells = zone.width / 2;
-                          const zoneHeightCells = zone.height / 2;
+                          // Use zone positions directly in meters with scale
+                          // Don't convert to grid cells as merged cells break the grid assumption
+                          const zoneDisplayX = zone.x * scale;
+                          const zoneDisplayY = zone.y * scale;
+                          const zoneDisplayWidth = zone.width * scale;
+                          const zoneDisplayHeight = zone.height * scale;
                           
                           return (
                             <div
@@ -1281,10 +1279,10 @@ const FloorPlan = ({ user }) => {
                               }`}
                               title="Hover for 1.5s or double-click to view contents"
                               style={{
-                                left: `${shedPadding + displayCol * gridCellSize + boxPadding}px`,
-                                top: `${shedPadding + displayRow * gridCellSize + boxPadding}px`,
-                                width: `${zoneWidthCells * gridCellSize - boxPadding * 2}px`,
-                                height: `${zoneHeightCells * gridCellSize - boxPadding * 2}px`,
+                                left: `${shedPadding + zoneDisplayX + boxPadding}px`,
+                                top: `${shedPadding + zoneDisplayY + boxPadding}px`,
+                                width: `${zoneDisplayWidth - boxPadding * 2}px`,
+                                height: `${zoneDisplayHeight - boxPadding * 2}px`,
                                 backgroundColor: isMixed ? 'transparent' : zoneColor,
                                 opacity: isEmpty ? 0.5 : 1,
                                 boxShadow: isSelected ? '0 0 0 2px #fff, 0 0 0 6px #2563eb' : '0 2px 4px rgba(0,0,0,0.1)',
