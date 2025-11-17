@@ -175,14 +175,26 @@ const Dashboard = ({ user, onLogout }) => {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Button 
-                onClick={handleAdminClick}
-                className="h-20 text-lg bg-green-600 hover:bg-green-700 rounded-md shadow"
-                data-testid="btn-admin"
-              >
-                <Lock className="mr-2 w-6 h-6" />
-                Admin
-              </Button>
+              {user && user.admin_control?.toUpperCase() === "YES" && (
+                <>
+                  <Button 
+                    onClick={handleAdminClick}
+                    className="h-20 text-lg bg-green-600 hover:bg-green-700 rounded-md shadow"
+                    data-testid="btn-admin"
+                  >
+                    <Lock className="mr-2 w-6 h-6" />
+                    Admin
+                  </Button>
+                  <Button 
+                    onClick={() => navigate('/store-designer')}
+                    className="h-20 text-lg bg-purple-600 hover:bg-purple-700 rounded-md shadow"
+                    data-testid="btn-store-designer"
+                  >
+                    <PenTool className="mr-2 w-6 h-6" />
+                    Store Designer
+                  </Button>
+                </>
+              )}
               <Button 
                 onClick={() => navigate('/overview')} 
                 className="h-20 text-lg bg-green-600 hover:bg-green-700 rounded-md shadow"
