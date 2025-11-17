@@ -277,6 +277,34 @@ const StoreDesigner = () => {
 
   const handleMouseMove = (e) => {
     const cell = getCellFromMouse(e);
+    const pixelPos = getMousePixelPos(e);
+    setMousePos(pixelPos);
+    
+    // Update cursor and hover state
+    if (mode === "zone" && !isSelecting && !isDraggingCopy) {
+      let foundHover = false;
+      for (let idx = 0; idx < zones.length; idx++) {
+        const zone = zones[idx];
+        if (isMouseOverDragHandle(zone, pixelPos)) {
+          setHoveredZoneIndex(idx);
+          canvasRef.current.style.cursor = "crosshair";
+          foundHover = true;
+          break;
+        } else if (
+          cell.x >= zone.x && cell.x < zone.x + zone.width &&
+          cell.y >= zone.y && cell.y < zone.y + zone.height
+        ) {
+          setHoveredZoneIndex(idx);
+          canvasRef.current.style.cursor = "pointer";
+          foundHover = true;
+          break;
+        }
+      }
+      if (!foundHover) {
+        setHoveredZoneIndex(null);
+        canvasRef.current.style.cursor = "crosshair";
+      }
+    }
     
     if (isSelecting && mode === "zone") {
       setSelectionEnd(cell);
@@ -284,8 +312,8 @@ const StoreDesigner = () => {
       // Update copy position while dragging
       setDraggedZoneCopy({
         ...draggedZoneCopy,
-        x: cell.x - dragOffset.x,
-        y: cell.y - dragOffset.y
+        x: cell.x,
+        y: cell.y
       });
     }
   };
