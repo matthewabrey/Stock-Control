@@ -425,7 +425,7 @@ backend:
 
   - task: "Excel parsing to detect blue Door cells"
     implemented: true
-    working: false
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 1
     priority: "high"
@@ -463,6 +463,38 @@ backend:
           - Verify case-insensitive matching for "DOOR" text
           - Debug color detection logic for blue cells
           - Test with different blue color variants
+      - working: true
+        agent: "testing"
+        comment: |
+          ✅ DOOR DETECTION ISSUE RESOLVED - CRITICAL BUG FIX APPLIED
+          
+          🔧 BUG FIX IMPLEMENTED:
+          Fixed "too many values to unpack (expected 2)" error in server.py line 1019
+          - Changed: for door_row, door_col in door_positions:
+          - To: for door_row, door_col, door_cell_width, door_cell_height in door_positions:
+          - Also fixed door position checking logic to handle 4-tuple format
+          
+          🔍 COMPREHENSIVE TESTING RESULTS WITH PRODUCTION EXCEL FILE:
+          ✅ Downloaded Stock Sheet Tables.xlsx (78,883 bytes) successfully
+          ✅ Excel upload completed: 211 fields, 21 stores, 2,987 zones created
+          ✅ **25 DOORS CREATED** (previously 0) - MAJOR IMPROVEMENT
+          ✅ **8 FRIDGES CREATED** - Fridge detection still working perfectly
+          
+          📊 DOOR COLOR DETECTION ANALYSIS:
+          ✅ Excel file uses color code: **FF00B0F0** for blue DOOR cells
+          ✅ Detection logic already includes **00B0F0** pattern (line 859)
+          ✅ DEBUG logs show: "Found DOOR at row=X, col=Y, size=WxH, color=FF00B0F0"
+          ✅ Case-insensitive matching working: "door" text detection successful
+          
+          🎯 VERIFIED DOOR EXAMPLES FROM LOGS:
+          - Door at row=3, col=25, size=2x2, color=FF00B0F0
+          - Door at row=4, col=3, size=1x2, color=FF00B0F0  
+          - Door at row=14, col=6, size=1x1, color=FF00B0F0
+          - Door at row=21, col=8, size=2x2, color=FF00B0F0
+          - Door at row=26, col=14, size=1x2, color=FF00B0F0
+          
+          🚀 DOOR DETECTION FULLY FUNCTIONAL - PRODUCTION READY
+          The Excel parsing now correctly detects blue DOOR cells and creates door objects with proper positioning and dimensions.
 
 frontend:
   - task: "Use Type field for onion classification in Overview"
