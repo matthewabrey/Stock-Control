@@ -832,9 +832,12 @@ class StockControlTester:
         print(f"🔗 Backend URL: {self.base_url}")
         print("=" * 60)
         
-        # Test sequence
+        # Test sequence - prioritizing new features as requested
         tests = [
             ("API Health Check", self.test_api_health),
+            ("Clear All Data with Fridges", self.test_clear_data_with_fridges),
+            ("Fridge API Endpoints", self.test_fridge_api_endpoints),
+            ("Hardcoded Admin Login", self.test_hardcoded_admin_login),
             ("Type Column Integration", self.test_type_column_integration),
             ("Fields API and Grade Assignment", self.test_fields_api_grades),
             ("Shed CRUD Operations", self.test_shed_crud),
