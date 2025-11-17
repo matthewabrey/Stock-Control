@@ -1312,12 +1312,13 @@ async def clear_all_data():
         await db.sheds.delete_many({})
         await db.zones.delete_many({})
         await db.fridges.delete_many({})
+        await db.doors.delete_many({})
         await db.stock_intakes.delete_many({})
         await db.stock_movements.delete_many({})
         
         return {
             "message": "All data cleared successfully",
-            "collections_cleared": ["fields", "sheds", "zones", "fridges", "stock_intakes", "stock_movements"]
+            "collections_cleared": ["fields", "sheds", "zones", "fridges", "doors", "stock_intakes", "stock_movements"]
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error clearing data: {str(e)}")
