@@ -284,6 +284,28 @@ async def delete_zone(zone_id: str):
     return {"message": "Zone deleted"}
 
 
+# Fridge Routes
+@api_router.post("/fridges", response_model=Fridge)
+async def create_fridge(input: FridgeCreate):
+    fridge_obj = Fridge(**input.model_dump())
+    doc = fridge_obj.model_dump()
+    await db.fridges.insert_one(doc)
+    return fridge_obj
+
+@api_router.get("/fridges", response_model=List[Fridge])
+async def get_fridges(shed_id: Optional[str] = None):
+    query = {"shed_id": shed_id} if shed_id else {}
+    fridges = await db.fridges.find(query, {"_id": 0}).to_list(length=None)
+    return fridges
+
+@api_router.delete("/fridges/{fridge_id}")
+async def delete_fridge(fridge_id: str):
+    result = await db.fridges.delete_one({"id": fridge_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Fridge not found")
+    return {"message": "Fridge deleted"}
+
+
 # Stock Intake Routes
 @api_router.post("/stock-intakes", response_model=StockIntake)
 async def create_stock_intake(input: StockIntakeCreate):
