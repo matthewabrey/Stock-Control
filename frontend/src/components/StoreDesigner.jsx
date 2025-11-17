@@ -616,6 +616,8 @@ const StoreDesigner = () => {
         
         // Create new zones (don't send id, backend generates it)
         // Generate letter-number names (A1, B1, C1, A2, B2...)
+        console.log(`Creating ${zones.length} zones for shed ${shedId}`);
+        
         for (const zone of zones) {
           const zoneIndex = zones.indexOf(zone);
           const col = String.fromCharCode(65 + (zone.x % 26)); // A, B, C...
@@ -631,8 +633,18 @@ const StoreDesigner = () => {
             max_capacity: zone.capacity
           };
           
-          await axios.post(`${API}/zones`, zoneData);
+          console.log(`Creating zone ${zoneData.name}:`, zoneData);
+          
+          try {
+            const response = await axios.post(`${API}/zones`, zoneData);
+            console.log(`Zone ${zoneData.name} created:`, response.data);
+          } catch (error) {
+            console.error(`Failed to create zone ${zoneData.name}:`, error.response?.data || error.message);
+            throw error; // Re-throw to stop the process
+          }
         }
+        
+        console.log(`All ${zones.length} zones created successfully`);
         
         toast.success("Store updated successfully!");
       } else {
