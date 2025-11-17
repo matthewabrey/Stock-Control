@@ -1016,7 +1016,7 @@ async def upload_excel(file: UploadFile = File(...)):
             doors = []
             
             # Process doors that were found inside the grid
-            for door_row, door_col in door_positions:
+            for door_row, door_col, door_cell_width, door_cell_height in door_positions:
                 door_side = None
                 door_position = 0
                 
