@@ -175,6 +175,29 @@ const StoreDesigner = () => {
     return { x: Math.max(0, Math.min(x, GRID_SIZE - 1)), y: Math.max(0, Math.min(y, GRID_SIZE - 1)) };
   };
 
+  const getMousePixelPos = (e) => {
+    const canvas = canvasRef.current;
+    const rect = canvas.getBoundingClientRect();
+    return {
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top
+    };
+  };
+
+  const isMouseOverDragHandle = (zone, mousePixelPos) => {
+    // Drag handle is in bottom-right corner (10x10 pixel area)
+    const handleSize = 10;
+    const zoneRight = (zone.x + zone.width) * CELL_SIZE;
+    const zoneBottom = (zone.y + zone.height) * CELL_SIZE;
+    
+    return (
+      mousePixelPos.x >= zoneRight - handleSize &&
+      mousePixelPos.x <= zoneRight &&
+      mousePixelPos.y >= zoneBottom - handleSize &&
+      mousePixelPos.y <= zoneBottom
+    );
+  };
+
   const handleMouseDown = (e) => {
     const cell = getCellFromMouse(e);
     
