@@ -939,6 +939,7 @@ class StockControlTester:
             ("API Health Check", self.test_api_health),
             ("Clear All Data with Fridges", self.test_clear_data_with_fridges),
             ("Fridge API Endpoints", self.test_fridge_api_endpoints),
+            ("Excel Fridge Parsing", self.test_excel_fridge_parsing),
             ("Hardcoded Admin Login", self.test_hardcoded_admin_login),
             ("Type Column Integration", self.test_type_column_integration),
             ("Fields API and Grade Assignment", self.test_fields_api_grades),
