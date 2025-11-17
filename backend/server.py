@@ -1156,6 +1156,38 @@ async def upload_excel(file: UploadFile = File(...)):
             
             if fridges_created > 0:
                 print(f"Store {store_name}: Created {fridges_created} fridges")
+            
+            # Create doors
+            doors_created = 0
+            for door_row, door_col, door_cell_width, door_cell_height in door_positions:
+                # Calculate door position using same logic as zones
+                door_x = zone_x_positions.get((door_row, door_col), 0)
+                door_y = (door_row - min_row) * 2
+                
+                # Door dimensions (same as zones)
+                if storage_type == "bulk":
+                    base_width = 8
+                else:
+                    base_width = 2
+                
+                door_width = base_width * door_cell_width
+                door_height = 2 * door_cell_height
+                
+                door_doc = {
+                    "id": str(uuid.uuid4()),
+                    "shed_id": shed_id,
+                    "name": "Door",
+                    "x": door_x,
+                    "y": door_y,
+                    "width": door_width,
+                    "height": door_height
+                }
+                await db.doors.insert_one(door_doc)
+                doors_created += 1
+                print(f"  Created door at ({door_x}, {door_y}) with size {door_width}x{door_height}")
+            
+            if doors_created > 0:
+                print(f"Store {store_name}: Created {doors_created} doors")
         
         return {
             "message": "Excel uploaded successfully",
