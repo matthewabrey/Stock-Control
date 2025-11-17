@@ -126,6 +126,17 @@ const FloorPlan = ({ user }) => {
     }
   };
 
+  const fetchFridges = async () => {
+    try {
+      const response = await axios.get(`${API}/fridges?shed_id=${shedId}`);
+      setFridges(response.data);
+    } catch (error) {
+      console.error("Error fetching fridges:", error);
+      toast.error("Failed to load fridges");
+    }
+  };
+
+
   const fetchFields = async () => {
     try {
       // Fetch all fields - no filtering needed
