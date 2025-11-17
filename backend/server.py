@@ -874,15 +874,21 @@ async def upload_excel(file: UploadFile = File(...)):
                 widths = [z[1] for z in zones]
                 print(f"    Row {row}: {len(zones)} zones, widths: {widths[:10]}{'...' if len(widths) > 10 else ''}")
             
-            # Calculate zone positions
-            # Group zones by row for proper x-position calculation
+            # Calculate zone and fridge positions
+            # Group zones and fridges by row for proper x-position calculation
             zones_by_row = {}
             for row_idx, col_idx, capacity, cell_width, cell_height in zone_positions:
                 if row_idx not in zones_by_row:
                     zones_by_row[row_idx] = []
-                zones_by_row[row_idx].append((col_idx, capacity, cell_width, cell_height))
+                zones_by_row[row_idx].append((col_idx, capacity, cell_width, cell_height, 'zone'))
             
-            # Sort zones in each row by column
+            # Add fridges to the same row structure for position calculation
+            for row_idx, col_idx, cell_width, cell_height in fridge_positions:
+                if row_idx not in zones_by_row:
+                    zones_by_row[row_idx] = []
+                zones_by_row[row_idx].append((col_idx, 0, cell_width, cell_height, 'fridge'))  # capacity=0 for fridges
+            
+            # Sort items in each row by column
             for row_idx in zones_by_row:
                 zones_by_row[row_idx].sort(key=lambda x: x[0])  # Sort by col_idx
             
