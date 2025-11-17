@@ -74,7 +74,7 @@ const StoreDesigner = () => {
     
     // Draw zones
     zones.forEach((zone, idx) => {
-      const isSelected = idx === selectedZoneIndex;
+      const isSelected = selectedZoneIndexes.includes(idx);
       const isHovered = idx === hoveredZoneIndex;
       
       ctx.fillStyle = isSelected ? "rgba(59, 130, 246, 0.5)" : "rgba(59, 130, 246, 0.3)"; // blue
@@ -105,8 +105,8 @@ const StoreDesigner = () => {
         (zone.y + zone.height / 2) * CELL_SIZE
       );
       
-      // Draw drag handle (small cross in bottom-right corner) when hovering
-      if (isHovered && mode === "zone") {
+      // Draw drag handle (small cross in bottom-right corner) when hovering or selected
+      if ((isHovered || isSelected) && mode === "zone") {
         const handleX = (zone.x + zone.width) * CELL_SIZE;
         const handleY = (zone.y + zone.height) * CELL_SIZE;
         const handleSize = 10;
