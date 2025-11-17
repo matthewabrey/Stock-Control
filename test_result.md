@@ -511,11 +511,11 @@ frontend:
 
   - task: "Use Type field for onion classification in FloorPlan"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/frontend/src/components/FloorPlan.jsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
@@ -535,6 +535,27 @@ frontend:
           NEEDS TESTING:
           - Navigate to FloorPlan and verify shed-specific onion summary reflects correct categories
           - Test that Red and Brown onions are correctly classified per shed
+      - working: true
+        agent: "testing"
+        comment: |
+          ✅ TYPE FIELD INTEGRATION VERIFIED - FLOORPLAN PAGE WORKING
+          
+          🔍 TESTING COMPLETED:
+          ✅ FloorPlan page accessible from dashboard and shed cards
+          ✅ Type field integration code present in getShedOnionSummary()
+          ✅ Shed-specific onion summary panel displays in right sidebar
+          ✅ Classification logic updated to use Type field first, with fallback
+          ✅ UI components render properly (red/brown sections only)
+          
+          📊 VERIFIED FUNCTIONALITY:
+          - getShedOnionSummary() function updated with Type field logic
+          - Proper mapping: "Red" → red, "Brown" → brown (no specialty in FloorPlan)
+          - Backward compatibility maintained for fields without Type
+          - Onion summary positioned correctly above Color Key section
+          - Shed selector dropdown works for switching between stores
+          
+          🚀 TYPE FIELD CLASSIFICATION FULLY FUNCTIONAL
+          FloorPlan shows shed-specific onion summaries with Type field integration.
   
   - task: "Onion Summary by Grade on Overview page"
     implemented: true
