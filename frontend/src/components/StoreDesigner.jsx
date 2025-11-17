@@ -12,6 +12,8 @@ import { toast } from "sonner";
 
 const StoreDesigner = () => {
   const navigate = useNavigate();
+  const { shedId } = useParams();
+  const isEditMode = !!shedId;
   const canvasRef = useRef(null);
   
   const GRID_SIZE = 50;
