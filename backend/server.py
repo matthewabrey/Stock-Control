@@ -92,6 +92,24 @@ class ZoneCreate(BaseModel):
     height: float
     max_capacity: int = 6
 
+class Fridge(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = PydanticField(default_factory=lambda: str(uuid.uuid4()))
+    shed_id: str
+    name: str  # Will be "Fridge"
+    x: float
+    y: float
+    width: float
+    height: float
+
+class FridgeCreate(BaseModel):
+    shed_id: str
+    name: str
+    x: float
+    y: float
+    width: float
+    height: float
+
 class StockIntake(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = PydanticField(default_factory=lambda: str(uuid.uuid4()))
