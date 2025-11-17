@@ -627,6 +627,7 @@ const StoreDesigner = () => {
               <div className="pt-4 border-t">
                 <div className="text-sm space-y-1">
                   <p><strong>Zones:</strong> {zones.length}</p>
+                  <p><strong>Walls:</strong> {walls.length}</p>
                   <p><strong>Doors:</strong> {doors.length}</p>
                   <p><strong>Fridges:</strong> {fridges.length}</p>
                   {selectedZoneIndexes.length > 0 && (
