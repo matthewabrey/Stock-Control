@@ -129,26 +129,39 @@ const StoreDesigner = () => {
       }
     });
     
-    // Draw dragging copy zone
-    if (isDraggingCopy && draggedZoneCopy) {
-      ctx.fillStyle = "rgba(34, 197, 94, 0.4)"; // green
-      ctx.fillRect(
-        draggedZoneCopy.x * CELL_SIZE,
-        draggedZoneCopy.y * CELL_SIZE,
-        draggedZoneCopy.width * CELL_SIZE,
-        draggedZoneCopy.height * CELL_SIZE
-      );
-      
-      ctx.strokeStyle = "#16a34a";
-      ctx.lineWidth = 2;
-      ctx.setLineDash([5, 5]);
-      ctx.strokeRect(
-        draggedZoneCopy.x * CELL_SIZE,
-        draggedZoneCopy.y * CELL_SIZE,
-        draggedZoneCopy.width * CELL_SIZE,
-        draggedZoneCopy.height * CELL_SIZE
-      );
-      ctx.setLineDash([]);
+    // Draw dragging copy zones
+    if (isDraggingCopy && draggedZonesCopy.length > 0) {
+      draggedZonesCopy.forEach((zone) => {
+        ctx.fillStyle = "rgba(34, 197, 94, 0.4)"; // green
+        ctx.fillRect(
+          zone.x * CELL_SIZE,
+          zone.y * CELL_SIZE,
+          zone.width * CELL_SIZE,
+          zone.height * CELL_SIZE
+        );
+        
+        ctx.strokeStyle = "#16a34a";
+        ctx.lineWidth = 2;
+        ctx.setLineDash([5, 5]);
+        ctx.strokeRect(
+          zone.x * CELL_SIZE,
+          zone.y * CELL_SIZE,
+          zone.width * CELL_SIZE,
+          zone.height * CELL_SIZE
+        );
+        ctx.setLineDash([]);
+        
+        // Draw capacity
+        ctx.fillStyle = "#16a34a";
+        ctx.font = "bold 12px sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(
+          zone.capacity || "?",
+          (zone.x + zone.width / 2) * CELL_SIZE,
+          (zone.y + zone.height / 2) * CELL_SIZE
+        );
+      });
     }
     
     // Draw doors
