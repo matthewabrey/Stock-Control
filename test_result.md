@@ -103,14 +103,29 @@
 #====================================================================================================
 
 user_problem_statement: |
-  User requested implementation of a new "Type" column from the Excel file to improve classification of onions (Red, Brown, Specials) and potatoes.
-  Previously, classification relied on keyword matching within crop and variety names, which was insufficient for accurate differentiation.
-  The Type column (column 7 in Master Cropping sheet) provides explicit classification values like "Brown", "Red", "Special".
+  User requested two new features:
+  
+  1. FRIDGE UNITS IN EXCEL:
+     - Parse yellow-filled cells labeled "Fridge" from Excel file
+     - Display them on floor plans as yellow blocks with "Fridge" text
+     - These are NOT zones, but visual markers for orientation within stores
+     - Should be detected during Excel upload and rendered alongside zones
+  
+  2. HARDCODED ADMIN ACCESS:
+     - Allow employee number "1234" to login and access admin panel
+     - This user should have full admin privileges without requiring Excel upload
+     - Bypass normal database authentication for this specific employee number
   
   IMPLEMENTATION:
-  1. Backend: Parse Type column from Excel and store in Field model
-  2. Frontend: Update classification logic in Overview.jsx and FloorPlan.jsx to use the new Type field instead of keyword matching
-  3. Maintain fallback to old logic if Type field is missing for backward compatibility
+  1. Backend: 
+     - Add Fridge model and API endpoints (/api/fridges)
+     - Update Excel parsing to detect yellow cells with "Fridge" text
+     - Calculate fridge positions using same logic as zones
+     - Modify login endpoint to allow hardcoded admin user 1234
+  2. Frontend: 
+     - Fetch and render fridges on floor plan
+     - Style as yellow blocks with "Fridge" text
+     - Position correctly alongside zones
 
 backend:
   - task: "Parse Type column from Excel and store in Field model"
