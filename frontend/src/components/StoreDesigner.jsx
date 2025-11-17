@@ -202,7 +202,7 @@ const StoreDesigner = () => {
 
   useEffect(() => {
     drawGrid();
-  }, [zones, doors, fridges, isSelecting, selectionStart, selectionEnd, selectedZoneIndex, isDraggingCopy, draggedZoneCopy, hoveredZoneIndex, mode]);
+  }, [zones, doors, fridges, isSelecting, selectionStart, selectionEnd, selectedZoneIndexes, isDraggingCopy, draggedZonesCopy, hoveredZoneIndex, mode]);
 
   const getCellFromMouse = (e) => {
     const canvas = canvasRef.current;
