@@ -86,13 +86,21 @@ class StockControlTester:
             if type_val:
                 ws[f'H{i}'] = type_val
         
-        # Create a simple store sheet
+        # Create a simple store sheet with fridges
         store_ws = wb.create_sheet("Test Store")
         # Add some zones
         store_ws['B2'] = "6"  # Box storage
         store_ws['C2'] = "6"
         store_ws['B3'] = "175t"  # Bulk storage
         store_ws['A1'] = "DOOR"  # Door marker
+        
+        # Add a fridge with yellow fill and "Fridge" text
+        fridge_cell = store_ws['D2']
+        fridge_cell.value = "Fridge"
+        # Set yellow fill color
+        from openpyxl.styles import PatternFill
+        yellow_fill = PatternFill(start_color="FFFF00", end_color="FFFF00", fill_type="solid")
+        fridge_cell.fill = yellow_fill
         
         # Remove default sheet
         wb.remove(wb['Sheet'])
