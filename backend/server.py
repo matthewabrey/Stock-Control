@@ -908,7 +908,7 @@ async def upload_excel(file: UploadFile = File(...)):
                         elif row_idx > max_row and col_idx >= min_col and col_idx <= max_col:
                             door_side = 'bottom'
                             # Use simple calculation for door position
-                                door_position = (col_idx - min_col) * 2
+                            door_position = (col_idx - min_col) * 2
                         # Left: column is left of zone area
                         elif col_idx < min_col and row_idx >= min_row and row_idx <= max_row:
                             door_side = 'left'
