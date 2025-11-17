@@ -795,68 +795,48 @@ async def upload_excel(file: UploadFile = File(...)):
                 widths = [z[1] for z in zones]
                 print(f"    Row {row}: {len(zones)} zones, widths: {widths[:10]}{'...' if len(widths) > 10 else ''}")
             
-            # Calculate column positions (used for both zones and doors)
-            # IMPORTANT: Include empty columns as gaps to preserve layout
-            zones_by_col_temp = {}
+            # Calculate zone positions
+            # Group zones by row for proper x-position calculation
+            zones_by_row = {}
             for row_idx, col_idx, capacity, cell_width, cell_height in zone_positions:
-                if col_idx not in zones_by_col_temp:
-                    zones_by_col_temp[col_idx] = []
-                zones_by_col_temp[col_idx].append((row_idx, capacity, cell_width, cell_height))
+                if row_idx not in zones_by_row:
+                    zones_by_row[row_idx] = []
+                zones_by_row[row_idx].append((col_idx, capacity, cell_width, cell_height))
             
-            # Calculate x positions for ALL columns (including empty ones for gaps)
-            col_x_positions = {}
-            current_x = 0
+            # Sort zones in each row by column
+            for row_idx in zones_by_row:
+                zones_by_row[row_idx].sort(key=lambda x: x[0])  # Sort by col_idx
             
-            # Track which columns are occupied by merged cells
-            occupied_columns = set()
+            # Calculate x positions for each zone based on its row
+            # This handles mixed merged/unmerged cells properly
+            zone_x_positions = {}  # {(row_idx, col_idx): x_position}
+            max_width_per_row = {}  # Track max width of each row
             
-            # First pass: mark columns occupied by merged cells
-            for row_idx, col_idx, capacity, cell_width, cell_height in zone_positions:
-                for c in range(col_idx, col_idx + cell_width):
-                    occupied_columns.add(c)
-            
-            # Iterate through ALL columns from min to max (including empty ones)
-            col_idx = min_col
-            while col_idx <= max_col:
-                col_x_positions[col_idx] = current_x
+            for row_idx in sorted(zones_by_row.keys()):
+                row_zones = zones_by_row[row_idx]
+                current_x = 0
+                prev_col_idx = min_col - 1
                 
-                # Check if this column has zones starting at it
-                if col_idx in zones_by_col_temp:
-                    # Find the zone that starts at this column to get its width
-                    zone_info = zones_by_col_temp[col_idx][0]  # Get first zone in this column
-                    if len(zone_info) >= 3:  # Has cell_width info
-                        row_idx, capacity, cell_width, cell_height = zone_info
-                        # Calculate width based on merged cell size
-                        if storage_type == "bulk":
-                            col_width = 8 * cell_width  # Bulk storage base width * merged width
-                        else:
-                            col_width = 2 * cell_width  # Box storage base width * merged width
-                        
-                        # Mark positions for all columns covered by this merged cell
-                        for skip_col in range(col_idx + 1, col_idx + cell_width):
-                            if skip_col <= max_col:
-                                col_x_positions[skip_col] = current_x
-                        
-                        current_x += col_width
-                        col_idx += cell_width  # Jump to next unoccupied column
+                for col_idx, capacity, cell_width, cell_height in row_zones:
+                    # Check if there are empty columns between previous zone and this one
+                    if col_idx > prev_col_idx + 1:
+                        # Add gaps for empty columns
+                        gap_cols = col_idx - (prev_col_idx + 1)
+                        current_x += gap_cols * 2  # 2m per empty column
+                    
+                    # Store position for this zone
+                    zone_x_positions[(row_idx, col_idx)] = current_x
+                    
+                    # Calculate zone width and advance current_x
+                    if storage_type == "bulk":
+                        zone_width = 8 * cell_width
                     else:
-                        # Fallback for old format (shouldn't happen with new logic)
-                        if storage_type == "bulk":
-                            col_width = 8
-                        else:
-                            col_width = 2
-                        current_x += col_width
-                        col_idx += 1
-                elif col_idx in occupied_columns:
-                    # This column is part of a merged cell but zone already processed
-                    # Skip to next column without adding width
-                    col_idx += 1
-                else:
-                    # Empty column - create a gap/walkway (2m wide)
-                    col_width = 2
-                    print(f"  Empty column {openpyxl.utils.get_column_letter(col_idx)} - creating 2m gap")
-                    current_x += col_width
-                    col_idx += 1
+                        zone_width = 2 * cell_width
+                    
+                    current_x += zone_width
+                    prev_col_idx = col_idx + cell_width - 1  # Last column occupied by this zone
+                
+                max_width_per_row[row_idx] = current_x
             
             # Calculate total store dimensions
             # Add buffer to prevent zones from touching/overlapping the right edge
