@@ -741,8 +741,9 @@ async def upload_excel(file: UploadFile = File(...)):
                 if storage_type == "bulk":
                     break
             
-            # Find all zones and doors - scan the entire sheet
+            # Find all zones, fridges, and doors - scan the entire sheet
             zone_positions = []  # Will store (row, col, capacity, width, height)
+            fridge_positions = []  # Will store (row, col, width, height) for fridges
             door_positions = []  # Will store (row, col) for doors inside grid
             max_col = 0
             max_row = 0
