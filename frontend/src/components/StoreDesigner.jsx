@@ -239,7 +239,13 @@ const StoreDesigner = () => {
   };
 
   const handleMouseUp = () => {
-    if (isSelecting && selectionStart && selectionEnd && mode === "zone") {
+    if (isDraggingCopy && draggedZoneCopy) {
+      // Finalize the copy
+      setZones([...zones, draggedZoneCopy]);
+      setIsDraggingCopy(false);
+      setDraggedZoneCopy(null);
+      toast.success("Zone copied!");
+    } else if (isSelecting && selectionStart && selectionEnd && mode === "zone") {
       const x = Math.min(selectionStart.x, selectionEnd.x);
       const y = Math.min(selectionStart.y, selectionEnd.y);
       const width = Math.abs(selectionEnd.x - selectionStart.x) + 1;
