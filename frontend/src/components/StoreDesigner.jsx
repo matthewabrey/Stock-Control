@@ -650,7 +650,6 @@ const StoreDesigner = () => {
       } else {
         // Create new shed
         const shedData = {
-          id: generateUUID(),
           name: storeName,
           width: GRID_SIZE * 2,
           height: GRID_SIZE * 2,
@@ -661,7 +660,17 @@ const StoreDesigner = () => {
           }))
         };
         
-        await axios.post(`${API}/sheds`, shedData);
+        console.log('Creating shed:', shedData);
+        
+        try {
+          const shedResponse = await axios.post(`${API}/sheds`, shedData);
+          console.log('Shed created:', shedResponse.data);
+          // Use the shed ID from the response
+          shedData.id = shedResponse.data.id;
+        } catch (error) {
+          console.error('Failed to create shed:', error.response?.data || error.message);
+          throw error;
+        }
         
         // Create zones (don't send id, backend generates it)
         // Generate letter-number names (A1, B1, C1, A2, B2...)
