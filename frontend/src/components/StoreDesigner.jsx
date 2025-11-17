@@ -77,6 +77,32 @@ const StoreDesigner = () => {
       ctx.stroke();
     }
     
+    // Draw walls/perimeter
+    ctx.strokeStyle = "#1f2937"; // dark gray
+    ctx.lineWidth = 4;
+    walls.forEach(wall => {
+      ctx.beginPath();
+      ctx.moveTo(wall.x1 * CELL_SIZE, wall.y1 * CELL_SIZE);
+      ctx.lineTo(wall.x2 * CELL_SIZE, wall.y2 * CELL_SIZE);
+      ctx.stroke();
+    });
+    
+    // Draw wall being drawn
+    if (isDrawingWall && wallStart && mousePos) {
+      const endCell = {
+        x: Math.floor(mousePos.x / CELL_SIZE),
+        y: Math.floor(mousePos.y / CELL_SIZE)
+      };
+      ctx.strokeStyle = "#ef4444"; // red
+      ctx.lineWidth = 4;
+      ctx.setLineDash([5, 5]);
+      ctx.beginPath();
+      ctx.moveTo(wallStart.x * CELL_SIZE, wallStart.y * CELL_SIZE);
+      ctx.lineTo(endCell.x * CELL_SIZE, endCell.y * CELL_SIZE);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    
     // Draw zones
     zones.forEach((zone, idx) => {
       const isSelected = selectedZoneIndexes.includes(idx);
