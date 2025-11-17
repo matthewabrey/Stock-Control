@@ -839,23 +839,12 @@ async def upload_excel(file: UploadFile = File(...)):
                 max_width_per_row[row_idx] = current_x
             
             # Calculate total store dimensions
-            # Add buffer to prevent zones from touching/overlapping the right edge
-            # Check the rightmost zone to ensure we have enough width
-            max_zone_right = 0
-            for row_idx, col_idx, capacity, cell_width, cell_height in zone_positions:
-                zone_x = col_x_positions.get(col_idx, 0)
-                if storage_type == "bulk":
-                    zone_width = 8 * cell_width
-                else:
-                    zone_width = 2 * cell_width
-                zone_right = zone_x + zone_width
-                max_zone_right = max(max_zone_right, zone_right)
-            
-            # Use the maximum of calculated width or rightmost zone edge, plus buffer
-            store_width = max(current_x, max_zone_right) + 2  # Add 2m buffer
+            # Use the widest row as the store width
+            store_width = max(max_width_per_row.values()) + 2  # Add 2m buffer
             store_height = (max_row - min_row + 1) * 2
             
-            print(f"  Store dimensions: width={store_width}m (current_x={current_x}, max_zone_right={max_zone_right}), height={store_height}m")
+            print(f"  Store dimensions: width={store_width}m, height={store_height}m")
+            print(f"  Row widths: {[(row, width) for row, width in max_width_per_row.items()][:5]}...")
             
             # Detect doors - look for cells containing "DOOR" text (both inside and outside grid)
             doors = []
