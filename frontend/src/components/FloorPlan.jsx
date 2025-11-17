@@ -77,6 +77,7 @@ const FloorPlan = ({ user }) => {
   useEffect(() => {
     fetchShed();
     fetchZones();
+    fetchFridges();
     fetchFields();
     fetchSheds();
     fetchStockIntakes();
