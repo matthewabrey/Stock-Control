@@ -549,8 +549,10 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Use Type field for onion classification in Overview"
-    - "Use Type field for onion classification in FloorPlan"
+    - "Fridge model and API endpoints"
+    - "Excel parsing to detect yellow Fridge cells"
+    - "Hardcoded admin access for employee 1234"
+    - "Render fridges on floor plan"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
