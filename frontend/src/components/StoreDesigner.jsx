@@ -714,20 +714,20 @@ const StoreDesigner = () => {
         }
         
         // Create zones (don't send id, backend generates it)
-        // Generate letter-number names (A1, B1, C1, A2, B2...)
+        // Zones are already adjusted to shed-relative positions and in meters
         console.log(`Creating ${zones.length} zones for shed ${shedData.id}`);
         
         for (const zone of zones) {
           const zoneIndex = zones.indexOf(zone);
-          const col = String.fromCharCode(65 + (zone.x % 26)); // A, B, C...
-          const row = Math.floor(zone.y) + 1; // 1, 2, 3...
+          const col = String.fromCharCode(65 + (Math.floor(zone.x / 2) % 26)); // A, B, C...
+          const row = Math.floor(zone.y / 2) + 1; // 1, 2, 3...
           
           const zoneData = {
             shed_id: shedData.id,
             name: `${col}${row}`,
-            x: zone.x * 2,
-            y: zone.y * 2,
-            width: zone.width * 2,
+            x: zone.x, // Already in meters and relative to shed
+            y: zone.y,
+            width: zone.width * 2, // Still need to convert width/height
             height: zone.height * 2,
             max_capacity: zone.capacity
           };
