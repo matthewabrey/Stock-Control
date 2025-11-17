@@ -834,6 +834,100 @@ class StockControlTester:
             self.log_test("Clear All Data with Fridges", False, f"Exception: {str(e)}")
             return False
     
+    def test_excel_fridge_parsing(self):
+        """Test Excel parsing to detect yellow Fridge cells"""
+        try:
+            # Clear all data first
+            response = self.session.delete(f"{self.base_url}/clear-all-data")
+            if response.status_code != 200:
+                self.log_test("Excel Fridge Setup", False, "Failed to clear data before fridge test")
+                return False
+            
+            # Create and upload Excel with yellow fridge cells
+            excel_data = self.create_test_excel_with_type()
+            files = {'file': ('test_fridge_excel.xlsx', excel_data, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')}
+            response = self.session.post(f"{self.base_url}/upload-excel", files=files)
+            
+            if response.status_code != 200:
+                self.log_test("Excel Fridge Upload", False, f"Upload failed with status {response.status_code}", response.text)
+                return False
+            
+            upload_result = response.json()
+            
+            # Get sheds to find the test store
+            response = self.session.get(f"{self.base_url}/sheds")
+            if response.status_code != 200:
+                self.log_test("Excel Fridge Sheds", False, "Failed to get sheds after upload")
+                return False
+            
+            sheds = response.json()
+            test_store = next((s for s in sheds if s.get('name') == 'Test Store'), None)
+            
+            if not test_store:
+                self.log_test("Excel Fridge Sheds", False, "Test Store not found after Excel upload")
+                return False
+            
+            shed_id = test_store.get('id')
+            
+            # Get fridges for the test store
+            response = self.session.get(f"{self.base_url}/fridges?shed_id={shed_id}")
+            if response.status_code != 200:
+                self.log_test("Excel Fridge Retrieval", False, f"Failed to get fridges for Test Store, status: {response.status_code}")
+                return False
+            
+            fridges = response.json()
+            
+            if not fridges:
+                self.log_test("Excel Fridge Parsing", False, "No fridges found after Excel upload with yellow Fridge cells")
+                return False
+            
+            # Verify fridge properties
+            fridge = fridges[0]
+            fridge_tests = []
+            
+            if fridge.get('name') == 'Fridge':
+                fridge_tests.append("✅ name: 'Fridge' (correct)")
+            else:
+                fridge_tests.append(f"❌ name: Expected 'Fridge', Got '{fridge.get('name')}'")
+            
+            if fridge.get('shed_id') == shed_id:
+                fridge_tests.append(f"✅ shed_id: '{shed_id}' (correct)")
+            else:
+                fridge_tests.append(f"❌ shed_id: Expected '{shed_id}', Got '{fridge.get('shed_id')}'")
+            
+            # Check position and dimensions are present
+            required_fields = ['x', 'y', 'width', 'height']
+            for field in required_fields:
+                value = fridge.get(field)
+                if value is not None and isinstance(value, (int, float)):
+                    fridge_tests.append(f"✅ {field}: {value} (present)")
+                else:
+                    fridge_tests.append(f"❌ {field}: Missing or invalid value '{value}'")
+            
+            # Check for any failed fridge tests
+            failed_fridge_tests = [test for test in fridge_tests if test.startswith('❌')]
+            
+            if failed_fridge_tests:
+                self.log_test(
+                    "Excel Fridge Parsing", 
+                    False, 
+                    f"Fridge parsing issues found",
+                    "\n".join(fridge_tests)
+                )
+                return False
+            else:
+                self.log_test(
+                    "Excel Fridge Parsing", 
+                    True, 
+                    f"Successfully parsed {len(fridges)} fridge(s) from Excel yellow cells",
+                    "\n".join(fridge_tests)
+                )
+                return True
+                
+        except Exception as e:
+            self.log_test("Excel Fridge Parsing", False, f"Exception: {str(e)}")
+            return False
+    
     def run_all_tests(self):
         """Run all tests in sequence"""
         print(f"🧪 Starting Stock Control Backend API Tests")
