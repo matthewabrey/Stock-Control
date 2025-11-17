@@ -760,13 +760,11 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Fridge model and API endpoints"
-    - "Excel parsing to detect yellow Fridge cells"
-    - "Hardcoded admin access for employee 1234"
-    - "Render fridges on floor plan"
-  stuck_tasks: []
+    - "Excel parsing to detect blue Door cells"
+  stuck_tasks:
+    - "Excel parsing to detect blue Door cells"
   test_all: false
-  test_priority: "high_first"
+  test_priority: "stuck_first"
 
 agent_communication:
   - agent: "main"
