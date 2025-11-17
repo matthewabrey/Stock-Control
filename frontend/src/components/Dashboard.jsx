@@ -240,31 +240,48 @@ const Dashboard = ({ user, onLogout }) => {
                     <Card 
                       key={shed.id} 
                       className="cursor-pointer hover:shadow-lg transition-shadow border-2 hover:border-blue-400"
-                      onClick={() => navigate(`/floor-plan/${shed.id}`)}
                       data-testid={`shed-card-${shed.id}`}
                     >
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                          <Warehouse className="w-5 h-5" />
-                          {shed.name}
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-2">
-                          <p className="text-sm text-gray-600">
-                            <strong>Dimensions:</strong> {shed.width}m × {shed.height}m
-                          </p>
-                          <p className="text-sm text-gray-600">
-                            <strong>Storage Zones:</strong> {details.zoneCount}
-                          </p>
-                          <p className="text-sm text-gray-600">
-                            <strong>Total Stock:</strong> {details.totalStock.toFixed(0)} units
-                          </p>
-                          <p className="text-sm text-gray-600">
-                            <strong>Utilization:</strong> {details.utilization}%
-                          </p>
+                      <div onClick={() => navigate(`/floor-plan/${shed.id}`)}>
+                        <CardHeader>
+                          <CardTitle className="flex items-center gap-2">
+                            <Warehouse className="w-5 h-5" />
+                            {shed.name}
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-2">
+                            <p className="text-sm text-gray-600">
+                              <strong>Dimensions:</strong> {shed.width}m × {shed.height}m
+                            </p>
+                            <p className="text-sm text-gray-600">
+                              <strong>Storage Zones:</strong> {details.zoneCount}
+                            </p>
+                            <p className="text-sm text-gray-600">
+                              <strong>Total Stock:</strong> {details.totalStock.toFixed(0)} units
+                            </p>
+                            <p className="text-sm text-gray-600">
+                              <strong>Utilization:</strong> {details.utilization}%
+                            </p>
+                          </div>
+                        </CardContent>
+                      </div>
+                      {user && user.admin_control?.toUpperCase() === "YES" && (
+                        <div className="px-6 pb-4">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/store-designer/${shed.id}`);
+                            }}
+                            className="w-full"
+                          >
+                            <Edit className="w-4 h-4 mr-2" />
+                            Edit Store Layout
+                          </Button>
                         </div>
-                      </CardContent>
+                      )}
                     </Card>
                   );
                 })}
