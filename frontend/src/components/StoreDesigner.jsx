@@ -360,12 +360,14 @@ const StoreDesigner = () => {
       setDoors(doors.filter(door => !(door.x === cell.x && door.y === cell.y)));
       // Delete fridge at this cell
       setFridges(fridges.filter(fridge => !(fridge.x === cell.x && fridge.y === cell.y)));
-      // Delete walls near this cell
-      setWalls(walls.filter(wall => {
-        const dist1 = Math.sqrt(Math.pow(wall.x1 - cell.x, 2) + Math.pow(wall.y1 - cell.y, 2));
-        const dist2 = Math.sqrt(Math.pow(wall.x2 - cell.x, 2) + Math.pow(wall.y2 - cell.y, 2));
-        return dist1 > 2 && dist2 > 2; // Keep walls that are far from click
-      }));
+      // Delete wall cells at this position
+      const updatedWallCells = wallCells.filter(wc => !(wc.x === cell.x && wc.y === cell.y));
+      setWallCells(updatedWallCells);
+      
+      // Regenerate walls from remaining cells
+      const generatedWalls = generateWallsFromCells(updatedWallCells);
+      setWalls(generatedWalls);
+      
       setSelectedZoneIndexes([]);
     }
   };
