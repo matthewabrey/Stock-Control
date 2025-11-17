@@ -345,9 +345,10 @@ const StoreDesigner = () => {
       setFridges([...fridges, cell]);
       setSelectedZoneIndexes([]);
     } else if (mode === "wall") {
-      // Start drawing wall
-      setIsDrawingWall(true);
-      setWallStart(cell);
+      // Start selecting cells for wall placement
+      setIsSelectingWallCells(true);
+      setWallCellStart(cell);
+      setWallCellEnd(cell);
       setSelectedZoneIndexes([]);
     } else if (mode === "delete") {
       // Delete zone at this cell
