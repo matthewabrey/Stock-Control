@@ -843,25 +843,39 @@ async def upload_excel(file: UploadFile = File(...)):
                             # Check if cell has blue fill
                             cell_fill = cell.fill
                             is_blue = False
+                            color_str = None
+                            
                             if cell_fill and cell_fill.start_color:
                                 # Check for blue color (hex: 0000FF, 0070C0, etc.)
                                 color_value = cell_fill.start_color.rgb if hasattr(cell_fill.start_color, 'rgb') else None
                                 if color_value:
                                     # Blue variants: FF0000FF, 0000FF, 000070C0, FF0070C0, etc.
                                     color_str = str(color_value).upper()
-                                    # Check for various blue shades
-                                    if ('0000FF' in color_str or '0070C0' in color_str or 
-                                        '4472C4' in color_str or '5B9BD5' in color_str):
+                                    print(f"  DEBUG: Found 'door' text at row={row_idx}, col={col_idx}, color={color_str}")
+                                    
+                                    # Check for various blue shades - expanded list
+                                    if (color_str.endswith('0000FF') or color_str.endswith('0070C0') or 
+                                        color_str.endswith('4472C4') or color_str.endswith('5B9BD5') or
+                                        color_str.endswith('4BACC6') or color_str.endswith('00B0F0') or
+                                        '0000FF' in color_str or '0070C0' in color_str):
                                         is_blue = True
+                                else:
+                                    print(f"  DEBUG: Found 'door' text at row={row_idx}, col={col_idx}, but no color_value")
+                            else:
+                                print(f"  DEBUG: Found 'door' text at row={row_idx}, col={col_idx}, but no cell_fill or start_color")
                             
                             if is_blue:
-                                print(f"  Found DOOR at row={row_idx}, col={col_idx}, size={cell_width}x{cell_height}")
+                                print(f"  Found DOOR at row={row_idx}, col={col_idx}, size={cell_width}x{cell_height}, color={color_str}")
                                 door_positions.append((row_idx, col_idx, cell_width, cell_height))
                                 max_col = max(max_col, col_idx + cell_width - 1)
                                 max_row = max(max_row, row_idx + cell_height - 1)
                                 min_col = min(min_col, col_idx)
                                 min_row = min(min_row, row_idx)
                                 continue  # Don't process as zone
+                            else:
+                                # DOOR text found but not blue - skip it, don't try to parse as zone
+                                print(f"  Skipping non-blue DOOR cell at row={row_idx}, col={col_idx}")
+                                continue
                         
                         # Check for FRIDGE markers (yellow cells with "Fridge" text)
                         if 'fridge' in cell_str.lower():
