@@ -142,24 +142,6 @@ function App() {
             } 
           />
 
-          <Route 
-            path="/store-designer" 
-            element={
-              <ProtectedRoute requireAdmin={true}>
-                <StoreDesigner />
-              </ProtectedRoute>
-            } 
-          />
-          
-          <Route 
-            path="/store-designer/:shedId" 
-            element={
-              <ProtectedRoute requireAdmin={true}>
-                <StoreDesigner />
-              </ProtectedRoute>
-            } 
-          />
-
           {/* Redirect any unknown route to home */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
