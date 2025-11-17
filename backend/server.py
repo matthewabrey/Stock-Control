@@ -801,6 +801,29 @@ async def upload_excel(file: UploadFile = File(...)):
                             door_positions.append((row_idx, col_idx))
                             continue
                         
+                        # Check for FRIDGE markers (yellow cells with "Fridge" text)
+                        if 'fridge' in cell_str.lower():
+                            # Check if cell has yellow fill
+                            cell_fill = cell.fill
+                            is_yellow = False
+                            if cell_fill and cell_fill.start_color:
+                                # Check for yellow color (hex: FFFF00 or similar)
+                                color_value = cell_fill.start_color.rgb if hasattr(cell_fill.start_color, 'rgb') else None
+                                if color_value:
+                                    # Yellow variants: FFFFFF00, FFFF00, 00FFFF00, etc.
+                                    color_str = str(color_value).upper()
+                                    if 'FFFF00' in color_str or (color_str.endswith('FFFF00')):
+                                        is_yellow = True
+                            
+                            if is_yellow:
+                                print(f"  Found FRIDGE at row={row_idx}, col={col_idx}, size={cell_width}x{cell_height}")
+                                fridge_positions.append((row_idx, col_idx, cell_width, cell_height))
+                                max_col = max(max_col, col_idx + cell_width - 1)
+                                max_row = max(max_row, row_idx + cell_height - 1)
+                                min_col = min(min_col, col_idx)
+                                min_row = min(min_row, row_idx)
+                                continue  # Don't process as zone
+                        
                         # Check for bulk storage (tonnage like "175t", "200t", etc.)
                         if cell_str.lower().endswith('t') and len(cell_str) > 1:
                             try:
