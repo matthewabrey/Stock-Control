@@ -928,15 +928,196 @@ class StockControlTester:
             self.log_test("Excel Fridge Parsing", False, f"Exception: {str(e)}")
             return False
     
+    def test_review_request_workflow(self):
+        """Test the specific review request workflow: clear data, upload new Excel with blue doors, verify doors and fridges"""
+        try:
+            print("\n🔍 EXECUTING REVIEW REQUEST WORKFLOW")
+            print("=" * 50)
+            
+            # STEP 1: Clear all old data
+            print("STEP 1: Clearing all old data...")
+            response = self.session.delete(f"{self.base_url}/clear-all-data")
+            if response.status_code != 200:
+                self.log_test("Review Request - Clear Data", False, f"Failed to clear data, status: {response.status_code}")
+                return False
+            
+            clear_result = response.json()
+            collections_cleared = clear_result.get('collections_cleared', [])
+            print(f"✅ Cleared collections: {collections_cleared}")
+            
+            # Verify fridges and doors are included in cleared collections
+            if 'fridges' not in collections_cleared or 'doors' not in collections_cleared:
+                self.log_test("Review Request - Clear Data", False, f"Fridges or doors not in cleared collections: {collections_cleared}")
+                return False
+            
+            # STEP 2: Download and upload new Excel file
+            print("\nSTEP 2: Downloading and uploading new Excel file...")
+            
+            # Download the new Excel file from the provided URL
+            excel_url = "https://customer-assets.emergentagent.com/job_cropflow-7/artifacts/ydy00gnu_Stock%20Sheet%20Tables.xlsx"
+            try:
+                excel_response = requests.get(excel_url, timeout=30)
+                if excel_response.status_code != 200:
+                    self.log_test("Review Request - Download Excel", False, f"Failed to download Excel file, status: {excel_response.status_code}")
+                    return False
+                
+                excel_data = excel_response.content
+                print(f"✅ Downloaded Excel file ({len(excel_data)} bytes)")
+                
+            except Exception as e:
+                self.log_test("Review Request - Download Excel", False, f"Exception downloading Excel: {str(e)}")
+                return False
+            
+            # Upload the Excel file
+            files = {'file': ('Stock_Sheet_Tables.xlsx', excel_data, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')}
+            response = self.session.post(f"{self.base_url}/upload-excel", files=files)
+            
+            if response.status_code != 200:
+                self.log_test("Review Request - Upload Excel", False, f"Upload failed with status {response.status_code}", response.text)
+                return False
+            
+            upload_result = response.json()
+            fields_created = upload_result.get('fields_created', 0)
+            stores_created = upload_result.get('stores_created', 0) 
+            zones_created = upload_result.get('zones_created', 0)
+            
+            print(f"✅ Upload successful: {fields_created} fields, {stores_created} stores, {zones_created} zones created")
+            
+            # STEP 3: Verify doors and fridges in database
+            print("\nSTEP 3: Verifying doors and fridges in database...")
+            
+            # Get all sheds
+            response = self.session.get(f"{self.base_url}/sheds")
+            if response.status_code != 200:
+                self.log_test("Review Request - Get Sheds", False, f"Failed to get sheds, status: {response.status_code}")
+                return False
+            
+            sheds = response.json()
+            print(f"✅ Found {len(sheds)} sheds")
+            
+            # Get all doors
+            response = self.session.get(f"{self.base_url}/doors")
+            if response.status_code != 200:
+                self.log_test("Review Request - Get Doors", False, f"Failed to get doors, status: {response.status_code}")
+                return False
+            
+            all_doors = response.json()
+            print(f"✅ Found {len(all_doors)} total doors")
+            
+            # Get all fridges
+            response = self.session.get(f"{self.base_url}/fridges")
+            if response.status_code != 200:
+                self.log_test("Review Request - Get Fridges", False, f"Failed to get fridges, status: {response.status_code}")
+                return False
+            
+            all_fridges = response.json()
+            print(f"✅ Found {len(all_fridges)} total fridges")
+            
+            # STEP 4: Check doors and fridges for each shed
+            print("\nSTEP 4: Checking doors and fridges for each shed...")
+            
+            shed_details = []
+            for shed in sheds:
+                shed_id = shed.get('id')
+                shed_name = shed.get('name')
+                
+                # Get doors for this shed
+                response = self.session.get(f"{self.base_url}/doors?shed_id={shed_id}")
+                if response.status_code != 200:
+                    print(f"❌ Failed to get doors for {shed_name}")
+                    continue
+                
+                shed_doors = response.json()
+                
+                # Get fridges for this shed
+                response = self.session.get(f"{self.base_url}/fridges?shed_id={shed_id}")
+                if response.status_code != 200:
+                    print(f"❌ Failed to get fridges for {shed_name}")
+                    continue
+                
+                shed_fridges = response.json()
+                
+                shed_info = {
+                    'name': shed_name,
+                    'doors': len(shed_doors),
+                    'fridges': len(shed_fridges),
+                    'door_objects': shed_doors,
+                    'fridge_objects': shed_fridges
+                }
+                shed_details.append(shed_info)
+                
+                print(f"🏢 {shed_name}: {len(shed_doors)} doors, {len(shed_fridges)} fridges")
+            
+            # STEP 5: Check backend logs (simulated by checking data integrity)
+            print("\nSTEP 5: Checking data integrity...")
+            
+            # Verify door objects have correct structure
+            door_validation = []
+            for door in all_doors:
+                required_fields = ['id', 'shed_id', 'name', 'x', 'y', 'width', 'height']
+                missing_fields = [field for field in required_fields if field not in door]
+                if missing_fields:
+                    door_validation.append(f"❌ Door {door.get('id', 'unknown')} missing fields: {missing_fields}")
+                else:
+                    door_validation.append(f"✅ Door {door.get('id')[:8]}... has all required fields")
+            
+            # Verify fridge objects have correct structure
+            fridge_validation = []
+            for fridge in all_fridges:
+                required_fields = ['id', 'shed_id', 'name', 'x', 'y', 'width', 'height']
+                missing_fields = [field for field in required_fields if field not in fridge]
+                if missing_fields:
+                    fridge_validation.append(f"❌ Fridge {fridge.get('id', 'unknown')} missing fields: {missing_fields}")
+                else:
+                    fridge_validation.append(f"✅ Fridge {fridge.get('id')[:8]}... has all required fields")
+            
+            # Compile results
+            results_summary = {
+                'collections_cleared': collections_cleared,
+                'upload_stats': {
+                    'fields_created': fields_created,
+                    'stores_created': stores_created,
+                    'zones_created': zones_created
+                },
+                'total_doors': len(all_doors),
+                'total_fridges': len(all_fridges),
+                'shed_breakdown': shed_details,
+                'door_validation': door_validation,
+                'fridge_validation': fridge_validation
+            }
+            
+            # Check if we found any doors or fridges
+            if len(all_doors) == 0 and len(all_fridges) == 0:
+                self.log_test(
+                    "Review Request Workflow", 
+                    False, 
+                    "No doors or fridges found after Excel upload - check if Excel contains blue DOOR cells and yellow FRIDGE cells",
+                    json.dumps(results_summary, indent=2)
+                )
+                return False
+            
+            self.log_test(
+                "Review Request Workflow", 
+                True, 
+                f"Successfully completed workflow: {len(all_doors)} doors and {len(all_fridges)} fridges detected",
+                json.dumps(results_summary, indent=2)
+            )
+            return True
+            
+        except Exception as e:
+            self.log_test("Review Request Workflow", False, f"Exception: {str(e)}")
+            return False
+
     def run_all_tests(self):
         """Run all tests in sequence"""
         print(f"🧪 Starting Stock Control Backend API Tests")
         print(f"🔗 Backend URL: {self.base_url}")
         print("=" * 60)
         
-        # Test sequence - prioritizing new features as requested
+        # Test sequence - prioritizing review request workflow
         tests = [
             ("API Health Check", self.test_api_health),
+            ("Review Request Workflow", self.test_review_request_workflow),
             ("Clear All Data with Fridges", self.test_clear_data_with_fridges),
             ("Fridge API Endpoints", self.test_fridge_api_endpoints),
             ("Excel Fridge Parsing", self.test_excel_fridge_parsing),
