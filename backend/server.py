@@ -1050,6 +1050,39 @@ async def upload_excel(file: UploadFile = File(...)):
                 }
                 await db.zones.insert_one(zone_doc)
                 zones_created += 1
+            
+            # Create fridges
+            fridges_created = 0
+            for fridge_row, fridge_col, fridge_cell_width, fridge_cell_height in fridge_positions:
+                # Calculate fridge position using same logic as zones
+                # For fridges, we need to calculate x position based on its row
+                fridge_x = zone_x_positions.get((fridge_row, fridge_col), 0)
+                fridge_y = (fridge_row - min_row) * 2
+                
+                # Fridge dimensions (same as zones)
+                if storage_type == "bulk":
+                    base_width = 8
+                else:
+                    base_width = 2
+                
+                fridge_width = base_width * fridge_cell_width
+                fridge_height = 2 * fridge_cell_height
+                
+                fridge_doc = {
+                    "id": str(uuid.uuid4()),
+                    "shed_id": shed_id,
+                    "name": "Fridge",
+                    "x": fridge_x,
+                    "y": fridge_y,
+                    "width": fridge_width,
+                    "height": fridge_height
+                }
+                await db.fridges.insert_one(fridge_doc)
+                fridges_created += 1
+                print(f"  Created fridge at ({fridge_x}, {fridge_y}) with size {fridge_width}x{fridge_height}")
+            
+            if fridges_created > 0:
+                print(f"Store {store_name}: Created {fridges_created} fridges")
         
         return {
             "message": "Excel uploaded successfully",
