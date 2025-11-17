@@ -176,17 +176,42 @@ const StoreDesigner = () => {
   const handleMouseDown = (e) => {
     const cell = getCellFromMouse(e);
     
-    if (mode === "zone") {
+    // Check if clicking on an existing zone to select/copy it
+    const clickedZoneIndex = zones.findIndex(zone => 
+      cell.x >= zone.x && cell.x < zone.x + zone.width &&
+      cell.y >= zone.y && cell.y < zone.y + zone.height
+    );
+    
+    if (clickedZoneIndex !== -1 && mode === "zone") {
+      // Ctrl+Click to start drag copy
+      if (e.ctrlKey || e.metaKey) {
+        const zone = zones[clickedZoneIndex];
+        setIsDraggingCopy(true);
+        setDragOffset({
+          x: cell.x - zone.x,
+          y: cell.y - zone.y
+        });
+        setDraggedZoneCopy({ ...zone, x: zone.x, y: zone.y });
+        setSelectedZoneIndex(clickedZoneIndex);
+      } else {
+        // Just select the zone
+        setSelectedZoneIndex(clickedZoneIndex);
+      }
+    } else if (mode === "zone") {
+      // Start drawing new zone
       setIsSelecting(true);
       setSelectionStart(cell);
       setSelectionEnd(cell);
+      setSelectedZoneIndex(null);
     } else if (mode === "door") {
       setDoors([...doors, cell]);
+      setSelectedZoneIndex(null);
     } else if (mode === "fridge") {
       setFridges([...fridges, cell]);
+      setSelectedZoneIndex(null);
     } else if (mode === "delete") {
       // Delete zone at this cell
-      setZones(zones.filter(zone => {
+      setZones(zones.filter((zone, idx) => {
         return !(cell.x >= zone.x && cell.x < zone.x + zone.width &&
                  cell.y >= zone.y && cell.y < zone.y + zone.height);
       }));
@@ -194,6 +219,7 @@ const StoreDesigner = () => {
       setDoors(doors.filter(door => !(door.x === cell.x && door.y === cell.y)));
       // Delete fridge at this cell
       setFridges(fridges.filter(fridge => !(fridge.x === cell.x && fridge.y === cell.y)));
+      setSelectedZoneIndex(null);
     }
   };
 
