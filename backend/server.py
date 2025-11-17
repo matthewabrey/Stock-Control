@@ -406,6 +406,20 @@ async def get_stock_movements():
 @api_router.post("/login")
 async def login(input: LoginRequest):
     """Login with employee number"""
+    # Hardcoded admin access for employee 1234
+    if input.employee_number == "1234":
+        return {
+            "id": str(uuid.uuid4()),
+            "employee_number": "1234",
+            "name": "Admin User",
+            "stock_movement": "Yes",
+            "admin_control": "YES",
+            "qc": "Yes",
+            "daily_check": "Yes",
+            "workshop_control": "Yes",
+            "operations": "Yes"
+        }
+    
     user = await db.users.find_one({"employee_number": input.employee_number}, {"_id": 0})
     if not user:
         raise HTTPException(status_code=404, detail="Employee number not found")
