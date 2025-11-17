@@ -868,7 +868,7 @@ async def upload_excel(file: UploadFile = File(...)):
             for row_idx, col_idx, capacity, cell_width, cell_height in zone_positions:
                 zones_by_row[row_idx].append((col_idx, cell_width, cell_height, capacity))
             
-            print(f"  Zone distribution by row:")
+            print("  Zone distribution by row:")
             for row in sorted(zones_by_row.keys())[:5]:  # Show first 5 rows
                 zones = zones_by_row[row]
                 widths = [z[1] for z in zones]
