@@ -75,6 +75,7 @@ const StoreDesigner = () => {
     // Draw zones
     zones.forEach((zone, idx) => {
       const isSelected = idx === selectedZoneIndex;
+      const isHovered = idx === hoveredZoneIndex;
       
       ctx.fillStyle = isSelected ? "rgba(59, 130, 246, 0.5)" : "rgba(59, 130, 246, 0.3)"; // blue
       ctx.fillRect(
@@ -103,6 +104,29 @@ const StoreDesigner = () => {
         (zone.x + zone.width / 2) * CELL_SIZE,
         (zone.y + zone.height / 2) * CELL_SIZE
       );
+      
+      // Draw drag handle (small cross in bottom-right corner) when hovering
+      if (isHovered && mode === "zone") {
+        const handleX = (zone.x + zone.width) * CELL_SIZE;
+        const handleY = (zone.y + zone.height) * CELL_SIZE;
+        const handleSize = 10;
+        
+        // Draw filled square
+        ctx.fillStyle = "#16a34a"; // green
+        ctx.fillRect(handleX - handleSize, handleY - handleSize, handleSize, handleSize);
+        
+        // Draw white cross inside
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        // Horizontal line
+        ctx.moveTo(handleX - handleSize + 2, handleY - handleSize / 2);
+        ctx.lineTo(handleX - 2, handleY - handleSize / 2);
+        // Vertical line
+        ctx.moveTo(handleX - handleSize / 2, handleY - handleSize + 2);
+        ctx.lineTo(handleX - handleSize / 2, handleY - 2);
+        ctx.stroke();
+      }
     });
     
     // Draw dragging copy zone
