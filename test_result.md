@@ -560,7 +560,45 @@ test_plan:
 agent_communication:
   - agent: "main"
     message: |
-      ✅ TYPE COLUMN INTEGRATION IMPLEMENTED
+      ✅ FRIDGE UNITS AND HARDCODED ADMIN ACCESS IMPLEMENTED
+      
+      Implemented two new features as requested:
+      
+      1. FRIDGE UNITS:
+         - Backend: Added Fridge model with API endpoints (POST, GET, DELETE)
+         - Excel parsing: Detects yellow cells with "Fridge" text
+         - Position calculation: Uses same row-by-row logic as zones
+         - Frontend: Renders fridges as yellow blocks with "Fridge" text
+         - Styling: Yellow background (#FFFF00), gray border, not interactive
+      
+      2. HARDCODED ADMIN ACCESS:
+         - Modified login endpoint to allow employee 1234
+         - Returns full admin permissions without database lookup
+         - All other employees use normal authentication
+      
+      BACKEND CHANGES (server.py):
+      1. Added Fridge and FridgeCreate models (lines 95-115)
+      2. Added /api/fridges endpoints (lines 287-305)
+      3. Updated Excel parsing to detect yellow Fridge cells (lines 818-835)
+      4. Updated position calculation to include fridges (lines 879-897)
+      5. Added fridge creation during Excel upload (lines 1054-1076)
+      6. Updated clear-all-data and delete-shed to handle fridges
+      7. Modified login endpoint for hardcoded admin 1234 (lines 406-424)
+      
+      FRONTEND CHANGES (FloorPlan.jsx):
+      1. Added fridges state array (line 33)
+      2. Added fetchFridges() function (lines 128-137)
+      3. Added fetchFridges() call in useEffect (line 79)
+      4. Added fridge rendering after zones (lines 1346-1370)
+      
+      TESTING REQUIREMENTS:
+      1. Backend: Test fridge API endpoints, Excel parsing with yellow cells, hardcoded login
+      2. Frontend: Upload Excel with fridges, verify rendering, test employee 1234 login
+      
+      READY FOR BACKEND TESTING FIRST.
+  - agent: "main"
+    message: |
+      ✅ TYPE COLUMN INTEGRATION IMPLEMENTED (PREVIOUS WORK)
       
       Implemented the new "Type" column from the Excel file for improved onion/potato classification:
       
