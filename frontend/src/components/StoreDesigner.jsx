@@ -592,43 +592,86 @@ const StoreDesigner = () => {
     }
     
     try {
-      // Create shed
-      const shedData = {
-        id: generateUUID(),
-        name: storeName,
-        width: GRID_SIZE * 2, // Convert cells to meters (each cell = 2m)
-        height: GRID_SIZE * 2,
-        description: `${storeType} storage - ${zones.length} zones`,
-        doors: doors.map(d => ({
-          side: "top", // We can enhance this later
-          position: d.x * 2
-        }))
-      };
-      
-      await axios.post(`${API}/sheds`, shedData);
-      
-      // Create zones
-      for (const zone of zones) {
-        const zoneData = {
-          id: generateUUID(),
-          shed_id: shedData.id,
-          name: `Z${zones.indexOf(zone) + 1}`,
-          x: zone.x * 2, // Convert to meters
-          y: zone.y * 2,
-          width: zone.width * 2,
-          height: zone.height * 2,
-          total_quantity: 0,
-          max_capacity: zone.capacity
+      if (isEditMode && shedId) {
+        // Update existing shed
+        const shedData = {
+          id: shedId,
+          name: storeName,
+          width: GRID_SIZE * 2,
+          height: GRID_SIZE * 2,
+          description: `${storeType} storage - ${zones.length} zones`,
+          doors: doors.map(d => ({
+            side: "top",
+            position: d.x * 2
+          }))
         };
         
-        await axios.post(`${API}/zones`, zoneData);
+        await axios.put(`${API}/sheds/${shedId}`, shedData);
+        
+        // Delete old zones
+        const existingZones = await axios.get(`${API}/zones?shed_id=${shedId}`);
+        for (const zone of existingZones.data) {
+          await axios.delete(`${API}/zones/${zone.id}`);
+        }
+        
+        // Create new zones
+        for (const zone of zones) {
+          const zoneData = {
+            id: generateUUID(),
+            shed_id: shedId,
+            name: `Z${zones.indexOf(zone) + 1}`,
+            x: zone.x * 2,
+            y: zone.y * 2,
+            width: zone.width * 2,
+            height: zone.height * 2,
+            total_quantity: 0,
+            max_capacity: zone.capacity
+          };
+          
+          await axios.post(`${API}/zones`, zoneData);
+        }
+        
+        toast.success("Store updated successfully!");
+      } else {
+        // Create new shed
+        const shedData = {
+          id: generateUUID(),
+          name: storeName,
+          width: GRID_SIZE * 2,
+          height: GRID_SIZE * 2,
+          description: `${storeType} storage - ${zones.length} zones`,
+          doors: doors.map(d => ({
+            side: "top",
+            position: d.x * 2
+          }))
+        };
+        
+        await axios.post(`${API}/sheds`, shedData);
+        
+        // Create zones
+        for (const zone of zones) {
+          const zoneData = {
+            id: generateUUID(),
+            shed_id: shedData.id,
+            name: `Z${zones.indexOf(zone) + 1}`,
+            x: zone.x * 2,
+            y: zone.y * 2,
+            width: zone.width * 2,
+            height: zone.height * 2,
+            total_quantity: 0,
+            max_capacity: zone.capacity
+          };
+          
+          await axios.post(`${API}/zones`, zoneData);
+        }
+        
+        toast.success("Store created successfully!");
       }
       
-      toast.success("Store created successfully!");
       navigate("/");
     } catch (error) {
-      console.error("Error creating store:", error);
-      toast.error(`Failed to create store: ${error.response?.data?.detail || error.message}`);
+      console.error("Error saving store:", error);
+      toast.error(`Failed to save store: ${error.response?.data?.detail || error.message}`);
     }
   };
 
