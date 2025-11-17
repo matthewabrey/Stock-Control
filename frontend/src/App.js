@@ -9,7 +9,6 @@ import FloorPlan from "@/components/FloorPlan";
 import Overview from "@/components/Overview";
 import Login from "@/components/Login";
 import MovementLog from "@/components/MovementLog";
-import StoreDesigner from "@/components/StoreDesigner";
 import { Toaster } from "@/components/ui/sonner";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
