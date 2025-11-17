@@ -41,8 +41,10 @@ const StoreDesigner = () => {
   
   // Wall/perimeter state
   const [walls, setWalls] = useState([]); // [{x1, y1, x2, y2}]
-  const [isDrawingWall, setIsDrawingWall] = useState(false);
-  const [wallStart, setWallStart] = useState(null);
+  const [wallCells, setWallCells] = useState([]); // [{x, y}] cells selected for wall
+  const [isSelectingWallCells, setIsSelectingWallCells] = useState(false);
+  const [wallCellStart, setWallCellStart] = useState(null);
+  const [wallCellEnd, setWallCellEnd] = useState(null);
 
   const drawGrid = () => {
     const canvas = canvasRef.current;
