@@ -348,6 +348,44 @@ async def delete_door(door_id: str):
     return {"message": "Door deleted"}
 
 
+# Batch Stock Intake Route (for performance optimization)
+@api_router.post("/stock-intakes/batch")
+async def create_batch_stock_intakes(intakes: List[StockIntakeCreate]):
+    """Create multiple stock intakes at once for better performance"""
+    created_intakes = []
+    
+    # Group by zone_id for efficient zone updates
+    zone_updates = {}
+    
+    for intake_input in intakes:
+        # Create intake document
+        intake_obj = StockIntake(**intake_input.model_dump())
+        doc = intake_obj.model_dump()
+        await db.stock_intakes.insert_one(doc)
+        created_intakes.append(intake_obj)
+        
+        # Track zone quantity updates
+        if intake_input.zone_id not in zone_updates:
+            zone_updates[intake_input.zone_id] = 0
+        zone_updates[intake_input.zone_id] += intake_input.quantity
+    
+    # Update all affected zones in batch
+    for zone_id, qty_increase in zone_updates.items():
+        zone = await db.zones.find_one({"id": zone_id})
+        if zone:
+            new_quantity = zone.get("total_quantity", 0) + qty_increase
+            await db.zones.update_one(
+                {"id": zone_id},
+                {"$set": {"total_quantity": new_quantity}}
+            )
+    
+    return {
+        "message": f"Created {len(created_intakes)} stock intakes",
+        "intakes_created": len(created_intakes),
+        "zones_updated": len(zone_updates)
+    }
+
+
 # Stock Intake Routes
 @api_router.post("/stock-intakes", response_model=StockIntake)
 async def create_stock_intake(input: StockIntakeCreate):
