@@ -2288,6 +2288,57 @@ const DestinationFloorPlan = ({ shed, onZoneClick, selectedZones = [] }) => {
             </div>
           );
         })}
+        
+        {/* Fridges */}
+        {fridges.map((fridge) => {
+          const fridgeDisplayX = fridge.x * scale;
+          const fridgeDisplayY = fridge.y * scale;
+          const fridgeDisplayWidth = fridge.width * scale;
+          const fridgeDisplayHeight = fridge.height * scale;
+          
+          return (
+            <div
+              key={fridge.id}
+              className="absolute border-2 border-gray-700 rounded flex items-center justify-center"
+              style={{
+                left: `${shedPadding + fridgeDisplayX + boxPadding}px`,
+                top: `${shedPadding + fridgeDisplayY + boxPadding}px`,
+                width: `${fridgeDisplayWidth - boxPadding * 2}px`,
+                height: `${fridgeDisplayHeight - boxPadding * 2}px`,
+                backgroundColor: '#FFFF00',
+                pointerEvents: 'none'
+              }}
+            >
+              <span className="text-gray-800 font-bold text-sm">Fridge</span>
+            </div>
+          );
+        })}
+        
+        {/* Doors */}
+        {doors.map((door) => {
+          const doorDisplayX = door.x * scale;
+          const doorDisplayY = door.y * scale;
+          const doorDisplayWidth = door.width * scale;
+          const doorDisplayHeight = door.height * scale;
+          
+          return (
+            <div
+              key={door.id}
+              className="absolute border-2 border-gray-700 rounded flex items-center justify-center"
+              style={{
+                left: `${shedPadding + doorDisplayX + boxPadding}px`,
+                top: `${shedPadding + doorDisplayY + boxPadding}px`,
+                width: `${doorDisplayWidth - boxPadding * 2}px`,
+                height: `${doorDisplayHeight - boxPadding * 2}px`,
+                backgroundColor: '#0070C0',
+                color: '#FF0000',
+                pointerEvents: 'none'
+              }}
+            >
+              <span className="font-bold text-sm" style={{ color: '#FF0000' }}>Door</span>
+            </div>
+          );
+        })}
 
         {/* Hover Tooltip */}
         {hoveredZone && (
