@@ -2186,24 +2186,62 @@ const DestinationFloorPlan = ({ shed, onZoneClick, selectedZones = [] }) => {
   const [zones, setZones] = useState([]);
   const [fridges, setFridges] = useState([]);
   const [doors, setDoors] = useState([]);
+  const [hoveredZone, setHoveredZone] = useState(null);
+  const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
+  const [stockIntakes, setStockIntakes] = useState([]);
+  const [fields, setFields] = useState([]);
   
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [zonesRes, fridgesRes, doorsRes] = await Promise.all([
+        const [zonesRes, fridgesRes, doorsRes, stockRes, fieldsRes] = await Promise.all([
           axios.get(`${API}/zones?shed_id=${shed.id}`),
           axios.get(`${API}/fridges?shed_id=${shed.id}`),
-          axios.get(`${API}/doors?shed_id=${shed.id}`)
+          axios.get(`${API}/doors?shed_id=${shed.id}`),
+          axios.get(`${API}/stock-intakes`),
+          axios.get(`${API}/fields`)
         ]);
         setZones(zonesRes.data);
         setFridges(fridgesRes.data);
         setDoors(doorsRes.data);
+        setStockIntakes(stockRes.data);
+        setFields(fieldsRes.data);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
     fetchData();
   }, [shed.id]);
+  
+  // Function to get zone contents for tooltip
+  const getZoneContents = (zone) => {
+    const zoneIntakes = stockIntakes.filter(intake => intake.zone_id === zone.id);
+    
+    if (zoneIntakes.length === 0) {
+      return { isEmpty: true, quantity: 0, capacity: zone.max_capacity, fields: [] };
+    }
+    
+    const fieldMap = {};
+    zoneIntakes.forEach(intake => {
+      if (!fieldMap[intake.field_id]) {
+        const field = fields.find(f => f.id === intake.field_id);
+        fieldMap[intake.field_id] = {
+          fieldName: intake.field_name,
+          variety: field?.variety || 'Unknown',
+          grade: intake.grade || 'No grade',
+          quantity: 0
+        };
+      }
+      fieldMap[intake.field_id].quantity += intake.quantity;
+    });
+    
+    return {
+      isEmpty: false,
+      quantity: zone.total_quantity,
+      capacity: zone.max_capacity,
+      fields: Object.values(fieldMap)
+    };
+  };
 
   const scale = 15;
   const gridCellSize = scale * 2;
