@@ -2184,17 +2184,25 @@ const FloorPlan = ({ user }) => {
 // Component to show destination floor plan for zone selection
 const DestinationFloorPlan = ({ shed, onZoneClick, selectedZones = [] }) => {
   const [zones, setZones] = useState([]);
+  const [fridges, setFridges] = useState([]);
+  const [doors, setDoors] = useState([]);
   
   useEffect(() => {
-    const fetchZones = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get(`${API}/zones?shed_id=${shed.id}`);
-        setZones(response.data);
+        const [zonesRes, fridgesRes, doorsRes] = await Promise.all([
+          axios.get(`${API}/zones?shed_id=${shed.id}`),
+          axios.get(`${API}/fridges?shed_id=${shed.id}`),
+          axios.get(`${API}/doors?shed_id=${shed.id}`)
+        ]);
+        setZones(zonesRes.data);
+        setFridges(fridgesRes.data);
+        setDoors(doorsRes.data);
       } catch (error) {
-        console.error("Error fetching zones:", error);
+        console.error("Error fetching data:", error);
       }
     };
-    fetchZones();
+    fetchData();
   }, [shed.id]);
 
   const scale = 15;
