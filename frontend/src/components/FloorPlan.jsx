@@ -1218,50 +1218,6 @@ const FloorPlan = ({ user }) => {
                           }}
                           data-testid="floor-plan-canvas"
                         >
-                        {/* Door markers */}
-                        {shed.doors && shed.doors.map((door, idx) => {
-                          const doorWidth = 60; // Width of door marker
-                          const doorHeight = 30; // Height of door marker
-                          let style = {};
-                          
-                          if (door.side === 'top') {
-                            style = {
-                              top: '0px',
-                              left: `${shedPadding + door.position * scale}px`,
-                              transform: 'translateY(-50%)'
-                            };
-                          } else if (door.side === 'bottom') {
-                            style = {
-                              bottom: '0px',
-                              left: `${shedPadding + door.position * scale}px`,
-                              transform: 'translateY(50%)'
-                            };
-                          } else if (door.side === 'left') {
-                            style = {
-                              left: '0px',
-                              top: `${shedPadding + door.position * scale}px`,
-                              transform: 'translateX(-50%) rotate(-90deg)'
-                            };
-                          } else if (door.side === 'right') {
-                            style = {
-                              right: '0px',
-                              top: `${shedPadding + door.position * scale}px`,
-                              transform: 'translateX(50%) rotate(90deg)'
-                            };
-                          }
-                          
-                          return (
-                            <div
-                              key={idx}
-                              className="absolute bg-red-600 text-white px-2 py-1 rounded text-xs font-bold flex items-center gap-1 shadow-lg z-20"
-                              style={style}
-                              data-testid={`door-marker-${idx}`}
-                            >
-                              <span>DOOR</span>
-                            </div>
-                          );
-                        })}
-                        
                         {/* Grid lines */}
                         <div 
                           className="absolute"
