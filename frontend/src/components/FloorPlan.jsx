@@ -950,8 +950,8 @@ const FloorPlan = ({ user }) => {
       setSelectedGrade("");
       setIntakeQuantity("");
       setSelectedZones([]);
-      fetchZones();
-      fetchStockIntakes();
+      // Fetch both in parallel for faster refresh
+      await Promise.all([fetchZones(), fetchStockIntakes()]);
     } catch (error) {
       console.error("Error adding stock:", error);
       toast.error("Failed to add stock");
