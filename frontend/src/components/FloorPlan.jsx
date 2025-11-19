@@ -575,15 +575,24 @@ const FloorPlan = ({ user }) => {
     }
   };
 
-  const handleDestinationZoneClick = (destZone) => {
+  const handleDestinationZoneClick = (destZone, ctrlKey = false) => {
     // Check if already selected
-    if (selectedDestinationZones.find(z => z.id === destZone.id)) {
+    const alreadySelected = selectedDestinationZones.find(z => z.id === destZone.id);
+    
+    if (alreadySelected) {
       // Deselect
       setSelectedDestinationZones(selectedDestinationZones.filter(z => z.id !== destZone.id));
     } else {
       // Add to selection (only if we haven't reached the limit)
       if (selectedDestinationZones.length < sourceZonesForMove.length) {
-        setSelectedDestinationZones([...selectedDestinationZones, destZone]);
+        if (ctrlKey) {
+          // Ctrl+click: add to existing selection
+          setSelectedDestinationZones([...selectedDestinationZones, destZone]);
+        } else {
+          // Regular click: replace selection if not holding Ctrl
+          // But allow building up to the required count
+          setSelectedDestinationZones([...selectedDestinationZones, destZone]);
+        }
       } else {
         toast.warning(`You can only select ${sourceZonesForMove.length} destination zones`);
       }
