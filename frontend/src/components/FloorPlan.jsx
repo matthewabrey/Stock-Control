@@ -2162,7 +2162,7 @@ const FloorPlan = ({ user }) => {
                   Select {sourceZonesForMove.length} destination zones ({selectedDestinationZones.length} selected)
                 </p>
                 <p className="text-xs text-blue-700 mt-1">
-                  Click on zones in the order you want stock moved. Click again to deselect.
+                  💡 <strong>Tip:</strong> Hold <kbd className="px-1 py-0.5 bg-white border border-blue-300 rounded text-xs">Ctrl</kbd> (or <kbd className="px-1 py-0.5 bg-white border border-blue-300 rounded text-xs">⌘</kbd> on Mac) and click to select multiple zones quickly. Click again to deselect.
                 </p>
               </div>
 
