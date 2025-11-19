@@ -2311,7 +2311,7 @@ const DestinationFloorPlan = ({ shed, onZoneClick, selectedZones = [] }) => {
           return (
             <div
               key={zone.id}
-              onClick={() => onZoneClick(zone)}
+              onClick={(e) => onZoneClick(zone, e.ctrlKey || e.metaKey)}
               onMouseEnter={(e) => {
                 setHoveredZone(zone);
                 setTooltipPosition({ x: e.clientX, y: e.clientY });
