@@ -907,33 +907,39 @@ const FloorPlan = ({ user }) => {
       
       console.log(`DEBUG: Total distributions: ${distributions.length}, Total qty: ${distributions.reduce((s, d) => s + d.quantity, 0)}`);
       
-      // Create stock intake records
-      for (const { zone, quantity } of distributions) {
-        if (quantity > 0) {
-          console.log(`DEBUG: Creating intake for zone ${zone.name} with ${quantity} units`);
-          console.log(`DEBUG: Using shed_id: ${shedId}, zone.shed_id: ${zone.shed_id}`);
-          await axios.post(`${API}/stock-intakes`, {
-            field_id: field.id,
-            field_name: field.name,
-            zone_id: zone.id,
-            shed_id: shedId,
-            quantity: quantity,
-            date: intakeDate,
-            grade: selectedGrade
-          });
-          
-          // Log this as a movement (intake from field)
-          await logMovement(
-            zone.id,
-            zone.id,
-            "NO_LOCATION",
-            shedId,
-            quantity,
-            field.id,
-            field.name,
-            selectedGrade
+      // Create stock intake records in BATCH for better performance
+      const intakesToCreate = distributions
+        .filter(({ quantity }) => quantity > 0)
+        .map(({ zone, quantity }) => ({
+          field_id: field.id,
+          field_name: field.name,
+          zone_id: zone.id,
+          shed_id: shedId,
+          quantity: quantity,
+          date: intakeDate,
+          grade: selectedGrade
+        }));
+      
+      if (intakesToCreate.length > 0) {
+        console.log(`DEBUG: Creating ${intakesToCreate.length} intakes in batch`);
+        await axios.post(`${API}/stock-intakes/batch`, intakesToCreate);
+        
+        // Log movements in batch as well
+        const movementPromises = distributions
+          .filter(({ quantity }) => quantity > 0)
+          .map(({ zone, quantity }) => 
+            logMovement(
+              zone.id,
+              zone.id,
+              "NO_LOCATION",
+              shedId,
+              quantity,
+              field.id,
+              field.name,
+              selectedGrade
+            )
           );
-        }
+        await Promise.all(movementPromises);
       }
       
       toast.success(`Stock added to ${zonesToUpdate.length} zone(s) from ${field.name} (${selectedGrade})`);
