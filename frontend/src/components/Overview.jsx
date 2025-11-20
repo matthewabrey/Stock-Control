@@ -89,6 +89,8 @@ const Overview = () => {
       brown: {},
       specialty: {}
     };
+    
+    console.log('[Overview] getOnionSummary called - stockIntakes:', stockIntakes.length, 'fields:', fields.length);
 
     // Process all stock intakes
     stockIntakes.forEach(intake => {
