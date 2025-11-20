@@ -155,7 +155,12 @@ const Overview = () => {
       }
     });
 
-    console.log('[Overview] getOnionSummary result:', onionSummary);
+    console.log('[Overview] getOnionSummary summary:', {
+      totalIntakes: stockIntakes.length,
+      onionIntakesFound: onionIntakesFound,
+      fieldsWithoutType: fieldsWithoutType,
+      result: onionSummary
+    });
     return onionSummary;
   };
 
