@@ -1523,7 +1523,7 @@ const FloorPlan = ({ user }) => {
                           <div key={field.id} className="flex items-center gap-2">
                             <div 
                               className="w-5 h-5 rounded border-2 border-gray-800 flex-shrink-0" 
-                              style={{ backgroundColor: fieldColorMap[field.id] }}
+                              style={{ backgroundColor: fieldColorMap[field.name] }}
                             ></div>
                             <span className="text-xs text-gray-900 font-medium truncate">
                               {field.name} - {field.harvest_year}
@@ -1577,7 +1577,7 @@ const FloorPlan = ({ user }) => {
                                 <div className="flex items-start gap-1.5 mb-1.5">
                                   <div 
                                     className="w-3 h-3 rounded border-2 border-gray-800 flex-shrink-0 mt-0.5" 
-                                    style={{ backgroundColor: fieldColorMap[field.id] }}
+                                    style={{ backgroundColor: fieldColorMap[field.name] }}
                                   ></div>
                                   <div className="flex-1 min-w-0">
                                     <div className="font-bold text-xs text-gray-900 truncate">
