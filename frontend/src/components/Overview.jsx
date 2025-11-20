@@ -95,7 +95,8 @@ const Overview = () => {
 
     // Process all stock intakes and group by crop type
     stockIntakes.forEach(intake => {
-      const field = fields.find(f => f.id === intake.field_id);
+      // IMPORTANT: Match by field_name instead of field_id (resilient to Excel re-uploads)
+      const field = fields.find(f => f.name === intake.field_name);
       if (!field) {
         unmatchedIntakes.push({
           field_id: intake.field_id,
