@@ -227,7 +227,7 @@ const FloorPlan = ({ user }) => {
     // Group by field
     const fieldGroups = {};
     zoneIntakes.forEach(intake => {
-      const field = fields.find(f => f.id === intake.field_id);
+      const field = fields.find(f => f.name === intake.field_name);
       const fieldName = field?.name || intake.field_name || 'Unknown';
       const variety = field?.variety || 'Unknown';
       
@@ -286,7 +286,7 @@ const FloorPlan = ({ user }) => {
     
     zoneIntakes.forEach(intake => {
       if (!fieldGroups[intake.field_id]) {
-        const field = fields.find(f => f.id === intake.field_id);
+        const field = fields.find(f => f.name === intake.field_name);
         const fieldNameWithYear = field ? `${intake.field_name} - ${field.harvest_year}` : intake.field_name;
         
         fieldGroups[intake.field_id] = {
@@ -1049,7 +1049,7 @@ const FloorPlan = ({ user }) => {
       if (totalIntakeQty === 0) return;
       
       zoneIntakes.forEach(intake => {
-        const field = fields.find(f => f.id === intake.field_id);
+        const field = fields.find(f => f.name === intake.field_name);
         if (!field) return;
         
         const cropTypeLower = field.crop_type.toLowerCase();
@@ -1661,7 +1661,7 @@ const FloorPlan = ({ user }) => {
                       const fieldGroups = {};
                       selectedZoneIntakes.forEach(intake => {
                         if (!fieldGroups[intake.field_id]) {
-                          const field = fields.find(f => f.id === intake.field_id);
+                          const field = fields.find(f => f.name === intake.field_name);
                           fieldGroups[intake.field_id] = {
                             fieldId: intake.field_id,
                             fieldName: intake.field_name,
@@ -2008,7 +2008,7 @@ const FloorPlan = ({ user }) => {
                   const fieldGroups = {};
                   zoneIntakes.forEach(intake => {
                     if (!fieldGroups[intake.field_id]) {
-                      const field = fields.find(f => f.id === intake.field_id);
+                      const field = fields.find(f => f.name === intake.field_name);
                       const fieldNameWithYear = field ? `${intake.field_name} - ${field.harvest_year}` : intake.field_name;
                       
                       fieldGroups[intake.field_id] = {
@@ -2242,7 +2242,7 @@ const DestinationFloorPlan = ({ shed, onZoneClick, selectedZones = [] }) => {
     const fieldMap = {};
     zoneIntakes.forEach(intake => {
       if (!fieldMap[intake.field_id]) {
-        const field = fields.find(f => f.id === intake.field_id);
+        const field = fields.find(f => f.name === intake.field_name);
         fieldMap[intake.field_id] = {
           fieldName: intake.field_name,
           variety: field?.variety || 'Unknown',
