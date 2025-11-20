@@ -1472,9 +1472,10 @@ class StockControlTester:
         print(f"🔗 Backend URL: {self.base_url}")
         print("=" * 60)
         
-        # Test sequence - prioritizing lost stock data investigation
+        # Test sequence - prioritizing field ID matching issue
         tests = [
             ("API Health Check", self.test_api_health),
+            ("CRITICAL: Field ID Matching Issue", self.test_field_id_matching_issue),
             ("URGENT: Lost Stock Data Investigation", self.investigate_lost_stock_data),
             ("Review Request Workflow", self.test_review_request_workflow),
             ("Clear All Data with Fridges", self.test_clear_data_with_fridges),
