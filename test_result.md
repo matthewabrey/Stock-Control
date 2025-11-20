@@ -1042,3 +1042,46 @@ agent_communication:
       
       🚀 DOOR DETECTION FULLY FUNCTIONAL - NO FURTHER CHANGES NEEDED
       The blue color detection was already correct, the issue was a simple unpacking bug that prevented Excel processing.
+  - agent: "testing"
+    message: |
+      🚨 URGENT STOCK DATA INVESTIGATION COMPLETED - CRITICAL FINDINGS
+      
+      🔍 EXECUTED COMPREHENSIVE STOCK DATA INVESTIGATION:
+      ✅ STEP 1: Stock intakes check - 52 stock intakes found in database
+      ✅ STEP 2: Fields check - 211 fields found in database  
+      ✅ STEP 3: Zones check - 2,987 zones found in database
+      ✅ STEP 4: Sheds check - 21 sheds found in database
+      ✅ STEP 5: Cross-reference analysis completed
+      
+      📊 DETAILED INVESTIGATION RESULTS:
+      🟢 STOCK INTAKES: 52 found (NOT DELETED)
+      - Sample intake: Pickenham - Church Breck (5.0 units)
+      - Field ID: 375d6f38-0c9e-40e6-8bad-6620725bcfc7
+      - Zone ID: 26117176-7fae-4178-904b-56b982d9d978
+      - Shed ID: 8071106f-ece1-434e-927d-f36bd1777c76
+      
+      🟢 FIELDS: 211 found (NOT DELETED)
+      - Sample field: Chandler - 23 Brek (Carrots, variety: 1)
+      - Field ID: 6baec2d4-4065-44ee-aee9-4bca22f57f44
+      
+      🟢 ZONES: 2,987 found (NOT DELETED)
+      - Sample zone: A2 (Shed: 1bb45b03-3f29-44dc-b48f-2eaa01bc0b40)
+      - Zone ID: d74a870b-a034-4bee-b079-88b4c1a4d68e
+      
+      🟢 SHEDS: 21 found (NOT DELETED)
+      - Sample shed: Grader Shed (38.0m x 12.0m)
+      - Shed ID: 1bb45b03-3f29-44dc-b48f-2eaa01bc0b40
+      
+      🔍 ID CROSS-REFERENCE ANALYSIS:
+      ✅ Stock intakes with orphaned field_ids: 0
+      ✅ Stock intakes with orphaned zone_ids: 0  
+      ✅ Stock intakes with orphaned shed_ids: 0
+      
+      🎯 FINAL CONCLUSION: **DATA_INTACT**
+      - Stock intakes were NOT deleted
+      - Stock intakes are NOT orphaned
+      - All field_id, zone_id, and shed_id references are valid
+      - All data relationships are properly maintained
+      
+      🚀 NO STOCK DATA LOSS DETECTED - ALL SYSTEMS FUNCTIONING NORMALLY
+      The stock data investigation found no evidence of lost or corrupted data.
