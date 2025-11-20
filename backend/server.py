@@ -780,6 +780,27 @@ async def upload_excel(file: UploadFile = File(...)):
                 fields_created += 1
                 print(f"  Created field: {full_field_name} (Harvest {harvest_year})")
         
+        # Update stock intakes with new field IDs (preserve existing stock data)
+        if old_field_mapping:
+            print(f"\n=== Updating Stock Intakes with New Field IDs ===")
+            new_fields = await db.fields.find({}, {"_id": 0}).to_list(length=None)
+            new_field_mapping = {f['name']: f['id'] for f in new_fields}
+            
+            intakes_updated = 0
+            for old_name, old_id in old_field_mapping.items():
+                if old_name in new_field_mapping:
+                    new_id = new_field_mapping[old_name]
+                    # Update all stock intakes that reference the old field ID
+                    result = await db.stock_intakes.update_many(
+                        {"field_id": old_id},
+                        {"$set": {"field_id": new_id}}
+                    )
+                    if result.modified_count > 0:
+                        print(f"  Updated {result.modified_count} stock intakes for field '{old_name}'")
+                        intakes_updated += result.modified_count
+            
+            print(f"Total stock intakes updated: {intakes_updated}")
+        
         # Parse Store Sheets (each sheet = one store)
         # Skip field sheets, Grade Options Page, and other non-store sheets
         skip_sheets = ["FRONT PAGE", "Master Harvest 25", "Master Harevst 26", "Master Harvest 26", "Master Cropping", "Grade Options Page", "Sheet1", "Sheet2", "Sheet3"]
