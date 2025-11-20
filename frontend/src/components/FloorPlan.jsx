@@ -260,20 +260,20 @@ const FloorPlan = ({ user }) => {
     const zoneIntakes = getZoneIntakes(zone.id);
     if (zoneIntakes.length === 0) return "#e5e7eb"; // Gray for empty
     
-    // Group by field to check for mixed stock
+    // Group by field_name to check for mixed stock
     const fieldGroups = {};
     zoneIntakes.forEach(intake => {
-      if (!fieldGroups[intake.field_id]) {
-        fieldGroups[intake.field_id] = [];
+      if (!fieldGroups[intake.field_name]) {
+        fieldGroups[intake.field_name] = [];
       }
-      fieldGroups[intake.field_id].push(intake);
+      fieldGroups[intake.field_name].push(intake);
     });
     
-    const uniqueFields = Object.keys(fieldGroups);
+    const uniqueFieldNames = Object.keys(fieldGroups);
     
     // If only one field, return solid color
-    if (uniqueFields.length === 1) {
-      return fieldColorMap[uniqueFields[0]] || "#94a3b8";
+    if (uniqueFieldNames.length === 1) {
+      return fieldColorMap[uniqueFieldNames[0]] || "#94a3b8";
     }
     
     // Multiple fields - return "mixed" indicator
