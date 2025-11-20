@@ -652,6 +652,11 @@ async def upload_excel(file: UploadFile = File(...)):
         if not harvest_sheets:
             print("Warning: No field sheets found (looking for 'Master Harvest', 'Master Cropping', 'FRONT PAGE', etc.)")
         
+        # Store old field name -> ID mapping before clearing (to update stock intakes)
+        old_fields = await db.fields.find({}, {"_id": 0}).to_list(length=None)
+        old_field_mapping = {f['name']: f['id'] for f in old_fields}
+        print(f"DEBUG: Stored {len(old_field_mapping)} old field mappings")
+        
         # Clear existing fields
         await db.fields.delete_many({})
         
