@@ -382,9 +382,9 @@ const Overview = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="pt-6">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {/* Red Onions */}
-                    {hasRedOnions && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {/* Display each crop type */}
+                    {Object.entries(cropSummary).map(([cropType, grades]) => (
                       <div className="p-4 bg-red-50 rounded-lg border border-red-200">
                         <h3 className="text-lg font-semibold text-red-900 mb-4 flex items-center gap-2">
                           <div className="w-4 h-4 bg-red-500 rounded-full"></div>
