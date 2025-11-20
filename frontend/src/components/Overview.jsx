@@ -82,6 +82,7 @@ const Overview = () => {
     return Object.values(fieldGroups).filter(fg => fg.totalQuantity > 0);
   };
 
+  // TIMESTAMP: Force rebuild - 2024
   const getCropSummary = () => {
     // Calculate summary by crop type and grade
     const cropSummary = {};
