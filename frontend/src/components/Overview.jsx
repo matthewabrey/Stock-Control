@@ -367,20 +367,18 @@ const Overview = () => {
           </p>
         </div>
 
-        {/* Onion Summary Section */}
+        {/* Crop Summary Section */}
         {(() => {
-          const onionSummary = getOnionSummary();
-          const hasRedOnions = Object.keys(onionSummary.red).length > 0;
-          const hasBrownOnions = Object.keys(onionSummary.brown).length > 0;
-          const hasSpecialtyOnions = Object.keys(onionSummary.specialty).length > 0;
+          const cropSummary = getCropSummary();
+          const hasCrops = Object.keys(cropSummary).length > 0;
           
-          if (hasRedOnions || hasBrownOnions || hasSpecialtyOnions) {
+          if (hasCrops) {
             return (
               <Card className="bg-white shadow rounded-xl border border-gray-200 mb-6">
                 <CardHeader className="border-b border-gray-100">
                   <CardTitle className="text-2xl text-gray-900 flex items-center gap-2">
                     <Package className="w-6 h-6 text-orange-600" />
-                    Onion Summary by Grade
+                    Stock Summary by Crop Type & Grade
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="pt-6">
