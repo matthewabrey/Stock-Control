@@ -89,10 +89,22 @@ const Overview = () => {
     
     console.log('[Overview] getCropSummary called - stockIntakes:', stockIntakes.length, 'fields:', fields.length);
 
+    // Debug: Check field matching
+    let matchedFields = 0;
+    let unmatchedIntakes = [];
+
     // Process all stock intakes and group by crop type
     stockIntakes.forEach(intake => {
       const field = fields.find(f => f.id === intake.field_id);
-      if (!field) return;
+      if (!field) {
+        unmatchedIntakes.push({
+          field_id: intake.field_id,
+          field_name: intake.field_name,
+          quantity: intake.quantity
+        });
+        return;
+      }
+      matchedFields++;
       
       const cropType = field.crop_type || 'Unknown';
       
