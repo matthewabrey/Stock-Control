@@ -122,6 +122,12 @@ const Overview = () => {
     });
 
     console.log('[Overview] getCropSummary result:', cropSummary);
+    console.log('[Overview] Field matching stats:', {
+      totalIntakes: stockIntakes.length,
+      matchedFields: matchedFields,
+      unmatchedCount: unmatchedIntakes.length,
+      sampleUnmatched: unmatchedIntakes.slice(0, 3)
+    });
     return cropSummary;
   };
 
