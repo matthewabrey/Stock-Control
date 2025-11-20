@@ -1038,6 +1038,8 @@ const FloorPlan = ({ user }) => {
       red: {},
       brown: {}
     };
+    
+    console.log('[FloorPlan] getShedOnionSummary called - zones:', zones.length, 'stockIntakes:', stockIntakes.length, 'fields:', fields.length);
 
     // Process only zones in THIS shed
     zones.filter(z => z.total_quantity > 0).forEach(zone => {
