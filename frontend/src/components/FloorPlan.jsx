@@ -1033,13 +1033,10 @@ const FloorPlan = ({ user }) => {
   console.log(`DEBUG fieldsInShed: Total stockIntakes: ${stockIntakes.length}, Current shed: ${shedId}, Intakes in this shed: ${stockIntakes.filter(i => i.shed_id === shedId).length}, Fields found: ${fieldsInShed.length}`);
 
   // Get onion summary for this shed only
-  const getShedOnionSummary = () => {
-    const onionSummary = {
-      red: {},
-      brown: {}
-    };
+  const getShedCropSummary = () => {
+    const cropSummary = {};
     
-    console.log('[FloorPlan] getShedOnionSummary called - zones:', zones.length, 'stockIntakes:', stockIntakes.length, 'fields:', fields.length);
+    console.log('[FloorPlan] getShedCropSummary called - zones:', zones.length, 'stockIntakes:', stockIntakes.length, 'fields:', fields.length);
 
     // Process only zones in THIS shed
     zones.filter(z => z.total_quantity > 0).forEach(zone => {
@@ -1052,42 +1049,26 @@ const FloorPlan = ({ user }) => {
         const field = fields.find(f => f.name === intake.field_name);
         if (!field) return;
         
-        const cropTypeLower = field.crop_type.toLowerCase();
+        const cropType = field.crop_type || 'Unknown';
+        const proportion = intake.quantity / totalIntakeQty;
+        const actualQty = zone.total_quantity * proportion;
+        const grade = intake.grade || 'Whole Crop';
         
-        if (cropTypeLower.includes('onion')) {
-          const proportion = intake.quantity / totalIntakeQty;
-          const actualQty = zone.total_quantity * proportion;
-          
-          // Use the Type field from Excel for classification
-          let onionType = 'brown'; // Default to brown
-          
-          if (field.type) {
-            const typeLower = field.type.toLowerCase();
-            if (typeLower.includes('red')) {
-              onionType = 'red';
-            } else if (typeLower.includes('brown')) {
-              onionType = 'brown';
-            }
-            // Note: FloorPlan only shows red/brown, not specialty
-          }
-          // Fallback to old logic if Type field is missing
-          else {
-            const varietyLower = field.variety ? field.variety.toLowerCase() : '';
-            if (varietyLower.includes('red') || cropTypeLower.includes('red')) {
-              onionType = 'red';
-            }
-          }
-          
-          if (!onionSummary[onionType][intake.grade]) {
-            onionSummary[onionType][intake.grade] = 0;
-          }
-          onionSummary[onionType][intake.grade] += actualQty;
+        // Initialize crop type if not exists
+        if (!cropSummary[cropType]) {
+          cropSummary[cropType] = {};
         }
+        
+        // Add to summary by grade
+        if (!cropSummary[cropType][grade]) {
+          cropSummary[cropType][grade] = 0;
+        }
+        cropSummary[cropType][grade] += actualQty;
       });
     });
 
-    console.log('[FloorPlan] getShedOnionSummary result:', onionSummary);
-    return onionSummary;
+    console.log('[FloorPlan] getShedCropSummary result:', cropSummary);
+    return cropSummary;
   };
 
   // Calculate grid dimensions
