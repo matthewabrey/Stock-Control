@@ -9,7 +9,7 @@ MONGO_URL = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
 
 async def repair_field_references():
     client = AsyncIOMotorClient(MONGO_URL)
-    db = client.harvest_manager
+    db = client.stock_control
     
     print("=== Repairing Field References ===\n")
     
