@@ -82,15 +82,11 @@ const Overview = () => {
     return Object.values(fieldGroups).filter(fg => fg.totalQuantity > 0);
   };
 
-  const getOnionSummary = () => {
-    // Calculate onion summary by variety and grade
-    const onionSummary = {
-      red: {},
-      brown: {},
-      specialty: {}
-    };
+  const getCropSummary = () => {
+    // Calculate summary by crop type and grade
+    const cropSummary = {};
     
-    console.log('[Overview] getOnionSummary called - stockIntakes:', stockIntakes.length, 'fields:', fields.length);
+    console.log('[Overview] getCropSummary called - stockIntakes:', stockIntakes.length, 'fields:', fields.length);
 
     // Process all stock intakes
     let onionIntakesFound = 0;
