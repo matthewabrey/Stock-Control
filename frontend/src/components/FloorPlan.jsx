@@ -1417,16 +1417,15 @@ const FloorPlan = ({ user }) => {
               <CardContent>
                 <ScrollArea className="h-[600px] pr-4">
                   <div className="space-y-4">
-                    {/* Onion Summary for this shed */}
+                    {/* Stock Overview for this shed */}
                     {(() => {
-                      const onionSummary = getShedOnionSummary();
-                      const hasRedOnions = Object.keys(onionSummary.red).length > 0;
-                      const hasBrownOnions = Object.keys(onionSummary.brown).length > 0;
+                      const cropSummary = getShedCropSummary();
+                      const hasCrops = Object.keys(cropSummary).length > 0;
                       
-                      if (hasRedOnions || hasBrownOnions) {
+                      if (hasCrops) {
                         return (
                           <div className="pb-3 border-b">
-                            <h3 className="font-semibold text-xs mb-2 text-gray-700">Onion Summary</h3>
+                            <h3 className="font-semibold text-xs mb-2 text-gray-700">Stock Overview</h3>
                             <div className="space-y-2">
                               {/* Red Onions */}
                               {hasRedOnions && (
