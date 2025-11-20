@@ -782,7 +782,7 @@ async def upload_excel(file: UploadFile = File(...)):
         
         # Update stock intakes with new field IDs (preserve existing stock data)
         if old_field_mapping:
-            print(f"\n=== Updating Stock Intakes with New Field IDs ===")
+            print("\n=== Updating Stock Intakes with New Field IDs ===")
             new_fields = await db.fields.find({}, {"_id": 0}).to_list(length=None)
             new_field_mapping = {f['name']: f['id'] for f in new_fields}
             
