@@ -1108,6 +1108,150 @@ class StockControlTester:
             self.log_test("Review Request Workflow", False, f"Exception: {str(e)}")
             return False
 
+    def test_field_id_matching_issue(self):
+        """CRITICAL: Verify Field ID Matching Issue - Execute the specific review request workflow"""
+        try:
+            print("\n🔍 CRITICAL: VERIFYING FIELD ID MATCHING ISSUE")
+            print("=" * 60)
+            
+            # STEP 1: Get a sample stock intake
+            print("STEP 1: Getting sample stock intake...")
+            response = self.session.get(f"{self.base_url}/stock-intakes")
+            if response.status_code != 200:
+                self.log_test("Field ID Matching - Get Stock Intakes", False, f"Failed to get stock intakes, status: {response.status_code}")
+                return False
+            
+            stock_intakes = response.json()
+            if not stock_intakes:
+                self.log_test("Field ID Matching - Get Stock Intakes", False, "No stock intakes found")
+                return False
+            
+            # Pick the FIRST stock intake
+            first_intake = stock_intakes[0]
+            intake_field_id = first_intake.get('field_id')
+            intake_field_name = first_intake.get('field_name')
+            
+            print(f"✅ FIRST STOCK INTAKE:")
+            print(f"   - field_id: {intake_field_id}")
+            print(f"   - field_name: {intake_field_name}")
+            
+            # STEP 2: Check if that field_id exists in fields
+            print(f"\nSTEP 2: Checking if field_id '{intake_field_id}' exists in fields...")
+            response = self.session.get(f"{self.base_url}/fields")
+            if response.status_code != 200:
+                self.log_test("Field ID Matching - Get Fields", False, f"Failed to get fields, status: {response.status_code}")
+                return False
+            
+            fields = response.json()
+            if not fields:
+                self.log_test("Field ID Matching - Get Fields", False, "No fields found")
+                return False
+            
+            # Search for a field with id matching the stock intake's field_id
+            matching_field_by_id = next((f for f in fields if f.get('id') == intake_field_id), None)
+            
+            if matching_field_by_id:
+                print(f"✅ FIELD WITH MATCHING ID FOUND:")
+                print(f"   - id: {matching_field_by_id.get('id')}")
+                print(f"   - name: {matching_field_by_id.get('name')}")
+                actual_field_id = matching_field_by_id.get('id')
+            else:
+                print(f"❌ NO FIELD WITH ID '{intake_field_id}' FOUND")
+                
+                # Search for a field with name matching the stock intake's field_name
+                print(f"   Searching for field with name '{intake_field_name}'...")
+                matching_field_by_name = next((f for f in fields if f.get('name') == intake_field_name), None)
+                
+                if matching_field_by_name:
+                    print(f"✅ FIELD WITH MATCHING NAME FOUND:")
+                    print(f"   - id: {matching_field_by_name.get('id')}")
+                    print(f"   - name: {matching_field_by_name.get('name')}")
+                    actual_field_id = matching_field_by_name.get('id')
+                else:
+                    print(f"❌ NO FIELD WITH NAME '{intake_field_name}' FOUND EITHER")
+                    self.log_test("Field ID Matching", False, f"Neither field_id nor field_name from stock intake found in fields")
+                    return False
+            
+            # STEP 3: Compare IDs
+            print(f"\nSTEP 3: Comparing IDs...")
+            print(f"   - Stock intake field_id: {intake_field_id}")
+            print(f"   - Actual field id with same name: {actual_field_id}")
+            
+            if intake_field_id == actual_field_id:
+                print(f"✅ IDs MATCH - Field ID update logic worked correctly")
+                conclusion = "FIELD_IDS_MATCH"
+                success = True
+                message = "Field IDs match correctly - field_id update logic worked when Excel was re-uploaded"
+            else:
+                print(f"❌ IDs DO NOT MATCH - Field ID update logic failed")
+                conclusion = "FIELD_IDS_MISMATCH"
+                success = False
+                message = f"Field IDs mismatch - stock intake still references old field ID '{intake_field_id}' but actual field has ID '{actual_field_id}'"
+            
+            # Additional analysis - check all stock intakes for this pattern
+            print(f"\nADDITIONAL ANALYSIS: Checking all stock intakes for field ID mismatches...")
+            field_id_map = {f.get('id'): f.get('name') for f in fields}
+            field_name_to_id_map = {f.get('name'): f.get('id') for f in fields}
+            
+            mismatched_intakes = []
+            total_intakes = len(stock_intakes)
+            
+            for intake in stock_intakes:
+                intake_fid = intake.get('field_id')
+                intake_fname = intake.get('field_name')
+                
+                # Check if field_id exists in current fields
+                if intake_fid not in field_id_map:
+                    # Check if field_name exists and has different ID
+                    if intake_fname in field_name_to_id_map:
+                        correct_id = field_name_to_id_map[intake_fname]
+                        mismatched_intakes.append({
+                            'intake_id': intake.get('id'),
+                            'field_name': intake_fname,
+                            'old_field_id': intake_fid,
+                            'correct_field_id': correct_id
+                        })
+            
+            print(f"📊 ANALYSIS RESULTS:")
+            print(f"   - Total stock intakes: {total_intakes}")
+            print(f"   - Intakes with field ID mismatches: {len(mismatched_intakes)}")
+            
+            if mismatched_intakes:
+                print(f"   - Sample mismatched intakes:")
+                for i, mismatch in enumerate(mismatched_intakes[:3]):  # Show first 3
+                    print(f"     {i+1}. Field '{mismatch['field_name']}': {mismatch['old_field_id']} → {mismatch['correct_field_id']}")
+            
+            # Final conclusion
+            analysis_results = {
+                'first_intake_field_id': intake_field_id,
+                'first_intake_field_name': intake_field_name,
+                'actual_field_id': actual_field_id,
+                'ids_match': intake_field_id == actual_field_id,
+                'total_stock_intakes': total_intakes,
+                'mismatched_intakes_count': len(mismatched_intakes),
+                'conclusion': conclusion,
+                'sample_mismatches': mismatched_intakes[:5]  # First 5 mismatches
+            }
+            
+            print(f"\n🎯 CRITICAL QUESTION ANSWER:")
+            if conclusion == "FIELD_IDS_MATCH":
+                print(f"✅ YES - The field_id update logic worked when Excel was re-uploaded")
+            else:
+                print(f"❌ NO - The field_id update logic did NOT work when Excel was re-uploaded")
+                print(f"   Stock intakes are still referencing old deleted field IDs")
+            
+            self.log_test(
+                "Field ID Matching Issue", 
+                success, 
+                message,
+                json.dumps(analysis_results, indent=2)
+            )
+            return success
+            
+        except Exception as e:
+            self.log_test("Field ID Matching Issue", False, f"Exception: {str(e)}")
+            return False
+
     def investigate_lost_stock_data(self):
         """URGENT: Investigate Lost Stock Data - Execute the specific review request workflow"""
         try:
