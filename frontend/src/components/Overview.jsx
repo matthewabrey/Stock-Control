@@ -88,76 +88,28 @@ const Overview = () => {
     
     console.log('[Overview] getCropSummary called - stockIntakes:', stockIntakes.length, 'fields:', fields.length);
 
-    // Process all stock intakes
-    let onionIntakesFound = 0;
-    let fieldsWithoutType = 0;
-    
+    // Process all stock intakes and group by crop type
     stockIntakes.forEach(intake => {
       const field = fields.find(f => f.id === intake.field_id);
-      if (!field) {
-        console.log('[Overview] Stock intake has no matching field:', intake.field_id);
-        return;
+      if (!field) return;
+      
+      const cropType = field.crop_type || 'Unknown';
+      
+      // Initialize crop type if not exists
+      if (!cropSummary[cropType]) {
+        cropSummary[cropType] = {};
       }
       
-      // Check if it's an onion crop
-      const cropTypeLower = field.crop_type.toLowerCase();
-      
-      if (cropTypeLower.includes('onion')) {
-        onionIntakesFound++;
-        console.log('[Overview] Found onion intake:', {
-          fieldName: field.name,
-          cropType: field.crop_type,
-          type: field.type,
-          variety: field.variety,
-          grade: intake.grade,
-          quantity: intake.quantity
-        });
-        // Use the Type field from Excel for classification
-        let onionType = 'brown'; // Default to brown
-        
-        if (field.type) {
-          const typeLower = field.type.toLowerCase();
-          console.log('[Overview] Classifying onion - type field:', field.type, 'typeLower:', typeLower);
-          if (typeLower.includes('red')) {
-            onionType = 'red';
-          } else if (typeLower.includes('special')) {
-            onionType = 'specialty';
-          } else if (typeLower.includes('brown')) {
-            onionType = 'brown';
-          }
-        }
-        // Fallback to old logic if Type field is missing
-        else {
-          fieldsWithoutType++;
-          console.log('[Overview] Field has no type, using fallback - variety:', field.variety, 'crop:', field.crop_type);
-          const varietyLower = field.variety ? field.variety.toLowerCase() : '';
-          
-          // Specials: Check crop_type for "specials" (e.g., "Onions - Specials")
-          if (cropTypeLower.includes('specials')) {
-            onionType = 'specialty';
-          } 
-          // Red onions: Check variety for "red" (e.g., "Red Light", "Red Tide")
-          else if (varietyLower.includes('red')) {
-            onionType = 'red';
-          }
-          // Brown onions: Everything else
-        }
-        
-        // Add to summary
-        if (!onionSummary[onionType][intake.grade]) {
-          onionSummary[onionType][intake.grade] = 0;
-        }
-        onionSummary[onionType][intake.grade] += intake.quantity;
+      // Add to summary by grade
+      const grade = intake.grade || 'Whole Crop';
+      if (!cropSummary[cropType][grade]) {
+        cropSummary[cropType][grade] = 0;
       }
+      cropSummary[cropType][grade] += intake.quantity;
     });
 
-    console.log('[Overview] getOnionSummary summary:', {
-      totalIntakes: stockIntakes.length,
-      onionIntakesFound: onionIntakesFound,
-      fieldsWithoutType: fieldsWithoutType,
-      result: onionSummary
-    });
-    return onionSummary;
+    console.log('[Overview] getCropSummary result:', cropSummary);
+    return cropSummary;
   };
 
   const getOnionGradeDetails = (onionType, grade) => {
