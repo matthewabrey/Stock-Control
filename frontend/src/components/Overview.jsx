@@ -121,6 +121,7 @@ const Overview = () => {
         
         if (field.type) {
           const typeLower = field.type.toLowerCase();
+          console.log('[Overview] Classifying onion - type field:', field.type, 'typeLower:', typeLower);
           if (typeLower.includes('red')) {
             onionType = 'red';
           } else if (typeLower.includes('special')) {
@@ -131,6 +132,8 @@ const Overview = () => {
         }
         // Fallback to old logic if Type field is missing
         else {
+          fieldsWithoutType++;
+          console.log('[Overview] Field has no type, using fallback - variety:', field.variety, 'crop:', field.crop_type);
           const varietyLower = field.variety ? field.variety.toLowerCase() : '';
           
           // Specials: Check crop_type for "specials" (e.g., "Onions - Specials")
