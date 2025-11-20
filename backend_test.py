@@ -1108,15 +1108,230 @@ class StockControlTester:
             self.log_test("Review Request Workflow", False, f"Exception: {str(e)}")
             return False
 
+    def investigate_lost_stock_data(self):
+        """URGENT: Investigate Lost Stock Data - Execute the specific review request workflow"""
+        try:
+            print("\n🚨 URGENT: INVESTIGATING LOST STOCK DATA")
+            print("=" * 60)
+            
+            investigation_results = {}
+            
+            # STEP 1: Check if stock intakes still exist
+            print("STEP 1: Checking stock intakes...")
+            response = self.session.get(f"{self.base_url}/stock-intakes")
+            if response.status_code != 200:
+                self.log_test("Stock Intakes Check", False, f"Failed to get stock intakes, status: {response.status_code}")
+                return False
+            
+            stock_intakes = response.json()
+            investigation_results['stock_intakes_count'] = len(stock_intakes)
+            
+            print(f"📊 STOCK INTAKES: {len(stock_intakes)} found")
+            
+            if stock_intakes:
+                # Show sample intake with field_id, zone_id, shed_id
+                sample_intake = stock_intakes[0]
+                investigation_results['sample_stock_intake'] = {
+                    'id': sample_intake.get('id'),
+                    'field_id': sample_intake.get('field_id'),
+                    'zone_id': sample_intake.get('zone_id'),
+                    'shed_id': sample_intake.get('shed_id'),
+                    'quantity': sample_intake.get('quantity'),
+                    'field_name': sample_intake.get('field_name')
+                }
+                print(f"📋 SAMPLE INTAKE:")
+                print(f"   - ID: {sample_intake.get('id')}")
+                print(f"   - Field ID: {sample_intake.get('field_id')}")
+                print(f"   - Zone ID: {sample_intake.get('zone_id')}")
+                print(f"   - Shed ID: {sample_intake.get('shed_id')}")
+                print(f"   - Quantity: {sample_intake.get('quantity')}")
+                print(f"   - Field Name: {sample_intake.get('field_name')}")
+            else:
+                print("⚠️  NO STOCK INTAKES FOUND!")
+                investigation_results['sample_stock_intake'] = None
+            
+            # STEP 2: Check fields
+            print("\nSTEP 2: Checking fields...")
+            response = self.session.get(f"{self.base_url}/fields")
+            if response.status_code != 200:
+                self.log_test("Fields Check", False, f"Failed to get fields, status: {response.status_code}")
+                return False
+            
+            fields = response.json()
+            investigation_results['fields_count'] = len(fields)
+            
+            print(f"📊 FIELDS: {len(fields)} found")
+            
+            if fields:
+                sample_field = fields[0]
+                investigation_results['sample_field'] = {
+                    'id': sample_field.get('id'),
+                    'name': sample_field.get('name'),
+                    'crop_type': sample_field.get('crop_type'),
+                    'variety': sample_field.get('variety')
+                }
+                print(f"📋 SAMPLE FIELD:")
+                print(f"   - ID: {sample_field.get('id')}")
+                print(f"   - Name: {sample_field.get('name')}")
+                print(f"   - Crop Type: {sample_field.get('crop_type')}")
+                print(f"   - Variety: {sample_field.get('variety')}")
+            else:
+                print("⚠️  NO FIELDS FOUND!")
+                investigation_results['sample_field'] = None
+            
+            # STEP 3: Check zones
+            print("\nSTEP 3: Checking zones...")
+            response = self.session.get(f"{self.base_url}/zones")
+            if response.status_code != 200:
+                self.log_test("Zones Check", False, f"Failed to get zones, status: {response.status_code}")
+                return False
+            
+            zones = response.json()
+            investigation_results['zones_count'] = len(zones)
+            
+            print(f"📊 ZONES: {len(zones)} found")
+            
+            if zones:
+                sample_zone = zones[0]
+                investigation_results['sample_zone'] = {
+                    'id': sample_zone.get('id'),
+                    'name': sample_zone.get('name'),
+                    'shed_id': sample_zone.get('shed_id'),
+                    'total_quantity': sample_zone.get('total_quantity')
+                }
+                print(f"📋 SAMPLE ZONE:")
+                print(f"   - ID: {sample_zone.get('id')}")
+                print(f"   - Name: {sample_zone.get('name')}")
+                print(f"   - Shed ID: {sample_zone.get('shed_id')}")
+                print(f"   - Total Quantity: {sample_zone.get('total_quantity')}")
+            else:
+                print("⚠️  NO ZONES FOUND!")
+                investigation_results['sample_zone'] = None
+            
+            # STEP 4: Check sheds
+            print("\nSTEP 4: Checking sheds...")
+            response = self.session.get(f"{self.base_url}/sheds")
+            if response.status_code != 200:
+                self.log_test("Sheds Check", False, f"Failed to get sheds, status: {response.status_code}")
+                return False
+            
+            sheds = response.json()
+            investigation_results['sheds_count'] = len(sheds)
+            
+            print(f"📊 SHEDS: {len(sheds)} found")
+            
+            if sheds:
+                sample_shed = sheds[0]
+                investigation_results['sample_shed'] = {
+                    'id': sample_shed.get('id'),
+                    'name': sample_shed.get('name'),
+                    'width': sample_shed.get('width'),
+                    'height': sample_shed.get('height')
+                }
+                print(f"📋 SAMPLE SHED:")
+                print(f"   - ID: {sample_shed.get('id')}")
+                print(f"   - Name: {sample_shed.get('name')}")
+                print(f"   - Width: {sample_shed.get('width')}")
+                print(f"   - Height: {sample_shed.get('height')}")
+            else:
+                print("⚠️  NO SHEDS FOUND!")
+                investigation_results['sample_shed'] = None
+            
+            # STEP 5: Cross-reference IDs
+            print("\nSTEP 5: Cross-referencing IDs...")
+            
+            if stock_intakes:
+                # Create ID sets for comparison
+                field_ids = set([f.get('id') for f in fields])
+                zone_ids = set([z.get('id') for z in zones])
+                shed_ids = set([s.get('id') for s in sheds])
+                
+                # Check for orphaned stock intakes
+                orphaned_field_ids = []
+                orphaned_zone_ids = []
+                orphaned_shed_ids = []
+                
+                for intake in stock_intakes:
+                    intake_field_id = intake.get('field_id')
+                    intake_zone_id = intake.get('zone_id')
+                    intake_shed_id = intake.get('shed_id')
+                    
+                    if intake_field_id not in field_ids:
+                        orphaned_field_ids.append(intake_field_id)
+                    
+                    if intake_zone_id not in zone_ids:
+                        orphaned_zone_ids.append(intake_zone_id)
+                    
+                    if intake_shed_id not in shed_ids:
+                        orphaned_shed_ids.append(intake_shed_id)
+                
+                # Remove duplicates
+                orphaned_field_ids = list(set(orphaned_field_ids))
+                orphaned_zone_ids = list(set(orphaned_zone_ids))
+                orphaned_shed_ids = list(set(orphaned_shed_ids))
+                
+                investigation_results['orphaned_analysis'] = {
+                    'orphaned_field_ids': orphaned_field_ids,
+                    'orphaned_zone_ids': orphaned_zone_ids,
+                    'orphaned_shed_ids': orphaned_shed_ids
+                }
+                
+                print(f"🔍 ID CROSS-REFERENCE ANALYSIS:")
+                print(f"   - Stock intakes with orphaned field_ids: {len(orphaned_field_ids)}")
+                print(f"   - Stock intakes with orphaned zone_ids: {len(orphaned_zone_ids)}")
+                print(f"   - Stock intakes with orphaned shed_ids: {len(orphaned_shed_ids)}")
+                
+                if orphaned_field_ids:
+                    print(f"   - Orphaned field IDs: {orphaned_field_ids[:5]}{'...' if len(orphaned_field_ids) > 5 else ''}")
+                
+                if orphaned_zone_ids:
+                    print(f"   - Orphaned zone IDs: {orphaned_zone_ids[:5]}{'...' if len(orphaned_zone_ids) > 5 else ''}")
+                
+                if orphaned_shed_ids:
+                    print(f"   - Orphaned shed IDs: {orphaned_shed_ids[:5]}{'...' if len(orphaned_shed_ids) > 5 else ''}")
+                
+                # Determine the issue
+                if orphaned_field_ids or orphaned_zone_ids or orphaned_shed_ids:
+                    investigation_results['conclusion'] = "ORPHANED_DATA"
+                    print(f"\n🚨 CONCLUSION: Stock intakes are ORPHANED (referencing old IDs that no longer exist)")
+                else:
+                    investigation_results['conclusion'] = "DATA_INTACT"
+                    print(f"\n✅ CONCLUSION: Stock intakes are intact and properly referenced")
+            else:
+                investigation_results['orphaned_analysis'] = None
+                investigation_results['conclusion'] = "NO_STOCK_INTAKES"
+                print(f"\n🚨 CONCLUSION: Stock intakes were DELETED (no stock intakes found)")
+            
+            # Final summary
+            print(f"\n📋 INVESTIGATION SUMMARY:")
+            print(f"   - Stock Intakes: {investigation_results['stock_intakes_count']}")
+            print(f"   - Fields: {investigation_results['fields_count']}")
+            print(f"   - Zones: {investigation_results['zones_count']}")
+            print(f"   - Sheds: {investigation_results['sheds_count']}")
+            print(f"   - Conclusion: {investigation_results['conclusion']}")
+            
+            self.log_test(
+                "Lost Stock Data Investigation", 
+                True, 
+                f"Investigation completed: {investigation_results['conclusion']}",
+                json.dumps(investigation_results, indent=2)
+            )
+            return True
+            
+        except Exception as e:
+            self.log_test("Lost Stock Data Investigation", False, f"Exception: {str(e)}")
+            return False
+
     def run_all_tests(self):
         """Run all tests in sequence"""
         print(f"🧪 Starting Stock Control Backend API Tests")
         print(f"🔗 Backend URL: {self.base_url}")
         print("=" * 60)
         
-        # Test sequence - prioritizing review request workflow
+        # Test sequence - prioritizing lost stock data investigation
         tests = [
             ("API Health Check", self.test_api_health),
+            ("URGENT: Lost Stock Data Investigation", self.investigate_lost_stock_data),
             ("Review Request Workflow", self.test_review_request_workflow),
             ("Clear All Data with Fridges", self.test_clear_data_with_fridges),
             ("Fridge API Endpoints", self.test_fridge_api_endpoints),
