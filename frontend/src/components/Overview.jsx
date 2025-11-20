@@ -93,14 +93,29 @@ const Overview = () => {
     console.log('[Overview] getOnionSummary called - stockIntakes:', stockIntakes.length, 'fields:', fields.length);
 
     // Process all stock intakes
+    let onionIntakesFound = 0;
+    let fieldsWithoutType = 0;
+    
     stockIntakes.forEach(intake => {
       const field = fields.find(f => f.id === intake.field_id);
-      if (!field) return;
+      if (!field) {
+        console.log('[Overview] Stock intake has no matching field:', intake.field_id);
+        return;
+      }
       
       // Check if it's an onion crop
       const cropTypeLower = field.crop_type.toLowerCase();
       
       if (cropTypeLower.includes('onion')) {
+        onionIntakesFound++;
+        console.log('[Overview] Found onion intake:', {
+          fieldName: field.name,
+          cropType: field.crop_type,
+          type: field.type,
+          variety: field.variety,
+          grade: intake.grade,
+          quantity: intake.quantity
+        });
         // Use the Type field from Excel for classification
         let onionType = 'brown'; // Default to brown
         
