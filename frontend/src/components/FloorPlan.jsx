@@ -1427,63 +1427,35 @@ const FloorPlan = ({ user }) => {
                           <div className="pb-3 border-b">
                             <h3 className="font-semibold text-xs mb-2 text-gray-700">Stock Overview</h3>
                             <div className="space-y-2">
-                              {/* Red Onions */}
-                              {hasRedOnions && (
-                                <div className="p-2 bg-red-50 rounded border border-red-200">
-                                  <div className="flex items-center gap-1 mb-1">
-                                    <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                                    <span className="text-xs font-semibold text-red-900">Red</span>
-                                  </div>
-                                  <div className="space-y-0.5">
-                                    {Object.entries(onionSummary.red)
-                                      .sort(([a], [b]) => a.localeCompare(b))
-                                      .map(([grade, qty]) => (
-                                        <div 
-                                          key={grade}
-                                          className="flex items-center justify-between text-xs bg-white px-1.5 py-0.5 rounded"
-                                        >
-                                          <span className="font-medium text-gray-900">{grade}</span>
-                                          <span className="font-semibold text-red-700">{qty.toFixed(0)}</span>
-                                        </div>
-                                      ))}
-                                    <div className="flex items-center justify-between text-xs bg-red-100 px-1.5 py-0.5 rounded border border-red-400">
-                                      <span className="font-bold text-gray-900">Total</span>
-                                      <span className="font-bold text-red-800">
-                                        {Object.values(onionSummary.red).reduce((sum, qty) => sum + qty, 0).toFixed(0)}
-                                      </span>
+                              {/* Display each crop type */}
+                              {Object.entries(cropSummary).map(([cropType, grades]) => {
+                                const totalQty = Object.values(grades).reduce((sum, qty) => sum + qty, 0);
+                                return (
+                                  <div key={cropType} className="p-2 bg-blue-50 rounded border border-blue-200">
+                                    <div className="flex items-center gap-1 mb-1">
+                                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                      <span className="text-xs font-semibold text-blue-900">{cropType}</span>
+                                    </div>
+                                    <div className="space-y-0.5">
+                                      {Object.entries(grades)
+                                        .sort(([a], [b]) => a.localeCompare(b))
+                                        .map(([grade, qty]) => (
+                                          <div 
+                                            key={grade}
+                                            className="flex items-center justify-between text-xs bg-white px-1.5 py-0.5 rounded"
+                                          >
+                                            <span className="font-medium text-gray-900">{grade}</span>
+                                            <span className="font-semibold text-blue-700">{qty.toFixed(0)}</span>
+                                          </div>
+                                        ))}
+                                      <div className="flex items-center justify-between text-xs bg-blue-100 px-1.5 py-0.5 rounded border border-blue-400">
+                                        <span className="font-bold text-gray-900">Total</span>
+                                        <span className="font-bold text-blue-800">{totalQty.toFixed(0)}</span>
+                                      </div>
                                     </div>
                                   </div>
-                                </div>
-                              )}
-
-                              {/* Brown Onions */}
-                              {hasBrownOnions && (
-                                <div className="p-2 bg-amber-50 rounded border border-amber-200">
-                                  <div className="flex items-center gap-1 mb-1">
-                                    <div className="w-2 h-2 bg-amber-600 rounded-full"></div>
-                                    <span className="text-xs font-semibold text-amber-900">Brown</span>
-                                  </div>
-                                  <div className="space-y-0.5">
-                                    {Object.entries(onionSummary.brown)
-                                      .sort(([a], [b]) => a.localeCompare(b))
-                                      .map(([grade, qty]) => (
-                                        <div 
-                                          key={grade}
-                                          className="flex items-center justify-between text-xs bg-white px-1.5 py-0.5 rounded"
-                                        >
-                                          <span className="font-medium text-gray-900">{grade}</span>
-                                          <span className="font-semibold text-amber-700">{qty.toFixed(0)}</span>
-                                        </div>
-                                      ))}
-                                    <div className="flex items-center justify-between text-xs bg-amber-100 px-1.5 py-0.5 rounded border border-amber-400">
-                                      <span className="font-bold text-gray-900">Total</span>
-                                      <span className="font-bold text-amber-800">
-                                        {Object.values(onionSummary.brown).reduce((sum, qty) => sum + qty, 0).toFixed(0)}
-                                      </span>
-                                    </div>
-                                  </div>
-                                </div>
-                              )}
+                                );
+                              })}
                             </div>
                           </div>
                         );
