@@ -285,18 +285,18 @@ const FloorPlan = ({ user }) => {
     const fieldGroups = {};
     
     zoneIntakes.forEach(intake => {
-      if (!fieldGroups[intake.field_id]) {
+      if (!fieldGroups[intake.field_name]) {
         const field = fields.find(f => f.name === intake.field_name);
         const fieldNameWithYear = field ? `${intake.field_name} - ${field.harvest_year}` : intake.field_name;
         
-        fieldGroups[intake.field_id] = {
+        fieldGroups[intake.field_name] = {
           fieldId: intake.field_id,
           fieldName: fieldNameWithYear,
-          color: fieldColorMap[intake.field_id] || "#94a3b8",
+          color: fieldColorMap[intake.field_name] || "#94a3b8",
           quantity: 0
         };
       }
-      fieldGroups[intake.field_id].quantity += intake.quantity;
+      fieldGroups[intake.field_name].quantity += intake.quantity;
     });
     
     return Object.values(fieldGroups);
