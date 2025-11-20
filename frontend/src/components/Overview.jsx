@@ -137,6 +137,7 @@ const Overview = () => {
       }
     });
 
+    console.log('[Overview] getOnionSummary result:', onionSummary);
     return onionSummary;
   };
 
