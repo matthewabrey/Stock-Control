@@ -1086,6 +1086,7 @@ const FloorPlan = ({ user }) => {
       });
     });
 
+    console.log('[FloorPlan] getShedOnionSummary result:', onionSummary);
     return onionSummary;
   };
 
