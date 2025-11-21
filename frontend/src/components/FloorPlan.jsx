@@ -1433,17 +1433,24 @@ const FloorPlan = ({ user }) => {
                           <div className="pb-3 border-b">
                             <h3 className="font-semibold text-xs mb-2 text-gray-700">Stock Overview</h3>
                             <div className="space-y-2">
-                              {/* Display each field */}
+                              {/* Display each field with matching zone color */}
                               {Object.entries(cropSummary).map(([fieldName, fieldData]) => {
                                 const totalQty = Object.values(fieldData.grades).reduce((sum, qty) => sum + qty, 0);
+                                // Extract field name without year for color lookup
+                                const fieldNameOnly = fieldName.replace(/\s*\(\d{4}\)\s*$/, '');
+                                const fieldColor = fieldColorMap[fieldNameOnly] || "#94a3b8";
+                                
                                 return (
-                                  <div key={fieldName} className="p-2 bg-blue-50 rounded border border-blue-200">
+                                  <div key={fieldName} className="p-2 rounded border-2" style={{ 
+                                    backgroundColor: `${fieldColor}15`,
+                                    borderColor: fieldColor
+                                  }}>
                                     <div className="mb-1">
                                       <div className="flex items-center gap-1">
-                                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                                        <span className="text-xs font-semibold text-blue-900">{fieldName}</span>
+                                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: fieldColor }}></div>
+                                        <span className="text-xs font-semibold text-gray-900">{fieldName}</span>
                                       </div>
-                                      <div className="text-xs text-gray-600 ml-3">
+                                      <div className="text-xs text-gray-600 ml-4">
                                         {fieldData.cropType} • {fieldData.area}
                                       </div>
                                     </div>
@@ -1456,12 +1463,12 @@ const FloorPlan = ({ user }) => {
                                             className="flex items-center justify-between text-xs bg-white px-1.5 py-0.5 rounded"
                                           >
                                             <span className="font-medium text-gray-900">{grade}</span>
-                                            <span className="font-semibold text-blue-700">{qty.toFixed(0)}</span>
+                                            <span className="font-semibold text-gray-700">{qty.toFixed(0)}</span>
                                           </div>
                                         ))}
-                                      <div className="flex items-center justify-between text-xs bg-blue-100 px-1.5 py-0.5 rounded border border-blue-400">
-                                        <span className="font-bold text-gray-900">Total</span>
-                                        <span className="font-bold text-blue-800">{totalQty.toFixed(0)}</span>
+                                      <div className="flex items-center justify-between text-xs bg-white px-1.5 py-0.5 rounded font-bold border-2" style={{ borderColor: fieldColor }}>
+                                        <span className="text-gray-900">Total</span>
+                                        <span className="text-gray-900">{totalQty.toFixed(0)}</span>
                                       </div>
                                     </div>
                                   </div>
