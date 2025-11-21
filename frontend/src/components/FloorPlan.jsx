@@ -1034,7 +1034,7 @@ const FloorPlan = ({ user }) => {
 
   // Get onion summary for this shed only
   const getShedCropSummary = () => {
-    const cropSummary = {};
+    const fieldSummary = {};
     
     console.log('[FloorPlan] getShedCropSummary called - zones:', zones.length, 'stockIntakes:', stockIntakes.length, 'fields:', fields.length);
 
@@ -1049,26 +1049,32 @@ const FloorPlan = ({ user }) => {
         const field = fields.find(f => f.name === intake.field_name);
         if (!field) return;
         
-        const cropType = field.crop_type || 'Unknown';
         const proportion = intake.quantity / totalIntakeQty;
         const actualQty = zone.total_quantity * proportion;
         const grade = intake.grade || 'Whole Crop';
         
-        // Initialize crop type if not exists
-        if (!cropSummary[cropType]) {
-          cropSummary[cropType] = {};
+        // Group by field name with harvest year
+        const fieldKey = `${field.name} (${field.harvest_year})`;
+        
+        // Initialize field if not exists
+        if (!fieldSummary[fieldKey]) {
+          fieldSummary[fieldKey] = {
+            cropType: field.crop_type,
+            area: field.area,
+            grades: {}
+          };
         }
         
         // Add to summary by grade
-        if (!cropSummary[cropType][grade]) {
-          cropSummary[cropType][grade] = 0;
+        if (!fieldSummary[fieldKey].grades[grade]) {
+          fieldSummary[fieldKey].grades[grade] = 0;
         }
-        cropSummary[cropType][grade] += actualQty;
+        fieldSummary[fieldKey].grades[grade] += actualQty;
       });
     });
 
-    console.log('[FloorPlan] getShedCropSummary result:', cropSummary);
-    return cropSummary;
+    console.log('[FloorPlan] getShedCropSummary result:', fieldSummary);
+    return fieldSummary;
   };
 
   // Calculate grid dimensions
