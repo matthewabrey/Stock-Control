@@ -84,7 +84,7 @@ const Overview = () => {
 
   // TIMESTAMP: Force rebuild - 2024
   const getCropSummary = () => {
-    // Calculate summary by crop type and grade
+    // Calculate summary with different grouping for onions vs other crops
     const cropSummary = {};
     
     console.log('[Overview] getCropSummary called - stockIntakes:', stockIntakes.length, 'fields:', fields.length);
@@ -93,7 +93,7 @@ const Overview = () => {
     let matchedFields = 0;
     let unmatchedIntakes = [];
 
-    // Process all stock intakes and group by crop type
+    // Process all stock intakes
     stockIntakes.forEach(intake => {
       // IMPORTANT: Match by field_name instead of field_id (resilient to Excel re-uploads)
       const field = fields.find(f => f.name === intake.field_name);
@@ -108,18 +108,51 @@ const Overview = () => {
       matchedFields++;
       
       const cropType = field.crop_type || 'Unknown';
-      
-      // Initialize crop type if not exists
-      if (!cropSummary[cropType]) {
-        cropSummary[cropType] = {};
-      }
-      
-      // Add to summary by grade
+      const cropTypeLower = cropType.toLowerCase();
       const grade = intake.grade || 'Whole Crop';
-      if (!cropSummary[cropType][grade]) {
-        cropSummary[cropType][grade] = 0;
+      
+      // Special handling for onions: Group by color/type
+      if (cropTypeLower.includes('onion')) {
+        // Determine onion color/type
+        let onionType = 'Brown Onions'; // Default
+        if (field.type) {
+          const typeLower = field.type.toLowerCase();
+          if (typeLower.includes('red')) {
+            onionType = 'Red Onions';
+          } else if (typeLower.includes('special')) {
+            onionType = 'Special Onions';
+          } else if (typeLower.includes('brown')) {
+            onionType = 'Brown Onions';
+          }
+        }
+        
+        // Initialize onion type
+        if (!cropSummary[onionType]) {
+          cropSummary[onionType] = {};
+        }
+        
+        // Group by size/grade
+        if (!cropSummary[onionType][grade]) {
+          cropSummary[onionType][grade] = 0;
+        }
+        cropSummary[onionType][grade] += intake.quantity;
+      } 
+      // All other crops: Group by Type → Variety → Grade
+      else {
+        const variety = field.variety || 'Unknown Variety';
+        const key = `${cropType} - ${variety}`;
+        
+        // Initialize crop type + variety
+        if (!cropSummary[key]) {
+          cropSummary[key] = {};
+        }
+        
+        // Group by grade
+        if (!cropSummary[key][grade]) {
+          cropSummary[key][grade] = 0;
+        }
+        cropSummary[key][grade] += intake.quantity;
       }
-      cropSummary[cropType][grade] += intake.quantity;
     });
 
     console.log('[Overview] getCropSummary result:', cropSummary);
