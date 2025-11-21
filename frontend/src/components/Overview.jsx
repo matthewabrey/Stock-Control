@@ -436,14 +436,48 @@ const Overview = () => {
                 </CardHeader>
                 <CardContent className="pt-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {/* Display each crop type */}
-                    {Object.entries(cropSummary).map(([cropType, grades]) => {
+                    {/* Display each crop type with appropriate coloring */}
+                    {Object.entries(cropSummary).map(([cropKey, grades]) => {
                       const totalQty = Object.values(grades).reduce((sum, qty) => sum + qty, 0);
+                      
+                      // Determine color scheme based on crop type
+                      let bgColor, borderColor, dotColor, textColor, totalBg, totalText;
+                      if (cropKey.includes('Red Onions')) {
+                        bgColor = 'bg-red-50';
+                        borderColor = 'border-red-200';
+                        dotColor = 'bg-red-500';
+                        textColor = 'text-red-900';
+                        totalBg = 'bg-red-100';
+                        totalText = 'text-red-800';
+                      } else if (cropKey.includes('Brown Onions')) {
+                        bgColor = 'bg-amber-50';
+                        borderColor = 'border-amber-200';
+                        dotColor = 'bg-amber-600';
+                        textColor = 'text-amber-900';
+                        totalBg = 'bg-amber-100';
+                        totalText = 'text-amber-800';
+                      } else if (cropKey.includes('Special Onions')) {
+                        bgColor = 'bg-purple-50';
+                        borderColor = 'border-purple-200';
+                        dotColor = 'bg-purple-600';
+                        textColor = 'text-purple-900';
+                        totalBg = 'bg-purple-100';
+                        totalText = 'text-purple-800';
+                      } else {
+                        // All other crops
+                        bgColor = 'bg-blue-50';
+                        borderColor = 'border-blue-200';
+                        dotColor = 'bg-blue-500';
+                        textColor = 'text-blue-900';
+                        totalBg = 'bg-blue-100';
+                        totalText = 'text-blue-800';
+                      }
+                      
                       return (
-                        <div key={cropType} className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                          <h3 className="text-lg font-semibold text-blue-900 mb-4 flex items-center gap-2">
-                            <div className="w-4 h-4 bg-blue-500 rounded-full"></div>
-                            {cropType}
+                        <div key={cropKey} className={`p-4 ${bgColor} rounded-lg border ${borderColor}`}>
+                          <h3 className={`text-lg font-semibold ${textColor} mb-4 flex items-center gap-2`}>
+                            <div className={`w-4 h-4 ${dotColor} rounded-full`}></div>
+                            {cropKey}
                           </h3>
                           <div className="space-y-2">
                             {Object.entries(grades)
@@ -451,17 +485,17 @@ const Overview = () => {
                               .map(([grade, qty]) => (
                                 <div 
                                   key={grade}
-                                  className="flex items-center justify-between bg-white px-4 py-3 rounded border border-blue-300"
+                                  className={`flex items-center justify-between bg-white px-4 py-3 rounded border ${borderColor}`}
                                 >
                                   <span className="font-medium text-gray-900">{grade}</span>
-                                  <span className="font-semibold text-blue-700">
+                                  <span className={`font-semibold ${textColor}`}>
                                     {qty.toFixed(0)} units
                                   </span>
                                 </div>
                               ))}
-                            <div className="flex items-center justify-between bg-blue-100 px-4 py-3 rounded border-2 border-blue-400 mt-3">
+                            <div className={`flex items-center justify-between ${totalBg} px-4 py-3 rounded border-2 ${borderColor} mt-3`}>
                               <span className="font-bold text-gray-900">Total</span>
-                              <span className="font-bold text-blue-800">
+                              <span className={`font-bold ${totalText}`}>
                                 {totalQty.toFixed(0)} units
                               </span>
                             </div>
