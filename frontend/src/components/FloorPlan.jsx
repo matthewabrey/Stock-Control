@@ -1047,7 +1047,7 @@ const FloorPlan = ({ user }) => {
 
   // Get onion summary for this shed only
   const getShedCropSummary = () => {
-    const fieldSummary = {};
+    const fieldVarietySummary = {};
     
     console.log('[FloorPlan] getShedCropSummary called - zones:', zones.length, 'stockIntakes:', stockIntakes.length, 'fields:', fields.length);
 
@@ -1066,28 +1066,32 @@ const FloorPlan = ({ user }) => {
         const actualQty = zone.total_quantity * proportion;
         const grade = intake.grade || 'Whole Crop';
         
-        // Group by field name with harvest year
-        const fieldKey = `${field.name} (${field.harvest_year})`;
+        // Group by field + variety + year
+        const varietyKey = `${field.name}|${field.variety || 'Unknown'}|${field.harvest_year}`;
         
-        // Initialize field if not exists
-        if (!fieldSummary[fieldKey]) {
-          fieldSummary[fieldKey] = {
+        // Initialize field+variety if not exists
+        if (!fieldVarietySummary[varietyKey]) {
+          fieldVarietySummary[varietyKey] = {
+            fieldName: field.name,
+            variety: field.variety || 'Unknown',
             cropType: field.crop_type,
             area: field.area,
+            year: field.harvest_year,
+            colorKey: `${field.name}|${field.variety || 'Unknown'}`,
             grades: {}
           };
         }
         
         // Add to summary by grade
-        if (!fieldSummary[fieldKey].grades[grade]) {
-          fieldSummary[fieldKey].grades[grade] = 0;
+        if (!fieldVarietySummary[varietyKey].grades[grade]) {
+          fieldVarietySummary[varietyKey].grades[grade] = 0;
         }
-        fieldSummary[fieldKey].grades[grade] += actualQty;
+        fieldVarietySummary[varietyKey].grades[grade] += actualQty;
       });
     });
 
-    console.log('[FloorPlan] getShedCropSummary result:', fieldSummary);
-    return fieldSummary;
+    console.log('[FloorPlan] getShedCropSummary result:', fieldVarietySummary);
+    return fieldVarietySummary;
   };
 
   // Calculate grid dimensions
