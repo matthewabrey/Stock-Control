@@ -92,15 +92,17 @@ const FloorPlan = ({ user }) => {
     
     stockIntakes.forEach(intake => {
       if (intake.shed_id === shedId) {
-        const field = fields.find(f => f.name === intake.field_name);
-        if (field) {
-          // Create unique key: fieldName|variety
-          const key = `${field.name}|${field.variety || 'Unknown'}`;
-          fieldVarietyKeys.add(key);
-          console.log('[FloorPlan] Added color key:', key, 'from intake:', intake.field_name);
-        } else {
-          console.log('[FloorPlan] No field found for intake:', intake.field_name);
+        // Use variety from intake if available, otherwise lookup from field
+        let variety = intake.variety;
+        if (!variety) {
+          const field = fields.find(f => f.name === intake.field_name);
+          variety = field ? field.variety : 'Unknown';
         }
+        
+        // Create unique key: fieldName|variety
+        const key = `${intake.field_name}|${variety || 'Unknown'}`;
+        fieldVarietyKeys.add(key);
+        console.log('[FloorPlan] Added color key:', key, 'from intake variety:', intake.variety);
       }
     });
     
