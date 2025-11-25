@@ -1072,7 +1072,13 @@ const FloorPlan = ({ user }) => {
       if (totalIntakeQty === 0) return;
       
       zoneIntakes.forEach(intake => {
-        const field = fields.find(f => f.name === intake.field_name);
+        // Use variety from intake if available, otherwise lookup from field
+        let variety = intake.variety;
+        let field = fields.find(f => f.name === intake.field_name);
+        
+        if (!variety && field) {
+          variety = field.variety;
+        }
         if (!field) return;
         
         const proportion = intake.quantity / totalIntakeQty;
@@ -1080,17 +1086,17 @@ const FloorPlan = ({ user }) => {
         const grade = intake.grade || 'Whole Crop';
         
         // Group by field + variety + year
-        const varietyKey = `${field.name}|${field.variety || 'Unknown'}|${field.harvest_year}`;
+        const varietyKey = `${intake.field_name}|${variety || 'Unknown'}|${field.harvest_year}`;
         
         // Initialize field+variety if not exists
         if (!fieldVarietySummary[varietyKey]) {
           fieldVarietySummary[varietyKey] = {
-            fieldName: field.name,
-            variety: field.variety || 'Unknown',
+            fieldName: intake.field_name,
+            variety: variety || 'Unknown',
             cropType: field.crop_type,
             area: field.area,
             year: field.harvest_year,
-            colorKey: `${field.name}|${field.variety || 'Unknown'}`,
+            colorKey: `${intake.field_name}|${variety || 'Unknown'}`,
             grades: {}
           };
         }
