@@ -948,6 +948,7 @@ const FloorPlan = ({ user }) => {
         .map(({ zone, quantity }) => ({
           field_id: field.id,
           field_name: field.name,
+          variety: field.variety,  // NEW: Include variety to distinguish same field with different varieties
           zone_id: zone.id,
           shed_id: shedId,
           quantity: quantity,
