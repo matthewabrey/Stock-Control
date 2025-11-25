@@ -86,22 +86,27 @@ const FloorPlan = ({ user }) => {
   }, [shedId]);
 
   useEffect(() => {
-    // Create field color mapping based on fields with stock in THIS shed (using field_name for stability)
-    const fieldsWithStockInShed = new Set();
+    // Create field color mapping based on field + variety combinations in THIS shed
+    const fieldVarietyKeys = new Set();
     stockIntakes.forEach(intake => {
       if (intake.shed_id === shedId) {
-        fieldsWithStockInShed.add(intake.field_name);
+        const field = fields.find(f => f.name === intake.field_name);
+        if (field) {
+          // Create unique key: fieldName|variety
+          const key = `${field.name}|${field.variety || 'Unknown'}`;
+          fieldVarietyKeys.add(key);
+        }
       }
     });
     
     const colorMap = {};
     let colorIndex = 0;
     
-    // Sort field names to ensure consistent color assignment
-    const sortedFieldNames = Array.from(fieldsWithStockInShed).sort();
+    // Sort keys to ensure consistent color assignment
+    const sortedKeys = Array.from(fieldVarietyKeys).sort();
     
-    sortedFieldNames.forEach(fieldName => {
-      colorMap[fieldName] = FIELD_COLORS[colorIndex % FIELD_COLORS.length];
+    sortedKeys.forEach(key => {
+      colorMap[key] = FIELD_COLORS[colorIndex % FIELD_COLORS.length];
       colorIndex++;
     });
     
