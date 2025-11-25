@@ -88,6 +88,8 @@ const FloorPlan = ({ user }) => {
   useEffect(() => {
     // Create field color mapping based on field + variety combinations in THIS shed
     const fieldVarietyKeys = new Set();
+    console.log('[FloorPlan] Building color map for shed:', shedId);
+    
     stockIntakes.forEach(intake => {
       if (intake.shed_id === shedId) {
         const field = fields.find(f => f.name === intake.field_name);
@@ -95,6 +97,9 @@ const FloorPlan = ({ user }) => {
           // Create unique key: fieldName|variety
           const key = `${field.name}|${field.variety || 'Unknown'}`;
           fieldVarietyKeys.add(key);
+          console.log('[FloorPlan] Added color key:', key, 'from intake:', intake.field_name);
+        } else {
+          console.log('[FloorPlan] No field found for intake:', intake.field_name);
         }
       }
     });
@@ -108,8 +113,10 @@ const FloorPlan = ({ user }) => {
     sortedKeys.forEach(key => {
       colorMap[key] = FIELD_COLORS[colorIndex % FIELD_COLORS.length];
       colorIndex++;
+      console.log('[FloorPlan] Assigned color', FIELD_COLORS[colorIndex - 1], 'to', key);
     });
     
+    console.log('[FloorPlan] Final color map:', colorMap);
     setFieldColorMap(colorMap);
   }, [fields, stockIntakes, shedId]);
 
