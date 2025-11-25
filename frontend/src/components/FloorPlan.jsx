@@ -291,24 +291,28 @@ const FloorPlan = ({ user }) => {
   
   const getZoneMixedFields = (zone) => {
     const zoneIntakes = getZoneIntakes(zone.id);
-    const fieldGroups = {};
+    const fieldVarietyGroups = {};
     
     zoneIntakes.forEach(intake => {
-      if (!fieldGroups[intake.field_name]) {
-        const field = fields.find(f => f.name === intake.field_name);
-        const fieldNameWithYear = field ? `${intake.field_name} - ${field.harvest_year}` : intake.field_name;
+      const field = fields.find(f => f.name === intake.field_name);
+      if (field) {
+        const key = `${field.name}|${field.variety || 'Unknown'}`;
         
-        fieldGroups[intake.field_name] = {
-          fieldId: intake.field_id,
-          fieldName: fieldNameWithYear,
-          color: fieldColorMap[intake.field_name] || "#94a3b8",
-          quantity: 0
-        };
+        if (!fieldVarietyGroups[key]) {
+          const fieldNameWithDetails = `${field.name} - ${field.variety} (${field.harvest_year})`;
+          
+          fieldVarietyGroups[key] = {
+            fieldId: intake.field_id,
+            fieldName: fieldNameWithDetails,
+            color: fieldColorMap[key] || "#94a3b8",
+            quantity: 0
+          };
+        }
+        fieldVarietyGroups[key].quantity += intake.quantity;
       }
-      fieldGroups[intake.field_name].quantity += intake.quantity;
     });
     
-    return Object.values(fieldGroups);
+    return Object.values(fieldVarietyGroups);
   };
 
   const handleCreateZone = async () => {
