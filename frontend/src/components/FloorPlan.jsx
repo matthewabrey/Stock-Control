@@ -1567,11 +1567,11 @@ const FloorPlan = ({ user }) => {
                                 <div className="flex items-start gap-1.5 mb-1.5">
                                   <div 
                                     className="w-3 h-3 rounded border-2 border-gray-800 flex-shrink-0 mt-0.5" 
-                                    style={{ backgroundColor: fieldColorMap[field.name] }}
+                                    style={{ backgroundColor: fieldColorMap[`${field.name}|${field.variety || 'Unknown'}`] }}
                                   ></div>
                                   <div className="flex-1 min-w-0">
                                     <div className="font-bold text-xs text-gray-900 truncate">
-                                      {field.name} - {field.harvest_year}
+                                      {field.name} - {field.variety} ({field.harvest_year})
                                     </div>
                                     <div className="text-xs text-gray-600 truncate">
                                       {field.variety ? `${field.crop_type} - ${field.variety}` : field.crop_type}
