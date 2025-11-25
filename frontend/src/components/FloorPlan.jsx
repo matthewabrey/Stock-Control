@@ -1506,17 +1506,20 @@ const FloorPlan = ({ user }) => {
                           <div className="w-5 h-5 rounded border-2 border-gray-400" style={{ backgroundColor: "#e5e7eb", opacity: 0.5 }}></div>
                           <span className="text-xs text-gray-600">Empty</span>
                         </div>
-                        {fieldsInShed.map((field) => (
-                          <div key={field.id} className="flex items-center gap-2">
-                            <div 
-                              className="w-5 h-5 rounded border-2 border-gray-800 flex-shrink-0" 
-                              style={{ backgroundColor: fieldColorMap[field.name] }}
-                            ></div>
-                            <span className="text-xs text-gray-900 font-medium truncate">
-                              {field.name} - {field.harvest_year}
-                            </span>
-                          </div>
-                        ))}
+                        {fieldsInShed.map((field) => {
+                          const colorKey = `${field.name}|${field.variety || 'Unknown'}`;
+                          return (
+                            <div key={field.id} className="flex items-center gap-2">
+                              <div 
+                                className="w-5 h-5 rounded border-2 border-gray-800 flex-shrink-0" 
+                                style={{ backgroundColor: fieldColorMap[colorKey] }}
+                              ></div>
+                              <span className="text-xs text-gray-900 font-medium truncate">
+                                {field.name} - {field.variety} ({field.harvest_year})
+                              </span>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
 
