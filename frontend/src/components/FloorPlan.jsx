@@ -265,20 +265,24 @@ const FloorPlan = ({ user }) => {
     const zoneIntakes = getZoneIntakes(zone.id);
     if (zoneIntakes.length === 0) return "#e5e7eb"; // Gray for empty
     
-    // Group by field_name to check for mixed stock
-    const fieldGroups = {};
+    // Group by field + variety to check for mixed stock
+    const fieldVarietyGroups = {};
     zoneIntakes.forEach(intake => {
-      if (!fieldGroups[intake.field_name]) {
-        fieldGroups[intake.field_name] = [];
+      const field = fields.find(f => f.name === intake.field_name);
+      if (field) {
+        const key = `${field.name}|${field.variety || 'Unknown'}`;
+        if (!fieldVarietyGroups[key]) {
+          fieldVarietyGroups[key] = [];
+        }
+        fieldVarietyGroups[key].push(intake);
       }
-      fieldGroups[intake.field_name].push(intake);
     });
     
-    const uniqueFieldNames = Object.keys(fieldGroups);
+    const uniqueKeys = Object.keys(fieldVarietyGroups);
     
-    // If only one field, return solid color
-    if (uniqueFieldNames.length === 1) {
-      return fieldColorMap[uniqueFieldNames[0]] || "#94a3b8";
+    // If only one field+variety combination, return solid color
+    if (uniqueKeys.length === 1) {
+      return fieldColorMap[uniqueKeys[0]] || "#94a3b8";
     }
     
     // Multiple fields - return "mixed" indicator
