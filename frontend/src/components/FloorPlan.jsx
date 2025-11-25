@@ -1450,29 +1450,29 @@ const FloorPlan = ({ user }) => {
                           <div className="pb-3 border-b">
                             <h3 className="font-semibold text-xs mb-2 text-gray-700">Stock Overview</h3>
                             <div className="space-y-2">
-                              {/* Display each field with matching zone color */}
-                              {Object.entries(cropSummary).map(([fieldName, fieldData]) => {
-                                const totalQty = Object.values(fieldData.grades).reduce((sum, qty) => sum + qty, 0);
-                                // Extract field name without year for color lookup
-                                const fieldNameOnly = fieldName.replace(/\s*\(\d{4}\)\s*$/, '');
-                                const fieldColor = fieldColorMap[fieldNameOnly] || "#94a3b8";
+                              {/* Display each field + variety combination with matching zone color */}
+                              {Object.entries(cropSummary).map(([varietyKey, varietyData]) => {
+                                const totalQty = Object.values(varietyData.grades).reduce((sum, qty) => sum + qty, 0);
+                                const fieldColor = fieldColorMap[varietyData.colorKey] || "#94a3b8";
                                 
                                 return (
-                                  <div key={fieldName} className="p-2 rounded border-2" style={{ 
+                                  <div key={varietyKey} className="p-2 rounded border-2" style={{ 
                                     backgroundColor: `${fieldColor}15`,
                                     borderColor: fieldColor
                                   }}>
                                     <div className="mb-1">
                                       <div className="flex items-center gap-1">
                                         <div className="w-3 h-3 rounded-full" style={{ backgroundColor: fieldColor }}></div>
-                                        <span className="text-xs font-semibold text-gray-900">{fieldName}</span>
+                                        <span className="text-xs font-semibold text-gray-900">
+                                          {varietyData.fieldName} ({varietyData.year})
+                                        </span>
                                       </div>
                                       <div className="text-xs text-gray-600 ml-4">
-                                        {fieldData.cropType} • {fieldData.area}
+                                        {varietyData.variety} • {varietyData.cropType} • {varietyData.area}
                                       </div>
                                     </div>
                                     <div className="space-y-0.5">
-                                      {Object.entries(fieldData.grades)
+                                      {Object.entries(varietyData.grades)
                                         .sort(([a], [b]) => a.localeCompare(b))
                                         .map(([grade, qty]) => (
                                           <div 
