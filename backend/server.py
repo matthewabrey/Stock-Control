@@ -133,6 +133,7 @@ class StockIntake(BaseModel):
     id: str = PydanticField(default_factory=lambda: str(uuid.uuid4()))
     field_id: str
     field_name: str
+    variety: Optional[str] = None  # NEW: Store variety to distinguish same field with different varieties
     zone_id: str
     shed_id: str
     quantity: float
@@ -143,6 +144,7 @@ class StockIntake(BaseModel):
 class StockIntakeCreate(BaseModel):
     field_id: str
     field_name: str
+    variety: Optional[str] = None  # NEW: Store variety to distinguish same field with different varieties
     zone_id: str
     shed_id: str
     quantity: float
