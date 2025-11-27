@@ -30,11 +30,15 @@ const Dashboard = ({ user, onLogout }) => {
 
   const fetchStats = async () => {
     try {
-      const [fieldsRes, shedsRes, zonesRes] = await Promise.all([
+      const [fieldsRes, shedsRes, zonesRes, stockRes] = await Promise.all([
         axios.get(`${API}/fields`),
         axios.get(`${API}/sheds`),
-        axios.get(`${API}/zones`)
+        axios.get(`${API}/zones`),
+        axios.get(`${API}/stock-intakes`)
       ]);
+      
+      setFields(fieldsRes.data);
+      setStockIntakes(stockRes.data);
 
       const totalStock = zonesRes.data.reduce((sum, zone) => sum + (zone.total_quantity || 0), 0);
 
