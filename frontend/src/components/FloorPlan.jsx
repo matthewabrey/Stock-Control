@@ -39,6 +39,7 @@ const FloorPlan = ({ user }) => {
   const [fieldColorMap, setFieldColorMap] = useState({});
   const [draggedZone, setDraggedZone] = useState(null);
   const [selectedZones, setSelectedZones] = useState([]);
+  const [selectedCropFilter, setSelectedCropFilter] = useState('All');
   const [lastClickedZone, setLastClickedZone] = useState(null);
   const [hoveredZone, setHoveredZone] = useState(null);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
