@@ -72,6 +72,29 @@ const Dashboard = ({ user, onLogout }) => {
     }
   };
 
+  // Get crops in a shed
+  const getCropsInShed = (shedId) => {
+    const shedIntakes = stockIntakes.filter(i => i.shed_id === shedId);
+    const cropTypes = new Set();
+    
+    shedIntakes.forEach(intake => {
+      const field = fields.find(f => f.name === intake.field_name);
+      if (field && field.crop_type) {
+        cropTypes.add(field.crop_type);
+      }
+    });
+    
+    return Array.from(cropTypes);
+  };
+
+  // Filter sheds by crop type
+  const filteredSheds = selectedCropFilter === 'All' 
+    ? sheds 
+    : sheds.filter(shed => {
+        const crops = getCropsInShed(shed.id);
+        return crops.some(crop => crop.toLowerCase().includes(selectedCropFilter.toLowerCase()));
+      });
+
   const handleAdminClick = () => {
     // Check if user has admin permission
     if (user && user.admin_control?.toUpperCase() === "YES") {
