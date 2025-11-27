@@ -405,24 +405,142 @@ const Overview = () => {
           </p>
         </div>
 
-        {/* Crop Summary Section */}
+        {/* Onion Summary Section */}
         {(() => {
-          const cropSummary = getCropSummary();
-          const hasCrops = Object.keys(cropSummary).length > 0;
+          const onionSummary = getOnionSummary();
+          const hasRedOnions = Object.keys(onionSummary.red).length > 0;
+          const hasBrownOnions = Object.keys(onionSummary.brown).length > 0;
+          const hasSpecialtyOnions = Object.keys(onionSummary.specialty).length > 0;
           
-          if (hasCrops) {
+          if (hasRedOnions || hasBrownOnions || hasSpecialtyOnions) {
             return (
               <Card className="bg-white shadow rounded-xl border border-gray-200 mb-6">
                 <CardHeader className="border-b border-gray-100">
                   <CardTitle className="text-2xl text-gray-900 flex items-center gap-2">
-                    <Package className="w-6 h-6 text-orange-600" />
-                    Stock Summary by Crop Type & Grade
+                    <Package className="w-6 h-6 text-purple-600" />
+                    Onion Summary by Type & Grade
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="pt-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {/* Display each crop type with appropriate coloring */}
-                    {Object.entries(cropSummary).map(([cropKey, grades]) => {
+                    {/* Red Onions */}
+                    {hasRedOnions && (
+                      <div className="p-4 bg-red-50 rounded-lg border border-red-200">
+                        <h3 className="text-lg font-semibold text-red-900 mb-4 flex items-center gap-2">
+                          <div className="w-4 h-4 bg-red-500 rounded-full"></div>
+                          Red Onions
+                        </h3>
+                        <div className="space-y-2">
+                          {Object.entries(onionSummary.red)
+                            .sort(([a], [b]) => a.localeCompare(b))
+                            .map(([grade, qty]) => (
+                              <div 
+                                key={grade}
+                                className="flex items-center justify-between bg-white px-4 py-3 rounded border border-red-300"
+                              >
+                                <span className="font-medium text-gray-900">{grade}</span>
+                                <span className="font-semibold text-red-700">
+                                  {qty.toFixed(0)} units
+                                </span>
+                              </div>
+                            ))}
+                          <div className="flex items-center justify-between bg-red-100 px-4 py-3 rounded border-2 border-red-400 mt-3">
+                            <span className="font-bold text-gray-900">Total</span>
+                            <span className="font-bold text-red-800">
+                              {Object.values(onionSummary.red).reduce((sum, qty) => sum + qty, 0).toFixed(0)} units
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Brown Onions */}
+                    {hasBrownOnions && (
+                      <div className="p-4 bg-amber-50 rounded-lg border border-amber-200">
+                        <h3 className="text-lg font-semibold text-amber-900 mb-4 flex items-center gap-2">
+                          <div className="w-4 h-4 bg-amber-600 rounded-full"></div>
+                          Brown Onions
+                        </h3>
+                        <div className="space-y-2">
+                          {Object.entries(onionSummary.brown)
+                            .sort(([a], [b]) => a.localeCompare(b))
+                            .map(([grade, qty]) => (
+                              <div 
+                                key={grade}
+                                className="flex items-center justify-between bg-white px-4 py-3 rounded border border-amber-300"
+                              >
+                                <span className="font-medium text-gray-900">{grade}</span>
+                                <span className="font-semibold text-amber-700">
+                                  {qty.toFixed(0)} units
+                                </span>
+                              </div>
+                            ))}
+                          <div className="flex items-center justify-between bg-amber-100 px-4 py-3 rounded border-2 border-amber-400 mt-3">
+                            <span className="font-bold text-gray-900">Total</span>
+                            <span className="font-bold text-amber-800">
+                              {Object.values(onionSummary.brown).reduce((sum, qty) => sum + qty, 0).toFixed(0)} units
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Special Onions */}
+                    {hasSpecialtyOnions && (
+                      <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
+                        <h3 className="text-lg font-semibold text-purple-900 mb-4 flex items-center gap-2">
+                          <div className="w-4 h-4 bg-purple-600 rounded-full"></div>
+                          Special Onions
+                        </h3>
+                        <div className="space-y-2">
+                          {Object.entries(onionSummary.specialty)
+                            .sort(([a], [b]) => a.localeCompare(b))
+                            .map(([grade, qty]) => (
+                              <div 
+                                key={grade}
+                                className="flex items-center justify-between bg-white px-4 py-3 rounded border border-purple-300"
+                              >
+                                <span className="font-medium text-gray-900">{grade}</span>
+                                <span className="font-semibold text-purple-700">
+                                  {qty.toFixed(0)} units
+                                </span>
+                              </div>
+                            ))}
+                          <div className="flex items-center justify-between bg-purple-100 px-4 py-3 rounded border-2 border-purple-400 mt-3">
+                            <span className="font-bold text-gray-900">Total</span>
+                            <span className="font-bold text-purple-800">
+                              {Object.values(onionSummary.specialty).reduce((sum, qty) => sum + qty, 0).toFixed(0)} units
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          }
+          return null;
+        })()}
+
+        {/* Potato Summary Section */}
+        {(() => {
+          const potatoSummary = getPotatoSummary();
+          const hasPotatoes = Object.keys(potatoSummary).length > 0;
+          
+          if (hasPotatoes) {
+            return (
+              <Card className="bg-white shadow rounded-xl border border-gray-200 mb-6">
+                <CardHeader className="border-b border-gray-100">
+                  <CardTitle className="text-2xl text-gray-900 flex items-center gap-2">
+                    <Package className="w-6 h-6 text-amber-600" />
+                    Potato Summary by Variety & Grade
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {/* Display each variety */}
+                    {Object.entries(potatoSummary).map(([variety, grades]) => {
                       const totalQty = Object.values(grades).reduce((sum, qty) => sum + qty, 0);
                       
                       // Determine color scheme based on crop type
