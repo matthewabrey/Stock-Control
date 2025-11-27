@@ -239,12 +239,51 @@ const Dashboard = ({ user, onLogout }) => {
         {sheds.length > 0 && (
           <Card>
             <CardHeader>
-              <CardTitle>Your Sheds</CardTitle>
-              <CardDescription>Click on a shed to view its floor plan</CardDescription>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Your Sheds</CardTitle>
+                  <CardDescription>Click on a shed to view its floor plan</CardDescription>
+                </div>
+                
+                {/* Crop Filter Buttons */}
+                <div className="flex gap-2">
+                  <Button 
+                    onClick={() => setSelectedCropFilter('All')}
+                    variant={selectedCropFilter === 'All' ? 'default' : 'outline'}
+                    size="sm"
+                  >
+                    All
+                  </Button>
+                  <Button 
+                    onClick={() => setSelectedCropFilter('Potatoes')}
+                    variant={selectedCropFilter === 'Potatoes' ? 'default' : 'outline'}
+                    size="sm"
+                    className={selectedCropFilter === 'Potatoes' ? 'bg-amber-600 hover:bg-amber-700' : ''}
+                  >
+                    Potatoes
+                  </Button>
+                  <Button 
+                    onClick={() => setSelectedCropFilter('Onions')}
+                    variant={selectedCropFilter === 'Onions' ? 'default' : 'outline'}
+                    size="sm"
+                    className={selectedCropFilter === 'Onions' ? 'bg-purple-600 hover:bg-purple-700' : ''}
+                  >
+                    Onions
+                  </Button>
+                  <Button 
+                    onClick={() => setSelectedCropFilter('Carrots')}
+                    variant={selectedCropFilter === 'Carrots' ? 'default' : 'outline'}
+                    size="sm"
+                    className={selectedCropFilter === 'Carrots' ? 'bg-orange-600 hover:bg-orange-700' : ''}
+                  >
+                    Carrots
+                  </Button>
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {sheds
+                {filteredSheds
                   .sort((a, b) => {
                     // Grader Shed always first
                     if (a.name.toLowerCase().includes('grader')) return -1;
