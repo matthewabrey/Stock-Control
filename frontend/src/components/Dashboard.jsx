@@ -20,6 +20,9 @@ const Dashboard = ({ user, onLogout }) => {
   });
   const [sheds, setSheds] = useState([]);
   const [shedDetails, setShedDetails] = useState({});
+  const [stockIntakes, setStockIntakes] = useState([]);
+  const [fields, setFields] = useState([]);
+  const [selectedCropFilter, setSelectedCropFilter] = useState('All');
 
   useEffect(() => {
     fetchStats();
