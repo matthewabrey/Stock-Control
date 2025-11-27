@@ -1305,16 +1305,7 @@ const FloorPlan = ({ user }) => {
                         ></div>
 
                         {/* Zones */}
-                        {zones.filter(zone => {
-                          if (selectedCropFilter === 'All') return true;
-                          
-                          // Check if zone has stock of the selected crop
-                          const zoneIntakes = stockIntakes.filter(i => i.zone_id === zone.id);
-                          return zoneIntakes.some(intake => {
-                            const field = fields.find(f => f.name === intake.field_name);
-                            return field && field.crop_type && field.crop_type.toLowerCase().includes(selectedCropFilter.toLowerCase());
-                          });
-                        }).map((zone) => {
+                        {zones.map((zone) => {
                           const zoneColor = getZoneColor(zone);
                           const isEmpty = zone.total_quantity === 0;
                           const isSelected = selectedZones.some(z => z.id === zone.id);
