@@ -63,6 +63,7 @@ class Shed(BaseModel):
     description: Optional[str] = None
     doors: List[DoorPosition] = []
     order: Optional[int] = 9999  # Order from Excel, default to end if not set
+    crop_type: Optional[str] = None  # NEW: Assigned crop type for this shed (e.g., "Potatoes", "Onions")
 
 class ShedCreate(BaseModel):
     name: str
@@ -70,6 +71,7 @@ class ShedCreate(BaseModel):
     height: float
     description: Optional[str] = None
     doors: List[DoorPosition] = []
+    crop_type: Optional[str] = None  # NEW: Assigned crop type
 
 class Zone(BaseModel):
     model_config = ConfigDict(extra="ignore")
