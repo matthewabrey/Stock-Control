@@ -260,6 +260,18 @@ async def get_shed(shed_id: str):
         raise HTTPException(status_code=404, detail="Shed not found")
     return shed
 
+
+@api_router.patch("/sheds/{shed_id}/crop-type")
+async def update_shed_crop_type(shed_id: str, crop_type: str):
+    """Update the assigned crop type for a shed"""
+    result = await db.sheds.update_one(
+        {"id": shed_id},
+        {"$set": {"crop_type": crop_type}}
+    )
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Shed not found")
+    return {"message": "Shed crop type updated", "crop_type": crop_type}
+
 @api_router.delete("/sheds/{shed_id}")
 async def delete_shed(shed_id: str):
     result = await db.sheds.delete_one({"id": shed_id})
