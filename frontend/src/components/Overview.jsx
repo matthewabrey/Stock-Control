@@ -551,65 +551,6 @@ const Overview = () => {
           return null;
         })()}
 
-        {/* Potato Summary Section */}
-        {(() => {
-          const potatoSummary = getPotatoSummary();
-          const varieties = Object.keys(potatoSummary);
-          
-          if (varieties.length > 0) {
-            return (
-              <Card className="bg-white shadow rounded-xl border border-gray-200 mb-6">
-                <CardHeader className="border-b border-gray-100">
-                  <CardTitle className="text-2xl text-gray-900 flex items-center gap-2">
-                    <Package className="w-6 h-6 text-green-600" />
-                    Potato Summary by Variety
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="pt-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {varieties.sort().map((variety) => {
-                      const grades = potatoSummary[variety];
-                      const total = Object.values(grades).reduce((sum, qty) => sum + qty, 0);
-                      
-                      return (
-                        <div key={variety} className="p-4 bg-green-50 rounded-lg border border-green-200">
-                          <h3 className="text-lg font-semibold text-green-900 mb-4 flex items-center gap-2">
-                            <div className="w-4 h-4 bg-green-600 rounded-full"></div>
-                            {variety}
-                          </h3>
-                          <div className="space-y-2">
-                            {Object.entries(grades)
-                              .sort(([a], [b]) => a.localeCompare(b))
-                              .map(([grade, qty]) => (
-                                <div 
-                                  key={grade}
-                                  onClick={() => handlePotatoGradeClick(variety, grade)}
-                                  className="flex items-center justify-between bg-white px-4 py-3 rounded border border-green-300 cursor-pointer hover:bg-green-50 transition-colors"
-                                >
-                                  <span className="font-medium text-gray-900">{grade}</span>
-                                  <span className="font-semibold text-green-700">
-                                    {qty.toFixed(0)} units
-                                  </span>
-                                </div>
-                              ))}
-                            <div className="flex items-center justify-between bg-green-100 px-4 py-3 rounded border-2 border-green-400 mt-3">
-                              <span className="font-bold text-gray-900">Total</span>
-                              <span className="font-bold text-green-800">
-                                {total.toFixed(0)} units
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          }
-          return null;
-        })()}
-
         {sheds.length === 0 ? (
           <Card className="bg-white shadow rounded-xl border border-gray-200">
             <CardContent className="py-12 text-center">
