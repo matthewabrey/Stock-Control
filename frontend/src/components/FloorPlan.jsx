@@ -1197,18 +1197,29 @@ const FloorPlan = ({ user }) => {
               <p className="text-gray-600 mt-2">Dimensions: {shed.width}m × {shed.height}m</p>
             </div>
             
-            {/* Crop Filter Dropdown */}
+            {/* Assign Crop Type Dropdown */}
             <div className="flex items-center gap-2">
-              <label className="text-sm font-medium text-gray-700">Filter by Crop:</label>
+              <label className="text-sm font-medium text-gray-700">Shed Crop Type:</label>
               <select 
-                value={selectedCropFilter}
-                onChange={(e) => setSelectedCropFilter(e.target.value)}
+                value={shed.crop_type || ''}
+                onChange={async (e) => {
+                  const newCropType = e.target.value;
+                  try {
+                    await axios.patch(`${API}/sheds/${shedId}/crop-type?crop_type=${newCropType}`);
+                    setShed({ ...shed, crop_type: newCropType });
+                    toast.success(`Shed crop type updated to ${newCropType}`);
+                  } catch (error) {
+                    console.error("Error updating shed crop type:", error);
+                    toast.error("Failed to update shed crop type");
+                  }
+                }}
                 className="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
               >
-                <option value="All">All Crops</option>
+                <option value="">Not Assigned</option>
                 <option value="Potatoes">Potatoes</option>
                 <option value="Onions">Onions</option>
                 <option value="Carrots">Carrots</option>
+                <option value="Other">Other</option>
               </select>
             </div>
           </div>
