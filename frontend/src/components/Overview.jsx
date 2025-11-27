@@ -137,21 +137,18 @@ const Overview = () => {
         }
         cropSummary[onionType][grade] += intake.quantity;
       } 
-      // All other crops: Group by Type → Variety → Grade
+      // All other crops: Group by crop type only, then by grade
       else {
-        const variety = field.variety || 'Unknown Variety';
-        const key = `${cropType} - ${variety}`;
-        
-        // Initialize crop type + variety
-        if (!cropSummary[key]) {
-          cropSummary[key] = {};
+        // Initialize crop type
+        if (!cropSummary[cropType]) {
+          cropSummary[cropType] = {};
         }
         
-        // Group by grade
-        if (!cropSummary[key][grade]) {
-          cropSummary[key][grade] = 0;
+        // Group by grade (combines all varieties)
+        if (!cropSummary[cropType][grade]) {
+          cropSummary[cropType][grade] = 0;
         }
-        cropSummary[key][grade] += intake.quantity;
+        cropSummary[cropType][grade] += intake.quantity;
       }
     });
 
