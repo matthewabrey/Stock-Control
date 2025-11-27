@@ -1189,10 +1189,29 @@ const FloorPlan = ({ user }) => {
             </div>
           </div>
           
-          <h1 className="text-4xl font-bold" style={{ fontFamily: 'Playfair Display, serif' }}>
-            {shed.name} - Floor Plan
-          </h1>
-          <p className="text-gray-600 mt-2">Dimensions: {shed.width}m × {shed.height}m</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-4xl font-bold" style={{ fontFamily: 'Playfair Display, serif' }}>
+                {shed.name} - Floor Plan
+              </h1>
+              <p className="text-gray-600 mt-2">Dimensions: {shed.width}m × {shed.height}m</p>
+            </div>
+            
+            {/* Crop Filter Dropdown */}
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-gray-700">Filter by Crop:</label>
+              <select 
+                value={selectedCropFilter}
+                onChange={(e) => setSelectedCropFilter(e.target.value)}
+                className="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="All">All Crops</option>
+                <option value="Potatoes">Potatoes</option>
+                <option value="Onions">Onions</option>
+                <option value="Carrots">Carrots</option>
+              </select>
+            </div>
+          </div>
           
           {/* Selection badge - on its own line */}
           {selectedZones.length > 0 && (
