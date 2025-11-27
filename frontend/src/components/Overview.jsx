@@ -211,36 +211,6 @@ const Overview = () => {
     return Object.values(groupedByShed);
   };
 
-  const getPotatoSummary = () => {
-    // Calculate potato summary by variety
-    const potatoSummary = {};
-
-    // Process all stock intakes
-    stockIntakes.forEach(intake => {
-      const field = fields.find(f => f.id === intake.field_id);
-      if (!field) return;
-      
-      // Check if it's a potato crop
-      const cropTypeLower = field.crop_type.toLowerCase();
-      
-      if (cropTypeLower.includes('potato')) {
-        const variety = field.variety || 'Unknown';
-        
-        if (!potatoSummary[variety]) {
-          potatoSummary[variety] = {};
-        }
-        
-        if (!potatoSummary[variety][intake.grade]) {
-          potatoSummary[variety][intake.grade] = 0;
-        }
-        
-        potatoSummary[variety][intake.grade] += intake.quantity;
-      }
-    });
-
-    return potatoSummary;
-  };
-
   const getPotatoGradeDetails = (variety, grade) => {
     // Get detailed intake information for a specific potato variety and grade
     const details = [];
