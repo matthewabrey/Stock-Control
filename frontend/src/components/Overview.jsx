@@ -280,8 +280,14 @@ const Overview = () => {
     });
   };
 
-  const handlePrint = () => {
-    window.print();
+  const [printMode, setPrintMode] = useState(null); // 'onion', 'potato', or null
+
+  const handlePrint = (cropType) => {
+    setPrintMode(cropType);
+    setTimeout(() => {
+      window.print();
+      setPrintMode(null);
+    }, 100);
   };
 
   if (loading) {
