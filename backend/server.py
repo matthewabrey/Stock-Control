@@ -795,9 +795,8 @@ async def upload_excel(file: UploadFile = File(...)):
                     "harvest_year": harvest_year,
                     "type": str(variety_excel) if variety_excel else None  # Column 7 = classification (Red/Brown/Special)
                 }
-                await db.fields.insert_one(field_doc)
-                fields_created += 1
-                print(f"  Created field: {full_field_name} (Harvest {harvest_year})")
+                new_fields_to_create.append(field_doc)
+                print(f"  Parsed field: {full_field_name} (Harvest {harvest_year})")
         
         # Update stock intakes with new field IDs (preserve existing stock data)
         if old_field_mapping:
