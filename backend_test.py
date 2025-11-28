@@ -1466,6 +1466,570 @@ class StockControlTester:
             self.log_test("Lost Stock Data Investigation", False, f"Exception: {str(e)}")
             return False
 
+    def test_data_integrity_check_baseline(self):
+        """Test baseline scenario - no conflicts when uploading Excel"""
+        try:
+            # Clear all data first
+            response = self.session.delete(f"{self.base_url}/clear-all-data")
+            if response.status_code != 200:
+                self.log_test("Data Integrity Baseline - Clear", False, f"Failed to clear data, status: {response.status_code}")
+                return False
+            
+            # Upload Excel file for the first time
+            excel_data = self.create_test_excel_with_type()
+            files = {'file': ('baseline_test.xlsx', excel_data, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')}
+            response = self.session.post(f"{self.base_url}/upload-excel", files=files)
+            
+            if response.status_code != 200:
+                self.log_test("Data Integrity Baseline - Upload", False, f"Upload failed with status {response.status_code}", response.text)
+                return False
+            
+            result = response.json()
+            
+            # Verify no variety_conflicts array in response
+            if 'variety_conflicts' in result:
+                self.log_test("Data Integrity Baseline", False, f"Unexpected variety_conflicts found in baseline upload: {result.get('variety_conflicts')}")
+                return False
+            
+            # Verify normal response fields
+            expected_fields = ['message', 'fields_created', 'stores_created', 'zones_created']
+            missing_fields = [field for field in expected_fields if field not in result]
+            if missing_fields:
+                self.log_test("Data Integrity Baseline", False, f"Missing expected response fields: {missing_fields}")
+                return False
+            
+            self.log_test(
+                "Data Integrity Baseline", 
+                True, 
+                "Baseline upload successful with no variety conflicts",
+                f"Created {result.get('fields_created')} fields, {result.get('stores_created')} stores, {result.get('zones_created')} zones"
+            )
+            return True
+            
+        except Exception as e:
+            self.log_test("Data Integrity Baseline", False, f"Exception: {str(e)}")
+            return False
+    
+    def test_data_integrity_variety_conflict(self):
+        """Test variety change conflict detection"""
+        try:
+            # First ensure we have baseline data
+            if not self.test_data_integrity_check_baseline():
+                self.log_test("Data Integrity Conflict Setup", False, "Failed to establish baseline data")
+                return False
+            
+            # Get existing fields
+            response = self.session.get(f"{self.base_url}/fields")
+            if response.status_code != 200:
+                self.log_test("Data Integrity Conflict - Get Fields", False, f"Failed to get fields, status: {response.status_code}")
+                return False
+            
+            fields = response.json()
+            if not fields:
+                self.log_test("Data Integrity Conflict - Get Fields", False, "No fields found for conflict test")
+                return False
+            
+            # Create some stock for one of the fields to make it eligible for conflict detection
+            # Get sheds and zones first
+            response = self.session.get(f"{self.base_url}/sheds")
+            if response.status_code != 200:
+                self.log_test("Data Integrity Conflict - Get Sheds", False, "Failed to get sheds")
+                return False
+            
+            sheds = response.json()
+            if not sheds:
+                self.log_test("Data Integrity Conflict - Get Sheds", False, "No sheds found")
+                return False
+            
+            shed_id = sheds[0].get('id')
+            
+            response = self.session.get(f"{self.base_url}/zones?shed_id={shed_id}")
+            if response.status_code != 200:
+                self.log_test("Data Integrity Conflict - Get Zones", False, "Failed to get zones")
+                return False
+            
+            zones = response.json()
+            if not zones:
+                self.log_test("Data Integrity Conflict - Get Zones", False, "No zones found")
+                return False
+            
+            zone_id = zones[0].get('id')
+            
+            # Create stock intake for the first field
+            test_field = fields[0]
+            field_id = test_field.get('id')
+            field_name = test_field.get('name')
+            original_variety = test_field.get('variety')
+            original_type = test_field.get('type')
+            
+            intake_data = {
+                "field_id": field_id,
+                "field_name": field_name,
+                "zone_id": zone_id,
+                "shed_id": shed_id,
+                "quantity": 100.0,
+                "date": "2024-01-15",
+                "grade": "Test Grade"
+            }
+            
+            response = self.session.post(f"{self.base_url}/stock-intakes", json=intake_data)
+            if response.status_code != 200:
+                self.log_test("Data Integrity Conflict - Create Stock", False, f"Failed to create stock intake, status: {response.status_code}")
+                return False
+            
+            # Create modified Excel with different variety for this field
+            wb = openpyxl.Workbook()
+            
+            # Create Grade Options Page (same as before)
+            ws_grades = wb.create_sheet("Grade Options Page")
+            ws_grades['A1'] = "Onion"
+            ws_grades['A2'] = "50/60"
+            ws_grades['A3'] = "70/80"
+            ws_grades['A4'] = "O Whole Crop"
+            
+            # Create Master Harvest 25 sheet with MODIFIED variety for the first field
+            ws = wb.create_sheet("Master Harvest 25")
+            
+            # Headers in row 3
+            ws['C3'] = "Farm"
+            ws['D3'] = "Field"
+            ws['E3'] = "Area"
+            ws['F3'] = "Crop"
+            ws['G3'] = "Variety"
+            ws['H3'] = "Type"
+            
+            # Modified test field data - change variety and type for first field
+            test_fields = [
+                ("Greenfield Farm", "Field A", "25", "Onion", "MODIFIED_VARIETY", "MODIFIED_TYPE"),  # Changed variety and type
+                ("Hillside Farm", "Field B", "30", "Onion", "Brown Variety", "Brown"),
+                ("Valley Farm", "Field C", "15", "Onion", "Special Shallot", "Special"),
+                ("Riverside Farm", "Field D", "20", "Maincrop Potato", "King Edward", "Brown"),
+                ("Westside Farm", "Field E", "18", "Onion", "White Variety", None)
+            ]
+            
+            for i, (farm, field, area, crop, variety, type_val) in enumerate(test_fields, start=4):
+                ws[f'C{i}'] = farm
+                ws[f'D{i}'] = field
+                ws[f'E{i}'] = area
+                ws[f'F{i}'] = crop
+                ws[f'G{i}'] = variety
+                if type_val:
+                    ws[f'H{i}'] = type_val
+            
+            # Create store sheet (same as before)
+            store_ws = wb.create_sheet("Test Store")
+            store_ws['B2'] = "6"
+            store_ws['C2'] = "6"
+            store_ws['B3'] = "175t"
+            store_ws['A1'] = "DOOR"
+            
+            # Add fridge
+            fridge_cell = store_ws['D2']
+            fridge_cell.value = "Fridge"
+            from openpyxl.styles import PatternFill
+            yellow_fill = PatternFill(start_color="FFFF00", end_color="FFFF00", fill_type="solid")
+            fridge_cell.fill = yellow_fill
+            
+            # Remove default sheet
+            wb.remove(wb['Sheet'])
+            
+            # Save modified Excel
+            excel_buffer = io.BytesIO()
+            wb.save(excel_buffer)
+            excel_buffer.seek(0)
+            modified_excel_data = excel_buffer.getvalue()
+            
+            # Upload the modified Excel file
+            files = {'file': ('conflict_test.xlsx', modified_excel_data, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')}
+            response = self.session.post(f"{self.base_url}/upload-excel", files=files)
+            
+            if response.status_code != 200:
+                self.log_test("Data Integrity Conflict - Upload Modified", False, f"Upload failed with status {response.status_code}", response.text)
+                return False
+            
+            result = response.json()
+            
+            # Verify variety_conflicts array is present
+            if 'variety_conflicts' not in result:
+                self.log_test("Data Integrity Conflict", False, "Expected variety_conflicts array not found in response")
+                return False
+            
+            variety_conflicts = result.get('variety_conflicts', [])
+            if not variety_conflicts:
+                self.log_test("Data Integrity Conflict", False, "variety_conflicts array is empty")
+                return False
+            
+            # Verify warning message
+            if 'warning' not in result:
+                self.log_test("Data Integrity Conflict", False, "Expected warning message not found in response")
+                return False
+            
+            warning_message = result.get('warning')
+            if not warning_message or 'field' not in warning_message.lower():
+                self.log_test("Data Integrity Conflict", False, f"Invalid warning message: {warning_message}")
+                return False
+            
+            # Verify conflict object structure
+            conflict = variety_conflicts[0]
+            required_conflict_fields = ['field_name', 'old_variety', 'new_variety', 'old_type', 'new_type', 'affected_stock_records']
+            missing_conflict_fields = [field for field in required_conflict_fields if field not in conflict]
+            if missing_conflict_fields:
+                self.log_test("Data Integrity Conflict", False, f"Conflict object missing required fields: {missing_conflict_fields}")
+                return False
+            
+            # Verify conflict details
+            if conflict.get('field_name') != field_name:
+                self.log_test("Data Integrity Conflict", False, f"Conflict field_name mismatch. Expected: {field_name}, Got: {conflict.get('field_name')}")
+                return False
+            
+            if conflict.get('old_variety') != original_variety:
+                self.log_test("Data Integrity Conflict", False, f"Conflict old_variety mismatch. Expected: {original_variety}, Got: {conflict.get('old_variety')}")
+                return False
+            
+            if conflict.get('new_variety') != "MODIFIED_VARIETY":
+                self.log_test("Data Integrity Conflict", False, f"Conflict new_variety mismatch. Expected: MODIFIED_VARIETY, Got: {conflict.get('new_variety')}")
+                return False
+            
+            if conflict.get('affected_stock_records') != 1:
+                self.log_test("Data Integrity Conflict", False, f"Conflict affected_stock_records mismatch. Expected: 1, Got: {conflict.get('affected_stock_records')}")
+                return False
+            
+            # Verify Excel upload still succeeded
+            if result.get('fields_created', 0) == 0:
+                self.log_test("Data Integrity Conflict", False, "Excel upload should still create fields despite conflicts")
+                return False
+            
+            self.log_test(
+                "Data Integrity Variety Conflict", 
+                True, 
+                f"Successfully detected variety conflict for field '{field_name}'",
+                f"Conflict: {original_variety} → MODIFIED_VARIETY, affects {conflict.get('affected_stock_records')} stock records"
+            )
+            return True
+            
+        except Exception as e:
+            self.log_test("Data Integrity Variety Conflict", False, f"Exception: {str(e)}")
+            return False
+    
+    def test_data_integrity_no_stock_field(self):
+        """Test that fields with no stock are not reported as conflicts"""
+        try:
+            # Clear all data first
+            response = self.session.delete(f"{self.base_url}/clear-all-data")
+            if response.status_code != 200:
+                self.log_test("Data Integrity No Stock - Clear", False, f"Failed to clear data, status: {response.status_code}")
+                return False
+            
+            # Upload baseline Excel
+            excel_data = self.create_test_excel_with_type()
+            files = {'file': ('no_stock_baseline.xlsx', excel_data, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')}
+            response = self.session.post(f"{self.base_url}/upload-excel", files=files)
+            
+            if response.status_code != 200:
+                self.log_test("Data Integrity No Stock - Baseline", False, f"Baseline upload failed with status {response.status_code}")
+                return False
+            
+            # Don't create any stock intakes - all fields will have no stock
+            
+            # Create modified Excel with different varieties for all fields
+            wb = openpyxl.Workbook()
+            
+            # Create Grade Options Page
+            ws_grades = wb.create_sheet("Grade Options Page")
+            ws_grades['A1'] = "Onion"
+            ws_grades['A2'] = "50/60"
+            ws_grades['A3'] = "70/80"
+            ws_grades['A4'] = "O Whole Crop"
+            
+            # Create Master Harvest 25 sheet with ALL MODIFIED varieties
+            ws = wb.create_sheet("Master Harvest 25")
+            
+            # Headers in row 3
+            ws['C3'] = "Farm"
+            ws['D3'] = "Field"
+            ws['E3'] = "Area"
+            ws['F3'] = "Crop"
+            ws['G3'] = "Variety"
+            ws['H3'] = "Type"
+            
+            # All fields have modified varieties but no stock
+            test_fields = [
+                ("Greenfield Farm", "Field A", "25", "Onion", "MODIFIED_A", "MODIFIED_TYPE_A"),
+                ("Hillside Farm", "Field B", "30", "Onion", "MODIFIED_B", "MODIFIED_TYPE_B"),
+                ("Valley Farm", "Field C", "15", "Onion", "MODIFIED_C", "MODIFIED_TYPE_C"),
+                ("Riverside Farm", "Field D", "20", "Maincrop Potato", "MODIFIED_D", "MODIFIED_TYPE_D"),
+                ("Westside Farm", "Field E", "18", "Onion", "MODIFIED_E", "MODIFIED_TYPE_E")
+            ]
+            
+            for i, (farm, field, area, crop, variety, type_val) in enumerate(test_fields, start=4):
+                ws[f'C{i}'] = farm
+                ws[f'D{i}'] = field
+                ws[f'E{i}'] = area
+                ws[f'F{i}'] = crop
+                ws[f'G{i}'] = variety
+                ws[f'H{i}'] = type_val
+            
+            # Create store sheet
+            store_ws = wb.create_sheet("Test Store")
+            store_ws['B2'] = "6"
+            store_ws['C2'] = "6"
+            store_ws['B3'] = "175t"
+            store_ws['A1'] = "DOOR"
+            
+            # Add fridge
+            fridge_cell = store_ws['D2']
+            fridge_cell.value = "Fridge"
+            from openpyxl.styles import PatternFill
+            yellow_fill = PatternFill(start_color="FFFF00", end_color="FFFF00", fill_type="solid")
+            fridge_cell.fill = yellow_fill
+            
+            # Remove default sheet
+            wb.remove(wb['Sheet'])
+            
+            # Save modified Excel
+            excel_buffer = io.BytesIO()
+            wb.save(excel_buffer)
+            excel_buffer.seek(0)
+            modified_excel_data = excel_buffer.getvalue()
+            
+            # Upload the modified Excel file
+            files = {'file': ('no_stock_conflict_test.xlsx', modified_excel_data, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')}
+            response = self.session.post(f"{self.base_url}/upload-excel", files=files)
+            
+            if response.status_code != 200:
+                self.log_test("Data Integrity No Stock - Upload Modified", False, f"Upload failed with status {response.status_code}", response.text)
+                return False
+            
+            result = response.json()
+            
+            # Verify NO variety_conflicts array since no fields have stock
+            if 'variety_conflicts' in result and result.get('variety_conflicts'):
+                self.log_test("Data Integrity No Stock", False, f"Unexpected variety_conflicts found for fields with no stock: {result.get('variety_conflicts')}")
+                return False
+            
+            # Verify no warning message
+            if 'warning' in result:
+                self.log_test("Data Integrity No Stock", False, f"Unexpected warning message for fields with no stock: {result.get('warning')}")
+                return False
+            
+            # Verify normal upload success
+            if result.get('fields_created', 0) == 0:
+                self.log_test("Data Integrity No Stock", False, "Excel upload should still create fields")
+                return False
+            
+            self.log_test(
+                "Data Integrity No Stock Field", 
+                True, 
+                "Fields with no stock correctly not reported as conflicts",
+                f"Created {result.get('fields_created')} fields with variety changes but no conflicts reported"
+            )
+            return True
+            
+        except Exception as e:
+            self.log_test("Data Integrity No Stock Field", False, f"Exception: {str(e)}")
+            return False
+    
+    def test_data_integrity_multiple_conflicts(self):
+        """Test detection of multiple variety conflicts"""
+        try:
+            # Clear all data first
+            response = self.session.delete(f"{self.base_url}/clear-all-data")
+            if response.status_code != 200:
+                self.log_test("Data Integrity Multiple - Clear", False, f"Failed to clear data, status: {response.status_code}")
+                return False
+            
+            # Upload baseline Excel
+            excel_data = self.create_test_excel_with_type()
+            files = {'file': ('multiple_baseline.xlsx', excel_data, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')}
+            response = self.session.post(f"{self.base_url}/upload-excel", files=files)
+            
+            if response.status_code != 200:
+                self.log_test("Data Integrity Multiple - Baseline", False, f"Baseline upload failed with status {response.status_code}")
+                return False
+            
+            # Get fields and create stock for multiple fields
+            response = self.session.get(f"{self.base_url}/fields")
+            if response.status_code != 200:
+                self.log_test("Data Integrity Multiple - Get Fields", False, "Failed to get fields")
+                return False
+            
+            fields = response.json()
+            if len(fields) < 3:
+                self.log_test("Data Integrity Multiple - Get Fields", False, f"Need at least 3 fields for multiple conflicts test, got {len(fields)}")
+                return False
+            
+            # Get sheds and zones
+            response = self.session.get(f"{self.base_url}/sheds")
+            if response.status_code != 200:
+                self.log_test("Data Integrity Multiple - Get Sheds", False, "Failed to get sheds")
+                return False
+            
+            sheds = response.json()
+            if not sheds:
+                self.log_test("Data Integrity Multiple - Get Sheds", False, "No sheds found")
+                return False
+            
+            shed_id = sheds[0].get('id')
+            
+            response = self.session.get(f"{self.base_url}/zones?shed_id={shed_id}")
+            if response.status_code != 200:
+                self.log_test("Data Integrity Multiple - Get Zones", False, "Failed to get zones")
+                return False
+            
+            zones = response.json()
+            if len(zones) < 3:
+                self.log_test("Data Integrity Multiple - Get Zones", False, f"Need at least 3 zones for multiple conflicts test, got {len(zones)}")
+                return False
+            
+            # Create stock for first 3 fields
+            fields_with_stock = []
+            for i in range(3):
+                field = fields[i]
+                zone = zones[i]
+                
+                intake_data = {
+                    "field_id": field.get('id'),
+                    "field_name": field.get('name'),
+                    "zone_id": zone.get('id'),
+                    "shed_id": shed_id,
+                    "quantity": 50.0 * (i + 1),  # Different quantities
+                    "date": "2024-01-15",
+                    "grade": f"Test Grade {i+1}"
+                }
+                
+                response = self.session.post(f"{self.base_url}/stock-intakes", json=intake_data)
+                if response.status_code != 200:
+                    self.log_test("Data Integrity Multiple - Create Stock", False, f"Failed to create stock intake {i+1}")
+                    return False
+                
+                fields_with_stock.append({
+                    'field': field,
+                    'original_variety': field.get('variety'),
+                    'original_type': field.get('type'),
+                    'expected_stock_count': 1
+                })
+            
+            # Create modified Excel with different varieties for the first 3 fields
+            wb = openpyxl.Workbook()
+            
+            # Create Grade Options Page
+            ws_grades = wb.create_sheet("Grade Options Page")
+            ws_grades['A1'] = "Onion"
+            ws_grades['A2'] = "50/60"
+            ws_grades['A3'] = "70/80"
+            ws_grades['A4'] = "O Whole Crop"
+            
+            # Create Master Harvest 25 sheet with MODIFIED varieties for first 3 fields
+            ws = wb.create_sheet("Master Harvest 25")
+            
+            # Headers in row 3
+            ws['C3'] = "Farm"
+            ws['D3'] = "Field"
+            ws['E3'] = "Area"
+            ws['F3'] = "Crop"
+            ws['G3'] = "Variety"
+            ws['H3'] = "Type"
+            
+            # Modified test field data - change varieties for first 3 fields
+            test_fields = [
+                ("Greenfield Farm", "Field A", "25", "Onion", "CONFLICT_VARIETY_1", "CONFLICT_TYPE_1"),  # Changed
+                ("Hillside Farm", "Field B", "30", "Onion", "CONFLICT_VARIETY_2", "CONFLICT_TYPE_2"),   # Changed
+                ("Valley Farm", "Field C", "15", "Onion", "CONFLICT_VARIETY_3", "CONFLICT_TYPE_3"),     # Changed
+                ("Riverside Farm", "Field D", "20", "Maincrop Potato", "King Edward", "Brown"),         # Unchanged
+                ("Westside Farm", "Field E", "18", "Onion", "White Variety", None)                     # Unchanged
+            ]
+            
+            for i, (farm, field, area, crop, variety, type_val) in enumerate(test_fields, start=4):
+                ws[f'C{i}'] = farm
+                ws[f'D{i}'] = field
+                ws[f'E{i}'] = area
+                ws[f'F{i}'] = crop
+                ws[f'G{i}'] = variety
+                if type_val:
+                    ws[f'H{i}'] = type_val
+            
+            # Create store sheet
+            store_ws = wb.create_sheet("Test Store")
+            store_ws['B2'] = "6"
+            store_ws['C2'] = "6"
+            store_ws['B3'] = "175t"
+            store_ws['A1'] = "DOOR"
+            
+            # Add fridge
+            fridge_cell = store_ws['D2']
+            fridge_cell.value = "Fridge"
+            from openpyxl.styles import PatternFill
+            yellow_fill = PatternFill(start_color="FFFF00", end_color="FFFF00", fill_type="solid")
+            fridge_cell.fill = yellow_fill
+            
+            # Remove default sheet
+            wb.remove(wb['Sheet'])
+            
+            # Save modified Excel
+            excel_buffer = io.BytesIO()
+            wb.save(excel_buffer)
+            excel_buffer.seek(0)
+            modified_excel_data = excel_buffer.getvalue()
+            
+            # Upload the modified Excel file
+            files = {'file': ('multiple_conflicts_test.xlsx', modified_excel_data, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')}
+            response = self.session.post(f"{self.base_url}/upload-excel", files=files)
+            
+            if response.status_code != 200:
+                self.log_test("Data Integrity Multiple - Upload Modified", False, f"Upload failed with status {response.status_code}", response.text)
+                return False
+            
+            result = response.json()
+            
+            # Verify variety_conflicts array is present
+            if 'variety_conflicts' not in result:
+                self.log_test("Data Integrity Multiple", False, "Expected variety_conflicts array not found in response")
+                return False
+            
+            variety_conflicts = result.get('variety_conflicts', [])
+            if len(variety_conflicts) != 3:
+                self.log_test("Data Integrity Multiple", False, f"Expected 3 variety conflicts, got {len(variety_conflicts)}")
+                return False
+            
+            # Verify warning message mentions multiple fields
+            warning_message = result.get('warning', '')
+            if '3' not in warning_message or 'field' not in warning_message.lower():
+                self.log_test("Data Integrity Multiple", False, f"Warning message should mention 3 fields: {warning_message}")
+                return False
+            
+            # Verify each conflict
+            expected_field_names = [f['field']['name'] for f in fields_with_stock]
+            conflict_field_names = [c.get('field_name') for c in variety_conflicts]
+            
+            for expected_name in expected_field_names:
+                if expected_name not in conflict_field_names:
+                    self.log_test("Data Integrity Multiple", False, f"Expected conflict for field '{expected_name}' not found")
+                    return False
+            
+            # Verify conflict structure for each conflict
+            for i, conflict in enumerate(variety_conflicts):
+                required_fields = ['field_name', 'old_variety', 'new_variety', 'old_type', 'new_type', 'affected_stock_records']
+                missing_fields = [field for field in required_fields if field not in conflict]
+                if missing_fields:
+                    self.log_test("Data Integrity Multiple", False, f"Conflict {i+1} missing required fields: {missing_fields}")
+                    return False
+                
+                if conflict.get('affected_stock_records') != 1:
+                    self.log_test("Data Integrity Multiple", False, f"Conflict {i+1} should affect 1 stock record, got {conflict.get('affected_stock_records')}")
+                    return False
+            
+            self.log_test(
+                "Data Integrity Multiple Conflicts", 
+                True, 
+                f"Successfully detected {len(variety_conflicts)} variety conflicts",
+                f"Conflicts: {[c.get('field_name') for c in variety_conflicts]}"
+            )
+            return True
+            
+        except Exception as e:
+            self.log_test("Data Integrity Multiple Conflicts", False, f"Exception: {str(e)}")
+            return False
+
     def run_all_tests(self):
         """Run all tests in sequence"""
         print(f"🧪 Starting Stock Control Backend API Tests")
