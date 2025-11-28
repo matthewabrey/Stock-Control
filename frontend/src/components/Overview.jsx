@@ -363,13 +363,23 @@ const Overview = () => {
               Back to Dashboard
             </Button>
             
-            <Button
-              onClick={handlePrint}
-              className="bg-blue-600 hover:bg-blue-700 no-print"
-            >
-              <Printer className="w-4 h-4 mr-2" />
-              Print All Stores
-            </Button>
+            <div className="flex gap-3 no-print">
+              <Button
+                onClick={() => handlePrint('onion')}
+                className="bg-purple-600 hover:bg-purple-700"
+              >
+                <Printer className="w-4 h-4 mr-2" />
+                Print All Onion Stores
+              </Button>
+              
+              <Button
+                onClick={() => handlePrint('potato')}
+                className="bg-amber-600 hover:bg-amber-700"
+              >
+                <Printer className="w-4 h-4 mr-2" />
+                Print All Potato Stores
+              </Button>
+            </div>
           </div>
 
         <div className="mb-8">
