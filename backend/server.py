@@ -1327,12 +1327,19 @@ async def upload_excel(file: UploadFile = File(...)):
             if doors_created > 0:
                 print(f"Store {store_name}: Created {doors_created} doors")
         
-        return {
+        response_data = {
             "message": "Excel uploaded successfully",
             "fields_created": fields_created,
             "stores_created": stores_created,
             "zones_created": zones_created
         }
+        
+        # Include variety conflicts if any were detected
+        if variety_conflicts:
+            response_data["variety_conflicts"] = variety_conflicts
+            response_data["warning"] = f"{len(variety_conflicts)} field(s) have variety changes that may affect existing stock attribution"
+        
+        return response_data
     
     except Exception as e:
         print(f"Error processing file: {str(e)}")
