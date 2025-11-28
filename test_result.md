@@ -799,6 +799,48 @@ test_plan:
 agent_communication:
   - agent: "testing"
     message: |
+      ✅ STOCK OVERVIEW PAGE DUPLICATE SECTIONS TESTING COMPLETED - NO DUPLICATES FOUND
+      
+      🔍 EXECUTED SPECIFIC REVIEW REQUEST WORKFLOW:
+      ✅ **STEP 1: Login with employee 1234** - SUCCESS
+      - Hardcoded admin login working perfectly
+      - Successfully authenticated and redirected to dashboard
+      
+      ✅ **STEP 2: Navigate to /overview page** - SUCCESS
+      - Overview page accessible at https://shed-mapper.preview.emergentagent.com/overview
+      - Page loads correctly with "Stock Overview" heading
+      
+      ✅ **STEP 3: Full-page screenshot captured** - SUCCESS
+      - Complete page structure documented in screenshot
+      - All sections visible and properly rendered
+      
+      ✅ **STEP 4: Summary sections analysis** - SUCCESS
+      - **ONE "Onion Summary by Type & Grade" section** found (expected behavior)
+      - **ONE "Potato Summary by Variety & Grade" section** found (expected behavior)
+      - No duplicate or redundant summary sections detected
+      
+      📊 **DETAILED FINDINGS:**
+      - Onion Summary sections: 1 (✅ CORRECT)
+      - Potato Summary sections: 1 (✅ CORRECT)
+      - Text occurrences: "onion summary" appears 1 time, "potato summary" appears 1 time
+      - Page structure: Clean, no duplicate content
+      
+      🎯 **SUMMARY SECTION STRUCTURE VERIFIED:**
+      1. **Onion Summary by Type & Grade** (Purple icon, contains Brown Onions with 25 units)
+      2. **Potato Summary by Variety & Grade** (Amber icon, contains Maris Peer Seed: 162 units, Talentine B1: 175 units)
+      3. Individual shed cards below (Grader Shed, various farm fields)
+      
+      ✅ **CONCLUSION: NO DUPLICATE SECTIONS FOUND**
+      The Overview page displays exactly ONE of each summary section as expected:
+      - Only ONE "Onion Summary" section
+      - Only ONE "Potato Summary" section
+      - No redundant or duplicate summary sections detected
+      - Page structure is clean and properly organized
+      
+      🚀 **REVIEW REQUEST COMPLETED SUCCESSFULLY**
+      The Stock Overview page is working correctly with proper single summary sections.
+  - agent: "testing"
+    message: |
       ✅ CRITICAL FIELD ID MATCHING ISSUE RESOLVED - COMPREHENSIVE TESTING COMPLETED
       
       🔍 EXECUTED SPECIFIC REVIEW REQUEST WORKFLOW:
