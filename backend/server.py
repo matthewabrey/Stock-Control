@@ -673,8 +673,11 @@ async def upload_excel(file: UploadFile = File(...)):
         old_field_mapping = {f['name']: f['id'] for f in old_fields}
         print(f"DEBUG: Stored {len(old_field_mapping)} old field mappings")
         
-        # Clear existing fields
-        await db.fields.delete_many({})
+        # Create a mapping of old fields: name -> {variety, type, crop_type}
+        old_field_data = {f['name']: {'variety': f.get('variety', 'Unknown'), 'type': f.get('type'), 'crop_type': f.get('crop_type', 'Unknown')} for f in old_fields}
+        
+        # STEP 1: Parse all new fields from Excel first (before clearing database)
+        new_fields_to_create = []
         
         for sheet_name in harvest_sheets:
             ws = wb[sheet_name]
