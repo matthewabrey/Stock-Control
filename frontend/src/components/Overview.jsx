@@ -585,10 +585,25 @@ const Overview = () => {
               const stockDetails = getShedStockDetails(shed.id);
               const totalStock = stockDetails.reduce((sum, fd) => sum + fd.totalQuantity, 0);
               
+              // Determine what crop types are in this shed
+              const hasOnions = stockDetails.some(detail => 
+                detail.cropType?.toLowerCase().includes('onion')
+              );
+              const hasPotatoes = stockDetails.some(detail => 
+                detail.cropType?.toLowerCase().includes('potato') || 
+                detail.cropType?.toLowerCase().includes('maincrop')
+              );
+              
+              // Determine if this shed should be hidden based on print mode
+              const shouldHide = (printMode === 'onion' && !hasOnions) || 
+                                (printMode === 'potato' && !hasPotatoes);
+              
               return (
                 <Card 
-                  key={shed.id} 
-                  className="bg-white shadow rounded-xl border border-gray-200 hover:shadow-lg transition-shadow print-page-break print-card"
+                  key={shed.id}
+                  data-has-onions={hasOnions}
+                  data-has-potatoes={hasPotatoes}
+                  className={`bg-white shadow rounded-xl border border-gray-200 hover:shadow-lg transition-shadow print-page-break print-card ${shouldHide ? 'hide-when-printing' : ''}`}
                 >
                   <CardHeader className="border-b border-gray-100">
                     <div className="flex items-center justify-between">
