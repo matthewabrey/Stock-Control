@@ -519,7 +519,10 @@ const Overview = () => {
           
           if (hasPotatoes) {
             return (
-              <Card className="bg-white shadow rounded-xl border border-gray-200 mb-6">
+              <Card 
+                data-crop-type="potato"
+                className={`bg-white shadow rounded-xl border border-gray-200 mb-6 ${printMode === 'onion' ? 'hide-when-printing' : ''}`}
+              >
                 <CardHeader className="border-b border-gray-100">
                   <CardTitle className="text-2xl text-gray-900 flex items-center gap-2">
                     <Package className="w-6 h-6 text-amber-600" />
