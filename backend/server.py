@@ -798,6 +798,47 @@ async def upload_excel(file: UploadFile = File(...)):
                 new_fields_to_create.append(field_doc)
                 print(f"  Parsed field: {full_field_name} (Harvest {harvest_year})")
         
+        # STEP 2: Data Integrity Check - Detect variety changes
+        variety_conflicts = []
+        
+        for new_field in new_fields_to_create:
+            field_name = new_field['name']
+            new_variety = new_field['variety']
+            new_type = new_field.get('type')
+            
+            if field_name in old_field_data:
+                old_variety = old_field_data[field_name]['variety']
+                old_type = old_field_data[field_name].get('type')
+                
+                # Check if variety or type has changed
+                variety_changed = (new_variety != old_variety)
+                type_changed = (new_type != old_type) and (old_type is not None or new_type is not None)
+                
+                if variety_changed or type_changed:
+                    # Check how much stock would be affected
+                    stock_count = await db.stock_intakes.count_documents({"field_name": field_name})
+                    
+                    if stock_count > 0:
+                        conflict_info = {
+                            "field_name": field_name,
+                            "old_variety": old_variety,
+                            "new_variety": new_variety,
+                            "old_type": old_type,
+                            "new_type": new_type,
+                            "affected_stock_records": stock_count
+                        }
+                        variety_conflicts.append(conflict_info)
+                        print(f"  WARNING: Field '{field_name}' variety changed from '{old_variety}' to '{new_variety}' (affects {stock_count} stock records)")
+        
+        # STEP 3: Insert all new fields into database
+        await db.fields.delete_many({})
+        
+        for field_doc in new_fields_to_create:
+            await db.fields.insert_one(field_doc)
+            fields_created += 1
+        
+        print(f"Created {fields_created} fields")
+        
         # Update stock intakes with new field IDs (preserve existing stock data)
         if old_field_mapping:
             print("\n=== Updating Stock Intakes with New Field IDs ===")
