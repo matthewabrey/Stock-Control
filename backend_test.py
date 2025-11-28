@@ -11,7 +11,7 @@ import openpyxl
 from datetime import datetime
 
 # Backend URL from environment
-BACKEND_URL = "https://cropflow-7.preview.emergentagent.com/api"
+BACKEND_URL = "https://shed-mapper.preview.emergentagent.com/api"
 
 class StockControlTester:
     def __init__(self):
