@@ -1686,8 +1686,8 @@ class StockControlTester:
                 self.log_test("Data Integrity Conflict", False, f"Conflict old_variety mismatch. Expected: {original_variety}, Got: {conflict.get('old_variety')}")
                 return False
             
-            if conflict.get('new_variety') != "MODIFIED_VARIETY":
-                self.log_test("Data Integrity Conflict", False, f"Conflict new_variety mismatch. Expected: MODIFIED_VARIETY, Got: {conflict.get('new_variety')}")
+            if conflict.get('new_variety') != "MODIFIED_TYPE":
+                self.log_test("Data Integrity Conflict", False, f"Conflict new_variety mismatch. Expected: MODIFIED_TYPE, Got: {conflict.get('new_variety')}")
                 return False
             
             if conflict.get('affected_stock_records') != 1:
