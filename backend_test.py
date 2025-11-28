@@ -2036,9 +2036,13 @@ class StockControlTester:
         print(f"🔗 Backend URL: {self.base_url}")
         print("=" * 60)
         
-        # Test sequence - prioritizing field ID matching issue
+        # Test sequence - prioritizing data integrity check feature
         tests = [
             ("API Health Check", self.test_api_health),
+            ("Data Integrity Check - Baseline", self.test_data_integrity_check_baseline),
+            ("Data Integrity Check - Variety Conflict", self.test_data_integrity_variety_conflict),
+            ("Data Integrity Check - No Stock Field", self.test_data_integrity_no_stock_field),
+            ("Data Integrity Check - Multiple Conflicts", self.test_data_integrity_multiple_conflicts),
             ("CRITICAL: Field ID Matching Issue", self.test_field_id_matching_issue),
             ("URGENT: Lost Stock Data Investigation", self.investigate_lost_stock_data),
             ("Review Request Workflow", self.test_review_request_workflow),
