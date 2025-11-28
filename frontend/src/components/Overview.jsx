@@ -307,6 +307,11 @@ const Overview = () => {
             display: none !important;
           }
           
+          /* Hide elements based on print mode */
+          .hide-when-printing {
+            display: none !important;
+          }
+          
           /* Show print-only elements */
           .print-only {
             display: block !important;
