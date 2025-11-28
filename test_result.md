@@ -796,7 +796,110 @@ test_plan:
   test_all: false
   test_priority: "high_first"
 
+  - task: "Data Integrity Check feature in Excel upload endpoint"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: |
+          ✅ IMPLEMENTED Data Integrity Check feature in /api/upload-excel endpoint
+          - Added variety change detection logic (lines 801-832)
+          - Compares new field variety/type with old field data before clearing database
+          - Only reports conflicts for fields that have existing stock records
+          - Returns variety_conflicts array with detailed conflict information
+          - Includes warning message indicating number of affected fields
+          - Still successfully processes Excel upload despite conflicts
+          
+          CONFLICT OBJECT STRUCTURE:
+          - field_name: Name of the field with variety change
+          - old_variety: Previous variety value
+          - new_variety: New variety value from Excel
+          - old_type: Previous type value
+          - new_type: New type value from Excel
+          - affected_stock_records: Number of stock records that would be affected
+          
+          NEEDS TESTING:
+          - Baseline scenario (no conflicts)
+          - Single variety conflict detection
+          - Multiple conflicts detection
+          - Fields with no stock (should not be reported)
+      - working: true
+        agent: "testing"
+        comment: |
+          ✅ DATA INTEGRITY CHECK FEATURE FULLY WORKING - ALL TESTS PASSED
+          
+          🔍 COMPREHENSIVE TESTING COMPLETED:
+          ✅ Baseline Test: No conflicts when uploading Excel for first time
+          ✅ Variety Conflict Detection: Successfully detects when field variety/type changes between uploads
+          ✅ Stock Requirement: Only reports conflicts for fields that have existing stock records
+          ✅ Multiple Conflicts: Correctly detects and reports multiple field conflicts
+          ✅ No Stock Fields: Fields with no stock correctly not reported as conflicts
+          ✅ Response Structure: All required fields present in conflict objects
+          ✅ Warning Message: Proper warning message included when conflicts detected
+          ✅ Upload Success: Excel upload still succeeds despite conflicts
+          
+          📊 VERIFIED SCENARIOS:
+          - Baseline upload: No variety_conflicts array, normal response fields
+          - Single conflict: 1 field with stock changed → 1 conflict reported
+          - Multiple conflicts: 3 fields with stock changed → 3 conflicts reported  
+          - No stock fields: 5 fields changed but no stock → 0 conflicts reported
+          - Conflict structure: All required fields (field_name, old_variety, new_variety, old_type, new_type, affected_stock_records)
+          
+          🎯 CONFLICT DETECTION LOGIC VERIFIED:
+          - Compares field variety and type between old and new Excel data
+          - Counts affected stock records using field_name matching
+          - Only includes conflicts where stock_count > 0
+          - Provides detailed information for stock misattribution prevention
+          
+          🚀 DATA INTEGRITY CHECK FEATURE FULLY FUNCTIONAL - NO ISSUES FOUND
+
 agent_communication:
+  - agent: "testing"
+    message: |
+      ✅ DATA INTEGRITY CHECK FEATURE TESTING COMPLETED - ALL TESTS PASSED
+      
+      🔍 EXECUTED COMPREHENSIVE TEST SUITE FOR NEW FEATURE:
+      ✅ **BASELINE TEST**: No conflicts when uploading Excel for first time
+      - Verified no variety_conflicts array in response
+      - Confirmed normal response fields (message, fields_created, stores_created, zones_created)
+      
+      ✅ **VARIETY CONFLICT DETECTION**: Successfully detects field variety/type changes
+      - Created stock for test field, then uploaded Excel with modified variety/type
+      - Verified variety_conflicts array present with correct conflict details
+      - Confirmed warning message indicates number of affected fields
+      - Validated conflict object structure with all required fields
+      
+      ✅ **NO STOCK FIELD TEST**: Fields without stock correctly not reported
+      - Modified all field varieties but created no stock records
+      - Verified no variety_conflicts array in response
+      - Confirmed no warning message for fields without stock
+      
+      ✅ **MULTIPLE CONFLICTS TEST**: Correctly detects multiple field conflicts
+      - Created stock for 3 fields, modified their varieties in Excel
+      - Verified 3 conflicts detected and reported correctly
+      - Confirmed warning message mentions correct number of fields
+      
+      📊 **CONFLICT OBJECT VALIDATION**:
+      All conflict objects contain required fields:
+      - field_name: Correct field name
+      - old_variety/new_variety: Accurate variety change tracking
+      - old_type/new_type: Accurate type change tracking  
+      - affected_stock_records: Correct count of affected stock
+      
+      🎯 **KEY FINDINGS**:
+      - Feature detects variety changes between Excel uploads
+      - Only reports conflicts for fields with existing stock
+      - Provides detailed information for stock misattribution prevention
+      - Excel upload still succeeds despite conflicts
+      - Response format matches specification exactly
+      
+      🚀 **DATA INTEGRITY CHECK FEATURE PRODUCTION READY**
+      All test scenarios passed - feature working as specified in review request.
   - agent: "testing"
     message: |
       ✅ STOCK OVERVIEW PAGE DUPLICATE SECTIONS TESTING COMPLETED - NO DUPLICATES FOUND
