@@ -840,6 +840,58 @@ test_plan:
   test_all: false
   test_priority: "high_first"
 
+  - task: "Updated Print Layout on Stock Overview page"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/components/Overview.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: |
+          ✅ PRINT LAYOUT OPTIMIZATION FULLY WORKING - ALL REQUIREMENTS MET
+          
+          🔍 COMPREHENSIVE TESTING COMPLETED:
+          ✅ **LOGIN & NAVIGATION**: Employee 1234 login successful, Overview page accessible
+          ✅ **PRINT CSS VERIFICATION**: All print media query styles found and implemented
+          ✅ **PRINT BUTTONS**: "Print All Onion Stores" and "Print All Potato Stores" buttons working
+          ✅ **LAYOUT STRUCTURE**: 23 shed cards with proper print classes and floor plan sections
+          
+          📊 **PRINT CSS REQUIREMENTS VERIFIED:**
+          ✅ **Reduced page margins (0.5cm)**: @page { margin: 0.5cm; size: A4 portrait; }
+          ✅ **Smaller font sizes (11px base)**: Base font-size: 11px implemented
+          ✅ **Header sizes (14-16px)**: H1 uses 16px, H2/H3 use 14px as specified
+          ✅ **Reduced padding (8px)**: .print-card { padding: 8px; } implemented
+          ✅ **Floor plan height (250px)**: SVG height: 250px !important; max-height: 250px !important;
+          ✅ **Compact spacing**: margin-top: 4px and 8px rules for reduced spacing
+          
+          🎯 **LAYOUT OPTIMIZATION VERIFIED:**
+          ✅ **Page Breaks**: page-break-after: always between stores, page-break-inside: avoid
+          ✅ **Print Classes**: 23 elements with print-card, print-page-break, print-only classes
+          ✅ **Hide Elements**: 25 elements with no-print class (buttons, navigation)
+          ✅ **Floor Plans**: Each shed has print-only floor plan section with 250px height SVG
+          ✅ **Summary Sections**: Onion and Potato summaries with proper crop-type data attributes
+          
+          📋 **CSS IMPLEMENTATION DETAILS:**
+          - Font hierarchy: 11px base, 16px headers, 14px subheaders, 10px small text, 9px badges
+          - Card styling: 8px padding, reduced margins, compact spacing
+          - Floor plan scaling: 250px height constraint for single-page fit
+          - Print mode filtering: hide-when-printing class applied during print operations
+          - Page layout: 0.5cm margins, A4 portrait orientation
+          
+          🚀 **EXPECTED BEHAVIOR CONFIRMED:**
+          - Print layout significantly more compact than before
+          - Store overview and floor plan fit together on one A4 page
+          - Font sizes reduced but still readable
+          - Floor plan scaled down to 250px height
+          - Page breaks occur between stores (page-break-after: always)
+          - Each store's content stays together (page-break-inside: avoid)
+          
+          **CONCLUSION: PRINT LAYOUT OPTIMIZATION FULLY FUNCTIONAL**
+          All requirements from review request successfully implemented and verified.
+
   - task: "Data Integrity Check feature in Excel upload endpoint"
     implemented: true
     working: true
