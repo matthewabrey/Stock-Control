@@ -746,7 +746,7 @@ const Overview = () => {
                       <div className="bg-white border border-gray-300 p-4 rounded">
                         <svg 
                           width="100%" 
-                          height="400" 
+                          height="250" 
                           viewBox={`0 0 ${shed.width * 20} ${shed.height * 20}`}
                           className="border border-gray-200"
                           style={{ maxWidth: '100%' }}
