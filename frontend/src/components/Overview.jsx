@@ -317,13 +317,13 @@ const Overview = () => {
             display: block !important;
           }
           
-          /* Reset page margins */
+          /* Reset page margins - smaller margins for more space */
           @page {
-            margin: 1cm;
+            margin: 0.5cm;
             size: A4 portrait;
           }
           
-          /* Each shed on new page */
+          /* Each shed on new page but keep content together */
           .print-page-break {
             page-break-after: always;
             page-break-inside: avoid;
@@ -334,17 +334,72 @@ const Overview = () => {
             page-break-after: auto;
           }
           
-          /* Ensure cards print nicely */
+          /* Ensure cards print nicely - reduced padding and margins */
           .print-card {
             border: 1px solid #ddd;
-            margin-bottom: 20px;
-            padding: 15px;
+            margin-bottom: 5px;
+            padding: 8px;
             background: white;
+            font-size: 11px;
+          }
+          
+          /* Reduce header sizes */
+          .print-card h1, .print-card .text-2xl {
+            font-size: 16px !important;
+            margin-bottom: 2px !important;
+          }
+          
+          .print-card h2, .print-card h3, .print-card .text-xl {
+            font-size: 14px !important;
+            margin-bottom: 3px !important;
+          }
+          
+          .print-card p, .print-card .text-sm {
+            font-size: 10px !important;
+            margin-bottom: 2px !important;
+          }
+          
+          /* Make stock detail boxes more compact */
+          .print-card .bg-gray-50 {
+            padding: 6px !important;
+            margin-bottom: 4px !important;
+          }
+          
+          /* Reduce grade badge sizes */
+          .print-card .flex-wrap span {
+            padding: 2px 6px !important;
+            font-size: 9px !important;
+          }
+          
+          /* Floor plan section - more compact */
+          .print-only {
+            margin-top: 8px !important;
+            padding-top: 8px !important;
+          }
+          
+          /* Scale down floor plan SVG */
+          .print-only svg {
+            height: 250px !important;
+            max-height: 250px !important;
           }
           
           /* Hide body background */
           body {
             background: white !important;
+          }
+          
+          /* Reduce spacing between elements */
+          .space-y-4 > * + * {
+            margin-top: 4px !important;
+          }
+          
+          .space-y-1 > * + * {
+            margin-top: 2px !important;
+          }
+          
+          /* Make summary sections more compact for print */
+          .hide-when-printing ~ * {
+            margin-top: 8px !important;
           }
         }
         
