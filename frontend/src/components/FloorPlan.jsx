@@ -2282,7 +2282,7 @@ const DestinationFloorPlan = ({ shed, onZoneClick, selectedZones = [] }) => {
     const fieldMap = {};
     zoneIntakes.forEach(intake => {
       if (!fieldMap[intake.field_id]) {
-        const field = fields.find(f => f.name === intake.field_name);
+        const field = fields.find(f => f.id === intake.field_id);
         fieldMap[intake.field_id] = {
           fieldName: intake.field_name,
           variety: field?.variety || 'Unknown',
