@@ -241,7 +241,7 @@ const FloorPlan = ({ user }) => {
     // Group by field
     const fieldGroups = {};
     zoneIntakes.forEach(intake => {
-      const field = fields.find(f => f.name === intake.field_name);
+      const field = fields.find(f => f.id === intake.field_id);
       const fieldName = field?.name || intake.field_name || 'Unknown';
       const variety = field?.variety || 'Unknown';
       
