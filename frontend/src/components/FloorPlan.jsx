@@ -277,10 +277,10 @@ const FloorPlan = ({ user }) => {
     // Group by field + variety to check for mixed stock
     const fieldVarietyGroups = {};
     zoneIntakes.forEach(intake => {
-      // Use variety from intake if available, otherwise lookup from field
+      // Use variety from intake if available, otherwise lookup from field BY ID
       let variety = intake.variety;
       if (!variety) {
-        const field = fields.find(f => f.name === intake.field_name);
+        const field = fields.find(f => f.id === intake.field_id);
         variety = field ? field.variety : 'Unknown';
       }
       
