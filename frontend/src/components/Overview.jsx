@@ -91,7 +91,7 @@ const Overview = () => {
     };
 
     stockIntakes.forEach(intake => {
-      const field = fields.find(f => f.name === intake.field_name);
+      const field = fields.find(f => f.id === intake.field_id);
       if (!field) return;
       
       const cropTypeLower = (field.crop_type || '').toLowerCase();
