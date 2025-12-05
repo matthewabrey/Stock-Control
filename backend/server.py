@@ -76,6 +76,7 @@ async def startup_repair_database():
         for intake in orphaned:
             field_name = intake.get('field_name')
             intake_variety = intake.get('variety')
+            zone_id = intake.get('zone_id')
             
             # Try to find matching field
             key = f"{field_name}|{intake_variety}" if intake_variety else None
@@ -87,6 +88,30 @@ async def startup_repair_database():
                     matching_field = candidates[0]
                 elif intake_variety:
                     matching_field = next((f for f in candidates if f.get('variety') == intake_variety), None)
+                else:
+                    # No variety in intake - check zone for other intakes with same field_name
+                    # to infer which variety this should be
+                    zone_intakes = await db.stock_intakes.find(
+                        {"zone_id": zone_id, "field_name": field_name}, 
+                        {"_id": 0, "field_id": 1}
+                    ).to_list(length=100)
+                    
+                    # Find the most common field_id used in this zone for this field_name
+                    if zone_intakes:
+                        field_id_counts = {}
+                        for zi in zone_intakes:
+                            fid = zi.get('field_id')
+                            if fid in field_ids:  # Only count valid field_ids
+                                field_id_counts[fid] = field_id_counts.get(fid, 0) + 1
+                        
+                        if field_id_counts:
+                            # Use the most common valid field_id
+                            most_common_fid = max(field_id_counts, key=field_id_counts.get)
+                            matching_field = next((f for f in candidates if f['id'] == most_common_fid), None)
+                    
+                    # Still no match? Use first candidate as fallback
+                    if not matching_field and candidates:
+                        matching_field = candidates[0]
             
             if matching_field:
                 await db.stock_intakes.update_one(
