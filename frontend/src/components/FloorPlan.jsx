@@ -1094,6 +1094,7 @@ const FloorPlan = ({ user }) => {
           fieldVarietySummary[varietyKey] = {
             fieldName: intake.field_name,
             variety: variety || 'Unknown',
+            type: field.type || null,
             cropType: field.crop_type,
             area: field.area,
             year: field.harvest_year,
