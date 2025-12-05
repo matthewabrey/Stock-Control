@@ -29,6 +29,99 @@ app = FastAPI()
 api_router = APIRouter(prefix="/api")
 
 
+# Startup event: Repair orphaned field_id references
+@app.on_event("startup")
+async def startup_repair_database():
+    """
+    Automatically repair orphaned field_id references on server startup.
+    This fixes stock intakes that reference field_ids that no longer exist
+    after Excel re-uploads.
+    """
+    try:
+        print("\n" + "="*70)
+        print("🔧 STARTUP: Checking for orphaned field_id references...")
+        print("="*70)
+        
+        # Get all fields
+        fields = await db.fields.find({}, {"_id": 0}).to_list(length=None)
+        field_ids = set(f['id'] for f in fields)
+        
+        # Create mapping: field_name+variety -> field
+        field_map = {}
+        field_name_map = {}
+        for f in fields:
+            name = f['name']
+            variety = f.get('variety', 'Unknown')
+            key = f"{name}|{variety}"
+            field_map[key] = f
+            if name not in field_name_map:
+                field_name_map[name] = []
+            field_name_map[name].append(f)
+        
+        # Get all stock intakes
+        intakes = await db.stock_intakes.find({}, {"_id": 0}).to_list(length=None)
+        
+        # Find orphaned intakes
+        orphaned = [i for i in intakes if i.get('field_id') not in field_ids]
+        
+        if len(orphaned) == 0:
+            print("✅ Database is healthy - no orphaned references found")
+            print("="*70 + "\n")
+            return
+        
+        print(f"⚠️  Found {len(orphaned)} orphaned stock intakes - repairing...")
+        
+        # Repair orphaned intakes
+        repaired = 0
+        for intake in orphaned:
+            field_name = intake.get('field_name')
+            intake_variety = intake.get('variety')
+            
+            # Try to find matching field
+            key = f"{field_name}|{intake_variety}" if intake_variety else None
+            matching_field = field_map.get(key) if key else None
+            
+            if not matching_field and field_name in field_name_map:
+                candidates = field_name_map[field_name]
+                if len(candidates) == 1:
+                    matching_field = candidates[0]
+                elif intake_variety:
+                    matching_field = next((f for f in candidates if f.get('variety') == intake_variety), None)
+            
+            if matching_field:
+                await db.stock_intakes.update_one(
+                    {"id": intake['id']},
+                    {"$set": {"field_id": matching_field['id']}}
+                )
+                repaired += 1
+        
+        print(f"✅ Repaired {repaired} orphaned stock intakes")
+        
+        # Update zone totals
+        print("🔧 Updating zone totals...")
+        zones = await db.zones.find({}, {"_id": 0}).to_list(length=None)
+        for zone in zones:
+            pipeline = [
+                {"$match": {"zone_id": zone['id']}},
+                {"$group": {"_id": None, "total": {"$sum": "$quantity"}}}
+            ]
+            result = await db.stock_intakes.aggregate(pipeline).to_list(length=1)
+            total_quantity = result[0]['total'] if result else 0
+            await db.zones.update_one(
+                {"id": zone['id']},
+                {"$set": {"total_quantity": total_quantity}}
+            )
+        
+        print(f"✅ Updated totals for {len(zones)} zones")
+        print("✅ STARTUP REPAIR COMPLETED SUCCESSFULLY!")
+        print("="*70 + "\n")
+        
+    except Exception as e:
+        print(f"❌ Error during startup repair: {e}")
+        print("⚠️  Server will continue but database may have issues")
+        print("="*70 + "\n")
+
+
 # Define Models
 class Field(BaseModel):
     model_config = ConfigDict(extra="ignore")
