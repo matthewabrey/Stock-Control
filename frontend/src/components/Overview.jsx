@@ -709,7 +709,12 @@ const Overview = () => {
                                   {detail.fieldName} - {detail.harvestYear}
                                 </h3>
                                 <p className="text-sm text-gray-600">
-                                  {detail.variety ? `${detail.cropType} - ${detail.variety}` : detail.cropType}
+                                  {/* Show type (Red/Brown/Special) for onions */}
+                                  {detail.cropType.toLowerCase().includes('onion') && detail.type ? (
+                                    `${detail.type} ${detail.cropType}${detail.variety ? ` - ${detail.variety}` : ''}`
+                                  ) : (
+                                    detail.variety ? `${detail.cropType} - ${detail.variety}` : detail.cropType
+                                  )}
                                 </p>
                               </div>
                               <div className="flex items-center gap-2 bg-white px-3 py-1 rounded-md border border-gray-200">
