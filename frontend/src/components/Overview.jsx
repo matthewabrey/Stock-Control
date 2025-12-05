@@ -63,6 +63,7 @@ const Overview = () => {
           fieldName: intake.field_name,
           cropType: field?.crop_type || 'Unknown',
           variety: field?.variety || '',
+          type: field?.type || '', // Add type for Red/Brown/Special onions
           harvestYear: field?.harvest_year || '2025',
           grades: {},
           totalQuantity: 0
