@@ -1519,7 +1519,11 @@ const FloorPlan = ({ user }) => {
                                         </span>
                                       </div>
                                       <div className="text-xs text-gray-600 ml-4">
-                                        {varietyData.variety} • {varietyData.cropType} • {varietyData.area}
+                                        {varietyData.type ? (
+                                          `${varietyData.type} ${varietyData.cropType} - ${varietyData.variety} • ${varietyData.area}`
+                                        ) : (
+                                          `${varietyData.variety} • ${varietyData.cropType} • ${varietyData.area}`
+                                        )}
                                       </div>
                                     </div>
                                     <div className="space-y-0.5">
